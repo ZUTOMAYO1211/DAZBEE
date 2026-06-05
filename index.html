@@ -1,0 +1,2651 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MusicLens · 음악의 모든 장르를 탐험하다</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===================== BASE RESET ===================== */
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;margin:0;padding:0;}
+body{
+  -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+  position:relative;
+  background:#121212;
+  width:100%;
+  height:100%;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+a{color:inherit;text-decoration:none;}
+
+/* ===================== LANDING SCREEN STYLES ===================== */
+.landing-screen {
+  --bg-base:#121212; --bg-surface:#181818; --bg-elevated:#1f1f1f; --bg-card:#252525;
+  --text-primary:#ffffff; --text-secondary:#b3b3b3; --text-muted:#7c7c7c;
+  --accent:#a855f7; --accent-dark:#7e22ce;
+  --border-subtle:#4d4d4d; --border-muted:#2a2a2a;
+  --shadow-heavy:rgba(0,0,0,0.5) 0px 8px 24px;
+  --shadow-glow:0 0 0 3px rgba(168,85,247,.65), 0 24px 60px rgba(0,0,0,.75);
+  --radius-pill:9999px; --radius-lg:8px;
+  --font-ui:'DM Sans','Helvetica Neue',helvetica,arial,sans-serif;
+  --cover:150px;
+
+  font-family:var(--font-ui); background:var(--bg-base); color:var(--text-primary);
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 100;
+  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), filter 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: center center;
+}
+
+/* Immersive Zoom portal exiting state */
+.landing-screen.exiting {
+  transform: scale(1.15) translateY(-5vh);
+  opacity: 0;
+  filter: blur(15px);
+  pointer-events: none;
+}
+
+.landing-screen .ambient{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
+.landing-screen .blob{position:absolute;border-radius:50%;filter:blur(110px);opacity:.4;animation:drift 16s ease-in-out infinite;}
+.landing-screen .blob.b1{width:480px;height:480px;background:#9b59b6;top:-140px;left:-80px;}
+.landing-screen .blob.b2{width:420px;height:420px;background:#00D4FF;bottom:-160px;right:6%;animation-delay:-5s;}
+.landing-screen .blob.b3{width:360px;height:360px;background:#a855f7;top:30%;right:36%;animation-delay:-9s;}
+@keyframes drift{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(50px,-40px) scale(1.12);}66%{transform:translate(-40px,30px) scale(.94);}}
+
+.landing-screen .landing-top{position:relative;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:16px 40px 4px;}
+.landing-screen .landing-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:22px;}
+.landing-screen .landing-logo .mark{color:var(--accent);display:grid;place-items:center;}
+.landing-screen .lang-toggle-landing{display:flex;background:rgba(31,31,31,.7);border-radius:var(--radius-pill);padding:3px;backdrop-filter:blur(8px);}
+.landing-screen .lang-toggle-landing button{padding:7px 16px;border-radius:var(--radius-pill);font-size:12px;font-weight:700;letter-spacing:1.4px;color:var(--text-secondary);text-transform:uppercase;background:none;border:none;cursor:pointer;}
+.landing-screen .lang-toggle-landing button.active{background:var(--accent);color:#fff;}
+
+.landing-screen .hero-landing{position:relative;z-index:20;text-align:center;padding:0 24px 4px;flex-shrink:0;transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);}
+.landing-screen .hero-landing .eyebrow{font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:10px;}
+.landing-screen .hero-landing h1{font-size:clamp(28px,4.4vw,50px);font-weight:700;line-height:1.05;letter-spacing:-1px;}
+.landing-screen .hero-landing p{font-size:clamp(13px,1.6vw,16px);color:var(--text-secondary);margin-top:10px;}
+.landing-screen .hero-landing .cta{display:inline-flex;align-items:center;gap:8px;margin-top:18px;background:linear-gradient(135deg, var(--accent), #06b6d4);color:#fff;font-weight:700;font-size:14px;padding:14px 34px;border-radius:var(--radius-pill);letter-spacing:1.4px;text-transform:uppercase;transition:transform .15s ease,box-shadow .15s;border:none;cursor:pointer;}
+.landing-screen .hero-landing .cta:hover{transform:scale(1.05);box-shadow:0 0 20px rgba(168,85,247,0.45);}
+
+.landing-screen .landing-wall{position:relative;z-index:10;flex:1;display:flex;flex-direction:column;justify-content:center;gap:18px;padding:20px 0 28px;min-height:0;transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);}
+.landing-screen .wall-hint{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:25;font-size:12px;font-weight:600;letter-spacing:.5px;color:var(--text-muted);display:flex;align-items:center;gap:7px;}
+.landing-screen .wall-hint .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pulse 1.6s ease infinite;}
+@keyframes pulse{0%,100%{opacity:.4;transform:scale(1);}50%{opacity:1;transform:scale(1.4);}}
+
+.landing-screen .landing-row{position:relative;height:var(--cover);overflow-x:clip;overflow-y:visible;}
+.landing-screen .landing-track{display:flex;gap:18px;width:max-content;will-change:transform;}
+.landing-screen .landing-track.left{animation:scroll-left var(--dur,60s) linear infinite;}
+.landing-screen .landing-track.right{animation:scroll-right var(--dur,60s) linear infinite;}
+@keyframes scroll-left{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+@keyframes scroll-right{from{transform:translateX(-50%);}to{transform:translateX(0);}}
+.landing-screen .landing-row:hover .landing-track{animation-play-state:paused;}
+
+.landing-screen .landing-cover {
+  position:relative;width:var(--cover);height:var(--cover);flex-shrink:0;border-radius:var(--radius-lg);
+  overflow:visible;cursor:pointer;
+  transition:transform .4s cubic-bezier(.2,.8,.2,1), opacity .4s ease, filter .4s ease;
+  transform-origin:center center;
+  will-change:transform, opacity, filter;
+}
+.landing-screen .landing-cover img{width:100%;height:100%;object-fit:cover;border-radius:var(--radius-lg);display:block;box-shadow:0 8px 20px rgba(0,0,0,.45);transition:box-shadow .4s ease;background:#252525;}
+
+.landing-screen .landing-wall:hover .landing-cover {
+  opacity: 0.3;
+  filter: blur(4px) grayscale(45%);
+  transform: scale(0.82);
+}
+.landing-screen .landing-wall:has(.landing-cover:hover) .landing-cover:not(:hover) {
+  pointer-events: none;
+}
+.landing-screen .landing-wall .landing-cover:hover {
+  opacity: 1;
+  filter: none;
+  transform: scale(1.55);
+  z-index: 60;
+}
+.landing-screen .landing-wall .landing-cover:hover img{box-shadow:var(--shadow-glow);}
+
+.landing-screen .landing-hl{
+  position:absolute;left:50%;top:calc(100% + 7px);transform:translateX(-50%) translateY(6px);
+  width:140px;background:rgba(18,18,18,.96);border:1px solid var(--border-muted);border-radius:6px;
+  padding:8px 9px;opacity:0;pointer-events:none;transition:opacity .25s ease .05s,transform .25s ease .05s;
+  box-shadow:var(--shadow-heavy);
+}
+.landing-screen .landing-wall .landing-cover:hover .landing-hl{opacity:1;transform:translateX(-50%) translateY(0) scale(.62);transform-origin:top center;}
+.landing-screen .landing-hl-title{font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.landing-screen .landing-hl-artist{font-size:10px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;}
+.landing-screen .landing-hl-now{display:flex;align-items:center;gap:5px;margin-top:6px;font-size:8px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--accent);}
+.landing-screen .landing-eq{display:inline-flex;align-items:flex-end;gap:2px;height:10px;}
+.landing-screen .landing-eq span{width:2px;background:var(--accent);border-radius:1px;animation:eqbar .9s ease-in-out infinite;}
+.landing-screen .landing-eq span:nth-child(1){animation-delay:-.2s;} .landing-screen .landing-eq span:nth-child(2){animation-delay:-.5s;}
+.landing-screen .landing-eq span:nth-child(3){animation-delay:-.8s;} .landing-screen .landing-eq span:nth-child(4){animation-delay:-.35s;}
+@keyframes eqbar{0%,100%{height:3px;}50%{height:10px;}}
+.landing-screen .landing-hl-prog{margin-top:6px;height:3px;border-radius:2px;background:#333;overflow:hidden;}
+.landing-screen .landing-hl-fill{height:100%;width:0;background:var(--accent);border-radius:2px;}
+.landing-screen .landing-wall .landing-cover:hover .landing-hl-fill{animation:hlrun 12s linear forwards;}
+@keyframes hlrun{from{width:0;}to{width:100%;}}
+
+.landing-screen .landing-foot{position:relative;z-index:20;text-align:center;padding:0 24px 64px;color:var(--text-muted);font-size:12px;margin-top:auto;flex-shrink:0;}
+.landing-screen .landing-foot a{color:var(--text-secondary);font-weight:600;}
+.landing-screen .landing-foot a:hover{color:#fff;text-decoration:underline;}
+
+.landing-screen .scroll-indicator {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  animation: fadeInOut 2s ease infinite;
+  pointer-events: none;
+}
+.landing-screen .scroll-indicator svg.bounce {
+  animation: bounce 1.6s ease infinite;
+}
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
+}
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+@media(max-width:768px){
+  .landing-screen .landing-top{padding:10px 18px 2px;}
+  .landing-screen .hero-landing{padding:0 16px 2px;}
+  .landing-screen .hero-landing h1{letter-spacing:-.6px;}
+  .landing-screen .landing-wall{gap:14px;padding:16px 0 24px;}
+  .landing-screen .landing-cover:hover{transform:scale(1.6);}
+  .landing-screen .landing-hl{width:118px;}
+}
+@media(prefers-reduced-motion:reduce){
+  .landing-screen .landing-track{animation:none!important;}
+  .landing-screen .blob{animation:none!important;}
+}
+
+/* ===================== APP SCREEN STYLES ===================== */
+.app-screen {
+  --bg-base:#000000; 
+  --bg-surface:#0a0a0a; 
+  --bg-elevated:#121212; 
+  --bg-card:#181818;
+  --text-primary:#ffffff; --text-secondary:#8a8a8a; --text-muted:#555555;
+  --accent:#ffffff; --accent-dark:#262626; --accent-cyan:#e5e5e5;
+  --accent-gradient:linear-gradient(135deg, #ffffff, #8a8a8a);
+  --color-error:#ffffff; --color-warning:#8a8a8a; --color-info:#555555;
+  --border-subtle:#262626; --border-muted:#141414;
+  --shadow-heavy:none;
+  --shadow-medium:none;
+  --shadow-glow:none;
+  --radius-sm:0px; --radius-md:0px; --radius-lg:0px;
+  --radius-pill:0px; --radius-circle:0px;
+  --font-ui:'Inter','Helvetica Neue',helvetica,arial,sans-serif;
+  --font-mono:'Courier New',Courier,monospace;
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px;
+  --space-5:20px; --space-6:24px; --space-8:32px;
+  --header-h:72px; --vibe-drawer-w:400px;
+
+  font-family:var(--font-ui); background:var(--bg-base); color:var(--text-primary);
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 50;
+  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), filter 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: center center;
+}
+
+.app-screen.hidden {
+  display: none !important;
+  opacity: 0;
+  transform: scale(0.92) translateY(5vh);
+  filter: blur(15px);
+}
+
+.app-screen.entering {
+  display: block !important;
+  animation: appEnter 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.app-screen.exiting-app {
+  animation: appExit 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes appEnter {
+  from { opacity: 0; transform: scale(0.92) translateY(5vh); filter: blur(15px); }
+  to { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+}
+@keyframes appExit {
+  from { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+  to { opacity: 0; transform: scale(0.92) translateY(5vh); filter: blur(15px); }
+}
+
+.app-screen ::-webkit-scrollbar{width:8px;height:8px;}
+.app-screen ::-webkit-scrollbar-thumb{background:#262626;border-radius:0px;}
+.app-screen ::-webkit-scrollbar-thumb:hover{background:#404040;}
+.app-screen ::-webkit-scrollbar-track{background:transparent;}
+
+.app-screen .app-container{
+  display:flex; flex-direction:column; height:100vh; position:relative; z-index:1;
+}
+.app-screen .global-header{
+  height:var(--header-h); display:flex; align-items:center; justify-content:space-between;
+  padding:0 var(--space-6); background:rgba(0, 0, 0, 0.8); backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px); border-bottom:1px solid var(--border-subtle);
+  position:sticky; top:0; z-index:40; transition:background .2s;
+}
+.app-screen .global-header.scrolled{background:#000000;}
+.app-screen .header-left{display:flex; align-items:center; gap:var(--space-6);}
+.app-screen .header-right{display:flex; align-items:center; gap:var(--space-4);}
+
+.app-screen .nav-logo{display:flex;align-items:center;gap:var(--space-2);font-family:var(--font-mono);font-weight:700;font-size:18px;letter-spacing:1px;}
+.app-screen .nav-logo .logo-mark{color:#ffffff;display:grid;place-items:center;}
+.app-screen .topbar-nav{display:flex;gap:var(--space-2);}
+.app-screen .topbar-nav button{
+  width:32px;height:32px;border-radius:0px;font-family:var(--font-mono);
+  background:#0a0a0a; display:grid;place-items:center;color:var(--text-secondary);
+  border:1px solid var(--border-subtle); transition:background .15s, color .15s;
+}
+.app-screen .topbar-nav button:hover{color:#fff; background:#161616; border-color:#8a8a8a;}
+
+.app-screen .header-nav{display:flex; gap:var(--space-1); align-items:center;}
+.app-screen .header-nav .nav-link{
+  display:flex;align-items:center;gap:8px;padding:6px 14px;
+  border-radius:0px;color:var(--text-secondary);font-family:var(--font-mono);font-weight:600;font-size:12px;
+  transition:color .15s,background .15s, border-color .15s;
+  border:1px solid transparent;
+}
+.app-screen .header-nav .nav-link:hover{color:#fff; background:#161616; border-color:#262626;}
+.app-screen .header-nav .nav-link.active{
+  color:#fff; background:#222222; border-color:#ffffff;
+}
+.app-screen .header-nav .nav-link.active .nav-ic{color:#ffffff;}
+.app-screen .nav-ic{display:grid;place-items:center;width:18px;height:18px;flex-shrink:0;}
+
+.app-screen .main-content{
+  flex:1; overflow-y:auto; position:relative;
+}
+.app-screen .main-inner{padding:var(--space-6) var(--space-6) 80px;max-width:1300px;margin:0 auto;}
+
+.app-screen .lang-toggle-app{display:flex;background:#0d0d0d;border-radius:0px;padding:0px;border:1px solid var(--border-subtle);}
+.app-screen .lang-toggle-app button{
+  padding:6px 12px;border-radius:0px;font-family:var(--font-mono);font-size:11px;font-weight:700;
+  letter-spacing:1px;color:var(--text-secondary);text-transform:uppercase; transition:background .15s, color .15s;
+}
+.app-screen .lang-toggle-app button.active{background:#ffffff;color:#000000;}
+
+.app-screen .btn-primary{
+  background:#ffffff;color:#000000;font-family:var(--font-mono);font-weight:700;font-size:12px;
+  padding:12px 28px;border-radius:0px;letter-spacing:1px;text-transform:uppercase;
+  transition:background .15s, color .15s; display:inline-block; border:1px solid #ffffff; text-align:center;
+}
+.app-screen .btn-primary:hover{background:#000000;color:#ffffff;border-color:#ffffff;}
+.app-screen .btn-secondary{
+  background:#0a0a0a;color:#ffffff;font-family:var(--font-mono);font-weight:700;font-size:11px;
+  padding:9px 18px;border-radius:0px;letter-spacing:0.8px;text-transform:uppercase;
+  transition:background .15s, border-color .15s; border:1px solid var(--border-subtle);
+}
+.app-screen .btn-secondary:hover{background:#161616;border-color:#ffffff;}
+.app-screen .btn-outlined{
+  border:1px solid var(--border-subtle);color:var(--text-secondary);font-family:var(--font-mono);font-weight:600;font-size:11px;
+  padding:7px 16px;border-radius:0px;transition:border-color .15s,color .15s,background .15s;
+}
+.app-screen .btn-outlined:hover{border-color:#fff;color:#fff;background:#111111;}
+.app-screen .btn-outlined.active{border-color:#ffffff;color:#ffffff;background:#1a1a1a;}
+
+.app-screen .btn-play{
+  width:44px;height:44px;border-radius:0px;background:#ffffff;
+  color:#000000;display:grid;place-items:center;transition:background .15s, color .15s;
+  border:1px solid #ffffff;
+}
+.app-screen .btn-play:hover{background:#000000;color:#ffffff;}
+.app-screen .btn-play.sm{width:32px;height:32px;}
+.app-screen .btn-play.sm svg{width:14px;height:14px;}
+.app-screen .btn-icon{width:36px;height:36px;border-radius:0px;display:grid;place-items:center;color:var(--text-secondary);transition:color .15s,background .15s; border:1px solid transparent;}
+.app-screen .btn-icon:hover{color:#fff;background:#111111;border-color:var(--border-subtle);}
+
+.app-screen .section{margin-bottom:var(--space-8);}
+.app-screen .section-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:var(--space-4);}
+.app-screen .section-title{font-size:22px;font-weight:700;letter-spacing:-0.5px;}
+.app-screen .section-subtitle{font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);margin-top:4px;}
+.app-screen .see-all{font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);transition:color .15s;}
+.app-screen .see-all:hover{color:#ffffff;text-decoration:underline;}
+
+.app-screen .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-5);}
+.app-screen .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--space-5);}
+.app-screen .horizontal-scroll{display:flex;gap:var(--space-4);overflow-x:auto;padding-bottom:var(--space-3);scroll-snap-type:x proximity;}
+.app-screen .horizontal-scroll>*{scroll-snap-align:start;}
+
+.app-screen .hero-app{
+  position:relative;border-radius:0px;overflow:hidden;padding:48px var(--space-6);
+  margin-bottom:var(--space-6); isolation:isolate;
+  background:#0a0a0a; border:1px solid var(--border-subtle);
+}
+.app-screen .hero-app h1{font-size:clamp(28px,4.5vw,46px);font-weight:700;line-height:1.1;letter-spacing:-1.5px;max-width:640px;}
+.app-screen .hero-app p{font-family:var(--font-mono);font-size:13px;color:var(--text-secondary);margin:var(--space-3) 0 var(--space-5);max-width:480px;line-height:1.5;letter-spacing:-0.2px;}
+
+.app-screen .genre-card{
+  position:relative;border-radius:0px;overflow:hidden;padding:var(--space-4) var(--space-5);
+  min-height:180px;display:flex;flex-direction:column;justify-content:space-between;
+  cursor:pointer;transition:border-color .2s, background-color .2s;
+  border:1px solid var(--border-subtle);
+  background:#0a0a0a !important;
+}
+.app-screen .genre-card>*{position:relative;z-index:1;}
+.app-screen .genre-card:hover{border-color:#ffffff;background:#111111 !important;}
+.app-screen .genre-card .gc-emoji{font-family:var(--font-mono);font-size:24px;color:#ffffff;}
+.app-screen .genre-card .gc-name{font-size:20px;font-weight:700;}
+.app-screen .genre-card .gc-name small{font-family:var(--font-mono);font-size:12px;font-weight:500;color:var(--text-secondary);display:block;margin-top:2px;}
+.app-screen .genre-card .gc-sub{font-family:var(--font-mono);font-size:10px;font-weight:500;color:var(--text-secondary);line-height:1.5;min-height:33px;margin-top:8px;}
+.app-screen .genre-card .gc-foot{display:flex;align-items:center;justify-content:space-between;gap:var(--space-2);margin-top:auto;}
+.app-screen .listeners-bar{flex:1;}
+.app-screen .listeners-bar .lb-track{height:4px;border-radius:0px;background:#1a1a1a;overflow:hidden;margin-bottom:4px;}
+.app-screen .listeners-bar .lb-fill{height:100%;background:#ffffff;border-radius:0px;}
+.app-screen .listeners-bar .lb-label{font-family:var(--font-mono);font-size:9px;font-weight:700;color:var(--text-secondary);}
+.app-screen .gc-go{background:#161616;border:1px solid var(--border-subtle);color:#fff;font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;padding:6px 12px;border-radius:0px;white-space:nowrap; transition:background .15s, border-color .15s;}
+.app-screen .gc-go:hover{background:#262626;border-color:#ffffff;}
+.app-screen .gc-artists{font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);line-height:1.5;}
+
+.app-screen .song-card{
+  width:165px;flex-shrink:0;background:#0a0a0a;border-radius:0px;
+  padding:var(--space-3);transition:background .2s, border-color .2s;cursor:pointer;position:relative;
+  border:1px solid var(--border-subtle);
+}
+.app-screen .song-card:hover{background:#111111;border-color:#ffffff;}
+.app-screen .song-card:hover .sc-play{opacity:1;transform:translateY(0);}
+.app-screen .art-thumb{
+  width:100%;aspect-ratio:1;border-radius:0px;margin-bottom:var(--space-2);
+  position:relative;overflow:hidden;display:grid;place-items:center;font-size:24px;
+  border:1px solid var(--border-subtle);
+}
+.app-screen .sc-play{
+  position:absolute;bottom:8px;right:8px;opacity:0;transform:translateY(0);
+  transition:opacity .2s;z-index:2;
+}
+.app-screen .song-card .sc-title{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.app-screen .song-card .sc-artist{font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.app-screen .song-card .sc-meta{display:flex;align-items:center;gap:var(--space-1);margin-top:var(--space-2);}
+
+.app-screen .genre-tag{
+  display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:10px;font-weight:700;
+  padding:2px 8px;border-radius:0px;letter-spacing:.3px;
+  background:#141414;color:#fff;white-space:nowrap;
+  border:1px solid var(--border-subtle);
+}
+.app-screen .genre-tag .gt-dot{width:4px;height:4px;border-radius:0px;background:#ffffff !important;}
+.app-screen .era-badge{display:inline-flex;align-items:center;gap:5px;font-family:var(--font-mono);font-size:10px;font-weight:700;padding:4px 10px;border-radius:0px;background:#111111;letter-spacing:.3px; border:1px solid var(--border-subtle);}
+.app-screen .pill-tag{display:inline-flex;align-items:center;font-family:var(--font-mono);font-size:11px;font-weight:600;padding:6px 14px;border-radius:0px;background:#0d0d0d;color:var(--text-secondary);white-space:nowrap;transition:background .15s,color .15s,border-color .15s;cursor:pointer; border:1px solid var(--border-subtle);}
+.app-screen .pill-tag:hover{background:#1c1c1c;color:#fff; border-color:#ffffff;}
+
+.app-screen .chart-head{display:grid;grid-template-columns:36px 1fr 100px 70px 80px 48px;gap:var(--space-3);padding:0 var(--space-3) var(--space-3);border-bottom:1px solid var(--border-subtle);font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);align-items:center;}
+.app-screen .chart-row{
+  display:grid;grid-template-columns:36px 1fr 100px 70px 80px 48px;gap:var(--space-3);
+  padding:var(--space-3);border-radius:0px;align-items:center;
+  background:#050505; border:1px solid var(--border-subtle); margin-bottom:8px;
+  transition:background .15s ease, border-color .15s;cursor:pointer;
+}
+.app-screen .chart-head.gd,.app-screen .chart-row.gd{grid-template-columns:36px 1fr 64px 84px 56px;}
+.app-screen .chart-row:hover{background:#111111; border-color:#ffffff;}
+.app-screen .cr-rankcell{position:relative;display:grid;place-items:center;height:36px;}
+.app-screen .cr-rank{font-family:var(--font-mono);font-size:16px;font-weight:700;color:var(--text-muted);}
+.app-screen .cr-playbtn{position:absolute;inset:0;margin:auto;opacity:0;pointer-events:none;}
+.app-screen .chart-row:hover .cr-rank{opacity:0;}
+.app-screen .chart-row:hover .cr-playbtn{opacity:1;pointer-events:auto;}
+.app-screen .cr-song{display:flex;align-items:center;gap:var(--space-3);min-width:0;}
+.app-screen .cr-song .art-thumb{width:40px;height:40px;margin:0;font-size:14px;flex-shrink:0;border-radius:0px;}
+.app-screen .cr-song .cr-title{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.app-screen .cr-song .cr-artist{font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.app-screen .cr-num{font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);text-align:right;}
+.app-screen .rank-change{font-family:var(--font-mono);display:flex;align-items:center;justify-content:center;gap:2px;font-size:10px;font-weight:700;}
+.app-screen .rc-up{color:#ffffff;} .app-screen .rc-down{color:#8a8a8a;} .app-screen .rc-same{color:var(--text-muted);}
+.app-screen .rc-new{background:#ffffff;color:#000000;font-family:var(--font-mono);font-size:8px;padding:2px 5px;border-radius:0px;letter-spacing:.3px; font-weight:700;}
+
+.app-screen .filter-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:var(--space-5);}
+
+.app-screen .genre-hero{
+  position:relative;border-radius:0px;overflow:hidden;padding:48px var(--space-6) var(--space-5);
+  min-height:280px;display:flex;flex-direction:column;justify-content:flex-end;margin-bottom:var(--space-6);
+  border:1px solid var(--border-subtle);
+  background:#0a0a0a !important;
+}
+.app-screen .genre-hero .gh-emoji{font-family:var(--font-mono);font-size:48px;margin-bottom:var(--space-2);color:#ffffff;}
+.app-screen .genre-hero h1{font-size:clamp(32px,5.5vw,56px);font-weight:700;letter-spacing:-1.5px;}
+.app-screen .genre-hero .gh-desc{font-size:14px;color:var(--text-secondary);max-width:600px;margin-top:var(--space-3);line-height:1.6;}
+.app-screen .char-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:var(--space-4);}
+
+.app-screen .artist-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--space-4);}
+.app-screen .artist-cell{display:flex;flex-direction:column;align-items:center;gap:var(--space-2);text-align:center;}
+.app-screen .artist-avatar{width:90px;height:90px;border-radius:0px;display:grid;place-items:center;font-family:var(--font-mono);font-size:24px;font-weight:700;color:#fff;border:1px solid var(--border-subtle);}
+.app-screen .artist-cell .an{font-size:13px;font-weight:600;color:var(--text-primary);}
+
+.app-screen .related-card{background:#0a0a0a;border-radius:0px;padding:var(--space-3);display:flex;align-items:center;gap:var(--space-3);cursor:pointer;transition:background .2s, border-color .2s; border:1px solid var(--border-subtle);}
+.app-screen .related-card:hover{background:#111111; border-color:#ffffff;}
+.app-screen .related-card .rc-art{width:48px;height:48px;border-radius:0px;flex-shrink:0;border:1px solid var(--border-subtle);}
+.app-screen .related-card .rc-name{font-size:14px;font-weight:700;}
+.app-screen .related-card .rc-name small{font-family:var(--font-mono);display:block;font-size:11px;color:var(--text-secondary);font-weight:600;margin-top:2px;}
+
+.app-screen .share-widget{
+  background:#0a0a0a; border:1px solid var(--border-subtle); border-radius:0px;
+  padding:var(--space-4); margin-bottom:var(--space-6); display:flex; flex-direction:column; gap:var(--space-3);
+}
+.app-screen .sw-head{display:flex; justify-content:space-between; align-items:center;}
+.app-screen .sw-title{font-family:var(--font-mono);font-size:12px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; color:var(--text-primary); display:flex; align-items:center; gap:8px;}
+.app-screen .sw-pulsing-dot{width:6px; height:6px; background:#ffffff; border-radius:0px; animation:pulseGlow 2s infinite;}
+@keyframes pulseGlow{0%,100%{opacity:0.3;}50%{opacity:1;}}
+.app-screen .sw-bars{display:flex; flex-direction:column; gap:8px;}
+.app-screen .sw-bar-row{display:flex; align-items:center; gap:var(--space-3); font-family:var(--font-mono);font-size:11px; font-weight:700;}
+.app-screen .sw-bar-label{width:90px; text-align:left;}
+.app-screen .sw-bar-track{flex:1; height:6px; background:#161616; border-radius:0px; overflow:hidden;}
+.app-screen .sw-bar-fill{height:100%; border-radius:0px; transition:width 1s cubic-bezier(0.16, 1, 0.3, 1);}
+.app-screen .sw-bar-val{width:45px; text-align:right; color:var(--text-secondary);}
+
+.app-screen .timeline{display:flex;gap:var(--space-6);overflow-x:auto;padding:var(--space-4) 0; position:relative;}
+.app-screen .era-card{
+  min-width:270px;flex-shrink:0;border-radius:0px;overflow:hidden;
+  cursor:pointer;transition:border-color .2s;position:relative;align-self:flex-start;
+  border:1px solid var(--border-subtle); background:#0a0a0a;
+}
+.app-screen .era-card:hover{border-color:#ffffff;}
+.app-screen .era-card .ec-top{padding:var(--space-5);min-height:140px;display:flex;flex-direction:column;justify-content:flex-end;position:relative;}
+.app-screen .era-card .ec-top>*{position:relative;z-index:1;}
+.app-screen .era-card .ec-decade{font-family:var(--font-mono);font-size:32px;font-weight:700;letter-spacing:-1.5px;}
+.app-screen .era-card .ec-title{font-size:13px;font-weight:600;color:#fff;}
+.app-screen .era-card .ec-body{background:#0d0d0d;padding:0;max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s ease;}
+.app-screen .era-card.open .ec-body{max-height:600px;padding:var(--space-4);border-top:1px solid var(--border-subtle);}
+.app-screen .era-card .ec-body p{font-size:12px;color:var(--text-secondary);line-height:1.6;margin-bottom:var(--space-3);}
+.app-screen .ec-label{font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:var(--space-2);}
+.app-screen .ec-genres{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:var(--space-3);}
+.app-screen .ec-context{font-family:var(--font-mono);font-size:10px;color:var(--text-muted);border-top:1px solid var(--border-muted);padding-top:var(--space-2);margin-top:var(--space-2);}
+
+.app-screen .search-box{position:relative;max-width:560px;margin-bottom:var(--space-5);}
+.app-screen .search-box svg{position:absolute;left:18px;top:50%;transform:translateY(-50%);color:var(--text-muted);}
+.app-screen .search-input{
+  width:100%;padding:14px 20px 14px 50px;border-radius:0px;
+  background:#0a0a0a;color:#fff;font-family:var(--font-mono);font-size:13px;font-weight:500;
+  border:1px solid var(--border-subtle); transition:border-color .15s, background .15s;
+}
+.app-screen .search-input:focus{outline:none; border-color:#ffffff; background:#111111;}
+.app-screen .search-input::placeholder{color:var(--text-muted);}
+.app-screen .ai-suggest{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:var(--space-5);}
+.app-screen .ai-result{background:#0a0a0a;border-radius:0px;padding:var(--space-4);margin-bottom:var(--space-5);border-left:3px solid #ffffff; border-top:1px solid var(--border-subtle); border-right:1px solid var(--border-subtle); border-bottom:1px solid var(--border-subtle);}
+.app-screen .ai-result .ai-q{font-family:var(--font-mono);font-size:11px;color:var(--text-muted);margin-bottom:var(--space-2);font-weight:700;}
+.app-screen .ai-result .ai-a{font-size:13px;line-height:1.6;}
+.app-screen .empty-state{text-align:center;padding:60px 20px;color:var(--text-muted);font-family:var(--font-mono);font-size:12px;}
+.app-screen .empty-state .es-emoji{font-size:32px;margin-bottom:var(--space-3);opacity:0.5;}
+
+.app-screen .taste-container{max-width:760px; margin:0 auto; background:#0a0a0a; border:1px solid var(--border-subtle); border-radius:0px; padding:var(--space-6); position:relative;}
+.app-screen .taste-step{display:flex; flex-direction:column; gap:var(--space-4); animation:fadeIn 0.3s ease;}
+.app-screen .taste-step-title{font-size:18px; font-weight:700; color:#fff;}
+.app-screen .taste-step-desc{font-size:13px; color:var(--text-secondary); margin-bottom:var(--space-2);}
+.app-screen .taste-grid-toggle{display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;}
+@media(max-width:520px){.app-screen .taste-grid-toggle{grid-template-columns:repeat(2,1fr);}}
+.app-screen .taste-option-btn{
+  padding:12px; border-radius:0px; background:#0d0d0d;
+  border:1px solid var(--border-subtle); transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:8px; font-family:var(--font-mono); font-size:12px; font-weight:600;
+}
+.app-screen .taste-option-btn:hover{background:#161616; border-color:#8a8a8a;}
+.app-screen .taste-option-btn.selected{
+  background:#ffffff; border-color:#ffffff; color:#000000;
+}
+.app-screen .taste-progress{display:flex; justify-content:space-between; align-items:center; margin-top:var(--space-6); border-top:1px solid var(--border-subtle); padding-top:var(--space-4);}
+.app-screen .taste-progress-dots{display:flex; gap:8px;}
+.app-screen .tpd-dot{width:6px; height:6px; border-radius:0px; background:#222;}
+.app-screen .tpd-dot.active{background:#ffffff;}
+
+.app-screen .td-result{animation:fadeIn 0.5s ease;}
+.app-screen .td-badge{display:inline-block; font-family:var(--font-mono); font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase; background:#ffffff; color:#000000; padding:4px 10px; border-radius:0px; margin-bottom:8px;}
+.app-screen .td-dna-name{font-size:26px; font-weight:800; color:#fff; margin-bottom:12px; letter-spacing:-1px;}
+.app-screen .td-dna-desc{font-size:14px; color:var(--text-secondary); line-height:1.6; margin-bottom:var(--space-5);}
+.app-screen .td-visual-row{display:grid; grid-template-columns:1.2fr 1fr; gap:var(--space-6); margin-bottom:var(--space-6);}
+@media(max-width:680px){.app-screen .td-visual-row{grid-template-columns:1fr;}}
+.app-screen .td-chart{background:#050505; border:1px solid var(--border-subtle); border-radius:0px; padding:var(--space-4); display:flex; flex-direction:column; gap:var(--space-3);}
+.app-screen .td-chart-item{display:flex; flex-direction:column; gap:4px;}
+.app-screen .td-chart-label{display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:10px; font-weight:700; color:var(--text-secondary);}
+.app-screen .td-chart-bar{height:6px; background:#161616; border-radius:0px; overflow:hidden;}
+.app-screen .td-chart-fill{height:100%; border-radius:0px; background:#ffffff; transition:width 1s ease;}
+
+.app-screen .vibe-analyzer {
+  position: fixed; top: 0; right: -420px; width: var(--vibe-drawer-w); height: 100vh;
+  background: #080808;
+  border-left: 1px solid var(--border-subtle);
+  z-index: 100; transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex; flex-direction: column; overflow-y: auto; color: #fff;
+}
+.app-screen .vibe-analyzer.open { right: 0; }
+.app-screen .va-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:var(--space-4) var(--space-5); border-bottom:1px solid var(--border-subtle);
+}
+.app-screen .va-head h2{font-family:var(--font-mono); font-size:13px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--text-secondary);}
+.app-screen .va-close{
+  width:28px; height:28px; border-radius:0px; background:#111;
+  display:grid; place-items:center; color:var(--text-secondary); transition:background .15s, color .15s;
+  border:1px solid var(--border-subtle);
+}
+.app-screen .va-close:hover{background:#222; color:#fff;}
+.app-screen .va-body{
+  flex:1; overflow-y:auto; padding:var(--space-5); display:flex; flex-direction:column; gap:var(--space-5);
+}
+.app-screen .va-song-show{display:flex; flex-direction:column; align-items:center; text-align:center;}
+.app-screen .va-art-wrap{
+  width:160px; height:160px; border-radius:0px; margin-bottom:var(--space-4);
+  position:relative;
+  display:grid; place-items:center; font-size:48px; border:1px solid var(--border-subtle);
+}
+.app-screen .va-title{font-size:18px; font-weight:800; color:#fff; margin-bottom:4px; line-height:1.2; letter-spacing:-0.5px;}
+.app-screen .va-artist{font-family:var(--font-mono); font-size:13px; color:var(--text-secondary); margin-bottom:var(--space-2);}
+
+.app-screen .va-player-ctrl{
+  display:flex; flex-direction:column; align-items:center; gap:var(--space-3);
+  background:#0a0a0a; border:1px solid var(--border-subtle); border-radius:0px;
+  padding:var(--space-3) var(--space-4); margin-bottom:4px;
+}
+.app-screen .vap-row{display:flex; align-items:center; gap:var(--space-3); width:100%;}
+.app-screen .vap-time{font-family:var(--font-mono); font-size:10px; color:var(--text-muted); font-variant-numeric:tabular-nums; width:30px; text-align:center;}
+.app-screen .va-wave-svg{flex:1; height:32px; fill:#1a1a1a; cursor:pointer;}
+.app-screen .va-wave-svg .active-bar{fill:#ffffff; transition:fill 0.2s;}
+
+.app-screen .va-stats{
+  display:flex; flex-direction:column; gap:12px;
+  background:#0a0a0a; border:1px solid var(--border-subtle);
+  padding:var(--space-4); border-radius:0px;
+}
+.app-screen .va-stat-row{display:flex; flex-direction:column; gap:4px;}
+.app-screen .va-stat-lbl{display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:10px; font-weight:700; color:var(--text-muted);}
+.app-screen .va-stat-track{height:6px; background:#161616; border-radius:0px; overflow:hidden;}
+.app-screen .va-stat-fill{height:100%; border-radius:0px; background:#ffffff;}
+
+.app-screen .va-anal-text{
+  font-size:12.5px; color:var(--text-secondary); line-height:1.6;
+  background:#0a0a0a; border:1px solid var(--border-subtle);
+  padding:var(--space-4); border-radius:0px; border-left:3px solid #ffffff;
+}
+
+.app-screen .mobile-nav{display:none;}
+
+@media(max-width:768px){
+  .app-screen .global-header{padding:0 var(--space-4); height:60px;}
+  .app-screen .header-nav{display:none;}
+  .app-screen .header-left .topbar-nav{display:none;}
+  .app-screen .main-inner{padding:var(--space-4) var(--space-4) 100px;}
+  .app-screen .grid-3{grid-template-columns:repeat(2,1fr);gap:12px;}
+  .app-screen .grid-2{grid-template-columns:1fr;gap:12px;}
+  .app-screen .artist-grid{grid-template-columns:repeat(3,1fr);}
+  .app-screen .section-title{font-size:18px;}
+  .app-screen .hero-app{padding:24px var(--space-4); margin-bottom:var(--space-4);}
+  .app-screen .chart-head{grid-template-columns:32px 1fr 60px 40px;}
+  .app-screen .chart-row{grid-template-columns:32px 1fr 60px 40px; padding:10px; margin-bottom:6px;}
+  .app-screen .chart-head .ch-genre,.app-screen .chart-head .ch-year,.cr-genre-col,.cr-year{display:none;}
+  
+  .app-screen .vibe-analyzer {
+    right: 0; bottom: -85vh; top: auto; width: 100%; height: 80vh;
+    border-left: none; border-top: 1px solid var(--border-subtle);
+    border-radius: 0px;
+    transition: bottom 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .app-screen .vibe-analyzer.open { bottom: 56px; }
+  
+  .app-screen .mobile-nav{
+    display:flex;position:fixed;bottom:0;left:0;right:0;height:56px;z-index:60;
+    background:#000000;border-top:1px solid var(--border-subtle);
+  }
+  .app-screen .mobile-nav a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-family:var(--font-mono);font-size:9px;font-weight:700;color:var(--text-muted);}
+  .app-screen .mobile-nav a svg{width:18px;height:18px;}
+  .app-screen .mobile-nav a.active{color:#fff;}
+  .app-screen .mobile-nav a.active svg{color:#ffffff;}
+  .app-screen .artist-avatar{width:70px;height:70px;font-size:20px;}
+  .app-screen .timeline{gap:12px;}
+  .app-screen .era-card{min-width:240px;}
+}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.app-screen .view{animation:fadeIn .25s ease;}
+.app-screen .skeleton{animation:shimmer 1.5s ease infinite;background:#1a1a1a;}
+@keyframes shimmer{0%,100%{opacity:.4;}50%{opacity:.8;}}
+
+/* ===================== PREMIUM DENSITY ADDITIONS ===================== */
+.app-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+  z-index: 0;
+}
+.app-screen .global-header {
+  background: rgba(0, 0, 0, 0.65) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+}
+.app-screen .vibe-analyzer {
+  background: rgba(8, 8, 8, 0.75) !important;
+  backdrop-filter: blur(32px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(32px) saturate(150%) !important;
+}
+.app-screen .mobile-nav {
+  background: rgba(0, 0, 0, 0.75) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+}
+.app-screen .song-card {
+  position: relative;
+}
+.app-screen .sc-tooltip {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.95);
+  border: 1px solid var(--border-subtle);
+  padding: 6px 8px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-secondary);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  transform: translateY(-4px);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  backdrop-filter: blur(8px);
+}
+.app-screen .song-card:hover .sc-tooltip {
+  opacity: 1;
+  transform: translateY(0);
+}
+.app-screen .map-link {
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 1.5;
+  transition: stroke 0.3s, stroke-width 0.3s, opacity 0.3s;
+}
+.app-screen .map-link.highlighted {
+  stroke: var(--link-color, rgba(255, 255, 255, 0.6));
+  stroke-width: 2.5;
+  opacity: 1;
+  filter: drop-shadow(0 0 6px var(--link-color, rgba(255, 255, 255, 0.5)));
+}
+.app-screen .map-link.dimmed {
+  opacity: 0.1;
+}
+.app-screen .map-node {
+  cursor: pointer;
+  transition: opacity 0.3s, transform 0.3s;
+}
+.app-screen .map-node circle.glow {
+  transition: fill-opacity 0.3s, stroke 0.3s, filter 0.3s;
+}
+.app-screen .map-node:hover circle.glow {
+  fill-opacity: 0.25;
+  filter: drop-shadow(0 0 8px var(--node-color));
+}
+.app-screen .map-node.dimmed {
+  opacity: 0.15;
+}
+.app-screen .map-node.connected {
+  opacity: 1;
+}
+.app-screen .map-node.highlighted {
+  transform: scale(1.1);
+}
+.app-screen .map-desc-card {
+  background: rgba(10, 10, 10, 0.85);
+  border: 1px solid var(--border-subtle);
+  padding: var(--space-4);
+  border-radius: 0px;
+  backdrop-filter: blur(16px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  min-height: 110px;
+}
+@media(min-width: 769px) {
+  .app-screen .home-dashboard-grid {
+    display: grid;
+    grid-template-columns: 1.8fr 1fr;
+    gap: var(--space-6);
+    margin-bottom: var(--space-8);
+  }
+}
+@media(max-width: 768px) {
+  .app-screen .home-dashboard-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    margin-bottom: var(--space-6);
+  }
+}
+.app-screen .stats-panel {
+  transition: border-color 0.2s;
+}
+.app-screen .stats-panel:hover {
+  border-color: #ffffff;
+}
+.app-screen .live-feed-item {
+  border-bottom: 1px solid var(--border-muted);
+  padding-bottom: 6px;
+  animation: feedItemEnter 0.4s ease forwards;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+@keyframes feedItemEnter {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<!-- ===================== LANDING SCREEN ===================== -->
+<div id="landing-screen" class="landing-screen">
+  <div class="ambient"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+
+  <header class="landing-top">
+    <div class="landing-logo">
+      <span class="mark"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2.2"/><circle cx="11" cy="11" r="2.4" fill="currentColor"/><line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>
+      MusicLens
+    </div>
+    <div class="lang-toggle-landing">
+      <button id="lang-ko-landing" class="active" onclick="changeLanguage('ko')">KO</button>
+      <button id="lang-en-landing" onclick="changeLanguage('en')">EN</button>
+    </div>
+  </header>
+
+  <section class="hero-landing">
+    <div class="eyebrow" data-ko="MUSICLENS · 뮤직렌즈" data-en="MUSICLENS · EXPLORE">MUSICLENS · 뮤직렌즈</div>
+    <h1 data-ko="음악의 모든 장르를 탐험하다" data-en="Explore Every Genre">음악의 모든 장르를 탐험하다</h1>
+    <p data-ko="흐르는 앨범 위에 마우스를 올려 하이라이트를 미리 들어보세요" data-en="Hover any album to preview its highlight">흐르는 앨범 위에 마우스를 올려 하이라이트를 미리 들어보세요</p>
+    <button class="cta" onclick="transitionToApp()" data-ko="MusicLens 들어가기 →" data-en="Enter MusicLens →">MusicLens 들어가기 →</button>
+  </section>
+
+  <main class="landing-wall" id="landing-wall">
+    <div class="wall-hint"><span class="dot"></span><span data-ko="앨범 커버에 마우스를 올려보세요" data-en="Hover an album cover">앨범 커버에 마우스를 올려보세요</span></div>
+  </main>
+
+  <footer class="landing-foot">
+    <span data-ko="장르 탐색 · 차트 100 · 시대별 역사 · 장르 검색이 모두 안에 있어요" data-en="Genres · Chart 100 · Timeline · Search — all inside">장르 탐색 · 차트 100 · 시대별 역사 · 장르 검색이 모두 안에 있어요</span>
+    &nbsp;·&nbsp;<a href="javascript:void(0)" onclick="transitionToApp()" data-ko="바로 입장" data-en="Go now">바로 입장</a>
+    
+    <div class="scroll-indicator">
+      <span data-ko="아래로 스크롤하여 입장" data-en="Scroll down to enter">아래로 스크롤하여 입장</span>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="bounce"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+  </footer>
+</div>
+
+<!-- ===================== MAIN APP SCREEN ===================== -->
+<div id="app-screen" class="app-screen hidden">
+  <div class="app-container">
+    <header class="global-header" id="global-header">
+      <div class="header-left">
+        <div class="nav-logo">
+          <span class="logo-mark" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2.2"/><circle cx="11" cy="11" r="2.4" fill="currentColor"/><line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+          </span>
+          MusicLens
+        </div>
+        <div class="topbar-nav">
+          <button id="nav-back" aria-label="back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button id="nav-fwd" aria-label="forward"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        </div>
+      </div>
+      
+      <nav class="header-nav" id="header-nav"></nav>
+      
+      <div class="header-right">
+        <button class="btn-outlined back-to-landing-btn" onclick="transitionToLanding()" style="margin-right: 8px;" data-ko="소개 페이지" data-en="Intro Page">소개 페이지</button>
+        <div class="lang-toggle-app">
+          <button id="lang-ko-app" class="active" onclick="changeLanguage('ko')">KO</button>
+          <button id="lang-en-app" onclick="changeLanguage('en')">EN</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content" id="main-content">
+      <div class="main-inner" id="view-root"></div>
+    </main>
+  </div>
+
+  <!-- Vibe Analyzer slide-out drawer -->
+  <div class="vibe-analyzer" id="vibe-analyzer"></div>
+
+  <nav class="mobile-nav" id="mobile-nav"></nav>
+</div>
+
+<!-- ===================== DATA & JAVASCRIPT ===================== -->
+<script>
+/* ===================== COVERS DATA (FROM covers.js) ===================== */
+const COVERS = [
+  {f:"100_daichi_miura_blizzard.jpg",artist:"Daichi",title:"Miura Blizzard"},
+  {f:"103_kairikibear_ruma.jpg",artist:"Kairikibear",title:"Ruma"},
+  {f:"104_kairikibear_darling_dance.jpg",artist:"Kairikibear",title:"Darling Dance"},
+  {f:"106_eve_last_dance.jpg",artist:"Eve",title:"Last Dance"},
+  {f:"107_eve_kaikai_kitan.jpg",artist:"Eve",title:"Kaikai Kitan"},
+  {f:"10_official_hige_dandism_cry_baby.jpg",artist:"Official",title:"Hige Dandism Cry Baby"},
+  {f:"115_sawano_hiroyuki_perfect_time.jpg",artist:"Sawano",title:"Hiroyuki Perfect Time"},
+  {f:"116_aimer_last_stardust.jpg",artist:"Aimer",title:"Last Stardust"},
+  {f:"117_aimer_brave_shine.jpg",artist:"Aimer",title:"Brave Shine"},
+  {f:"126_deco_27_the_vampire.jpg",artist:"Deco",title:"27 The Vampire"},
+  {f:"133_yui_again.jpg",artist:"Yui",title:"Again"},
+  {f:"135_oxt_highest.jpg",artist:"Oxt",title:"Highest"},
+  {f:"136_oxt_go_cry_go.jpg",artist:"Oxt",title:"Go Cry Go"},
+  {f:"137_oxt_hollow_hunger.jpg",artist:"Oxt",title:"Hollow Hunger"},
+  {f:"139_gen_hoshino_koi.jpg",artist:"Gen",title:"Hoshino Koi"},
+  {f:"13_akasaki_bunny_girl.jpg",artist:"Akasaki",title:"Bunny Girl"},
+  {f:"140_kenshi_yonezu_lady.jpg",artist:"Kenshi",title:"Yonezu Lady"},
+  {f:"142_kenshi_yonezu_lemon.jpg",artist:"Kenshi",title:"Yonezu Lemon"},
+  {f:"143_kenshi_yonezu_kick_back.jpg",artist:"Kenshi",title:"Yonezu Kick Back"},
+  {f:"146_zutomayo_taidada.jpg",artist:"Zutomayo",title:"Taidada"},
+  {f:"147_yama_haru_wo_tsugeru.jpg",artist:"Yama",title:"Haru Wo Tsugeru"},
+  {f:"148_aimyon_marigold.jpg",artist:"Aimyon",title:"Marigold"},
+  {f:"14_natori_overdose.jpg",artist:"Natori",title:"Overdose"},
+  {f:"152_imase_night_dancer.jpg",artist:"Imase",title:"Night Dancer"},
+  {f:"153_king_gnu_specialz.jpg",artist:"King",title:"Gnu Specialz"},
+  {f:"154_iyowa_kyu_kurarin.jpg",artist:"Iyowa",title:"Kyu Kurarin"},
+  {f:"172_yoshida_yasei_override.jpg",artist:"Yoshida",title:"Yasei Override"},
+  {f:"173_leina_utatane.jpg",artist:"Leina",title:"Utatane"},
+  {f:"177_yoasobi_undead.jpg",artist:"Yoasobi",title:"Undead"},
+  {f:"179_leina_kuwazugirai.jpg",artist:"Leina",title:"Kuwazugirai"},
+  {f:"193_frederic_oddloop.jpg",artist:"Frederic",title:"Oddloop"},
+  {f:"195_deco_27_dscf.jpg",artist:"Deco",title:"27 Dscf"},
+  {f:"206_vaundy_tokyo_flash.jpg",artist:"Vaundy",title:"Tokyo Flash"},
+  {f:"211_dannie_may_ejanaika.jpg",artist:"Dannie",title:"May Ejanaika"},
+  {f:"213_tomoo_ginger.jpg",artist:"Tomoo",title:"Ginger"},
+  {f:"214_sarm_bonbon_girl.jpg",artist:"Sarm",title:"Bonbon Girl"},
+  {f:"219_yasuharu_takanashi_fairy_tail_main_theme.jpg",artist:"Yasuharu",title:"Takanashi Fairy Tail Main Theme"},
+  {f:"224_sakanaction_kaiju.jpg",artist:"Sakanaction",title:"Kaiju"},
+  {f:"228_hoshimachi_suisei_caramel_pain.jpg",artist:"Hoshimachi",title:"Suisei Caramel Pain"},
+  {f:"229_hoshimachi_suisei_orbital_period.jpg",artist:"Hoshimachi",title:"Suisei Orbital Period"},
+  {f:"232_ro2noki_hymn_to_the_decadent_life.jpg",artist:"Ro2noki",title:"Hymn To The Decadent Life"},
+  {f:"234_linked_horizon_guren_no_yumiya.jpg",artist:"Linked",title:"Horizon Guren No Yumiya"},
+  {f:"237_linked_horizon_akatsuki_no_requiem.jpg",artist:"Linked",title:"Horizon Akatsuki No Requiem"},
+  {f:"238_ai_higuchi_akuma_no_ko.jpg",artist:"Ai",title:"Higuchi Akuma No Ko"},
+  {f:"240_ali_wild_side.jpg",artist:"Ali",title:"Wild Side"},
+  {f:"244_sekai_no_owari_habit.jpg",artist:"Sekai",title:"No Owari Habit"},
+  {f:"249_hump_back_haikei_shounenyo.jpg",artist:"Hump",title:"Back Haikei Shounenyo"},
+  {f:"252_vk_blanka_black_rover.jpg",artist:"Vk",title:"Blanka Black Rover"},
+  {f:"253_yu_peng_chen_genshin_impact_main_theme.jpg",artist:"Yu",title:"Peng Chen Genshin Impact Main Theme"},
+  {f:"256_shinsei_kamattechan_boku_no_sensou.jpg",artist:"Shinsei",title:"Kamattechan Boku No Sensou"},
+  {f:"257_official_hige_dandism_pretender.jpg",artist:"Official",title:"Hige Dandism Pretender"},
+  {f:"265_citypopvibes_sweet_delusion.jpg",artist:"Citypopvibes",title:"Sweet Delusion"},
+  {f:"276_aimer_ninelie.jpg",artist:"Aimer",title:"Ninelie"},
+  {f:"280_zutomayo_cream.jpg",artist:"Zutomayo",title:"Cream"},
+  {f:"281_gesu_no_kiwami_otome_crying_march.jpg",artist:"Gesu",title:"No Kiwami Otome Crying March"},
+  {f:"289_people_1_dogland.jpg",artist:"People",title:"1 Dogland"},
+  {f:"294_eill_koko_de_iki_wo_shite.jpg",artist:"Eill",title:"Koko De Iki Wo Shite"},
+  {f:"304_spectrum_f_l_y.jpg",artist:"Spectrum",title:"F L Y"},
+  {f:"320_pompadolls_gluttony.jpg",artist:"Pompadolls",title:"Gluttony"},
+  {f:"321_pompadolls_spotlight_junkie.jpg",artist:"Pompadolls",title:"Spotlight Junkie"},
+  {f:"324_hideki_taniuchi_l_no_theme.jpg",artist:"Hideki",title:"Taniuchi L No Theme"},
+  {f:"329_leina_medicine.jpg",artist:"Leina",title:"Medicine"},
+  {f:"332_kaoru_wada_futari_no_kimochi.jpg",artist:"Kaoru",title:"Wada Futari No Kimochi"},
+  {f:"334_yiruma_river_flows_in_you.jpg",artist:"Yiruma",title:"River Flows In You"},
+  {f:"33_9lana_balalaika.jpg",artist:"9lana",title:"Balalaika"},
+  {f:"341_nyarons_highway_summer.jpg",artist:"Nyarons",title:"Highway Summer"},
+  {f:"343_shinra_bansho_toge.jpg",artist:"Shinra",title:"Bansho Toge"},
+  {f:"350_bocchi_kimi_wa_natsukaze.jpg",artist:"Bocchi",title:"Kimi Wa Natsukaze"},
+  {f:"356_issey_nightmare_restaurant.jpg",artist:"Issey",title:"Nightmare Restaurant"},
+  {f:"35_cinnamons_summertime.jpg",artist:"Cinnamons",title:"Summertime"},
+  {f:"361_stereopony_stand_by_me.jpg",artist:"Stereopony",title:"Stand By Me"},
+  {f:"364_choqmay_hey_calling.jpg",artist:"Choqmay",title:"Hey Calling"},
+  {f:"370_bradio_flyers.jpg",artist:"Bradio",title:"Flyers"},
+  {f:"373_hoshimachi_suisei_stellar_stellar.jpg",artist:"Hoshimachi",title:"Suisei Stellar Stellar"},
+  {f:"379_dazbee_bitter_loss.jpg",artist:"Dazbee",title:"Bitter Loss"},
+  {f:"380_dazbee_sympathy.jpg",artist:"Dazbee",title:"Sympathy"},
+  {f:"381_dazbee_nemuranai_yume.jpg",artist:"Dazbee",title:"Nemuranai Yume"},
+  {f:"382_dazbee_dream_island.jpg",artist:"Dazbee",title:"Dream Island"},
+  {f:"383_dazbee_lovestruck.jpg",artist:"Dazbee",title:"Lovestruck"},
+  {f:"385_dazbee_scarlet.jpg",artist:"Dazbee",title:"Scarlet"},
+  {f:"386_dazbee_catch_you_catch_me.jpg",artist:"Dazbee",title:"Catch You Catch Me"},
+  {f:"388_dazbee_angel_s_fake.jpg",artist:"Dazbee",title:"Angel S Fake"},
+  {f:"389_raon_eclipse.jpg",artist:"Raon",title:"Eclipse"},
+  {f:"38_lisa_crossing_field.jpg",artist:"Lisa",title:"Crossing Field"},
+  {f:"391_dazbee_time_after_time.jpg",artist:"Dazbee",title:"Time After Time"},
+  {f:"393_dazbee_bambi.jpg",artist:"Dazbee",title:"Bambi"},
+  {f:"411_eve_ghost_avenue.jpg",artist:"Eve",title:"Ghost Avenue"},
+  {f:"418_kenshi_yonezu_iris_out.jpg",artist:"Kenshi",title:"Yonezu Iris Out"},
+  {f:"420_bradio_fanfare.jpg",artist:"Bradio",title:"Fanfare"},
+  {f:"421_kenshi_yonezu_jane_doe.jpg",artist:"Kenshi",title:"Yonezu Jane Doe"},
+  {f:"422_nonoc_memento.jpg",artist:"Nonoc",title:"Memento"},
+  {f:"424_sekai_no_owari_rpg.jpg",artist:"Sekai",title:"No Owari Rpg"},
+  {f:"426_ado_cat_s_eye.jpg",artist:"Ado",title:"Cat S Eye"},
+  {f:"427_caramel_candid_caramel_girls.jpg",artist:"Caramel",title:"Candid Caramel Girls"},
+  {f:"430_penthouse_undertaker.jpg",artist:"Penthouse",title:"Undertaker"},
+  {f:"431_official_hige_dandism_shukumei.jpg",artist:"Official",title:"Hige Dandism Shukumei"},
+  {f:"432_official_hige_dandism_rashisa.jpg",artist:"Official",title:"Hige Dandism Rashisa"},
+  {f:"438_ado_magic.jpg",artist:"Ado",title:"Magic"},
+  {f:"43_konomi_suzuki_this_game.jpg",artist:"Konomi",title:"Suzuki This Game"},
+  {f:"442_eill_action.jpg",artist:"Eill",title:"Action"},
+  {f:"446_yuki_hayashi_you_say_run.jpg",artist:"Yuki",title:"Hayashi You Say Run"},
+  {f:"447_yuki_hayashi_jet_set_run.jpg",artist:"Yuki",title:"Hayashi Jet Set Run"},
+  {f:"44_oxt_clattanoia.jpg",artist:"Oxt",title:"Clattanoia"},
+  {f:"453_andora_flicker.jpg",artist:"Andora",title:"Flicker"},
+  {f:"457_zutomayo_yushinron.jpg",artist:"Zutomayo",title:"Yushinron"},
+  {f:"459_tomioka_ai_good_bye_bye.jpg",artist:"Tomioka",title:"Ai Good Bye Bye"},
+  {f:"468_hitorioto_utakatanokoi.jpg",artist:"Hitorioto",title:"Utakatanokoi"},
+  {f:"46_oxt_silent_solitude.jpg",artist:"Oxt",title:"Silent Solitude"},
+  {f:"471_vuat_monsters_and_heroes.jpg",artist:"Vuat",title:"Monsters And Heroes"},
+  {f:"472_tsukuyomi_moonlight_at_midday.jpg",artist:"Tsukuyomi",title:"Moonlight At Midday"},
+  {f:"474_703goushitsu_aoboshi.jpg",artist:"703goushitsu",title:"Aoboshi"},
+  {f:"475_luciela_meitetsukou.jpg",artist:"Luciela",title:"Meitetsukou"},
+  {f:"479_natori_in_my_head.jpg",artist:"Natori",title:"In My Head"},
+  {f:"47_fripside_only_my_railgun.jpg",artist:"Fripside",title:"Only My Railgun"},
+  {f:"483_nora_sessesse_no_yoiyoiyoi.jpg",artist:"Nora",title:"Sessesse No Yoiyoiyoi"},
+  {f:"485_kroi_method.jpg",artist:"Kroi",title:"Method"},
+  {f:"486_lavt_l4dy.jpg",artist:"Lavt",title:"L4dy"},
+  {f:"489_ado_and_rib_matoryoshka.jpg",artist:"Ado",title:"And Rib Matoryoshka"},
+  {f:"48_true_sincerely.jpg",artist:"True",title:"Sincerely"},
+  {f:"491_mori_calliope_let_s_just_crash.jpg",artist:"Mori",title:"Calliope Let S Just Crash"}
+];
+
+/* ===================== APP GLOBAL DATA ===================== */
+const GENRES = [
+  {id:"pop",name:"Pop",nameKo:"팝",color:"#ffffff",colorSecondary:"#8a8a8a",emoji:"●",description:"Universally appealing melodies with polished production",descriptionKo:"누구나 즐길 수 있는 세련된 대중음악. 귀에 쏙 들어오는 훅과 완성도 높은 프로덕션이 특징.",eraOrigin:"1950s",subGenres:["synth-pop","indie-pop","k-pop","dream-pop","art-pop"],relatedGenres:["rnb","electronic","indie"],alsoListenTo:["indie","rnb","kpop","electronic"],characteristics:["Catchy hooks","Verse-chorus structure","Polished production","Wide vocal range"],topArtists:["Taylor Swift","The Weeknd","Dua Lipa","Harry Styles","Olivia Rodrigo"],listeners:2800000000},
+  {id:"hiphop",name:"Hip-Hop",nameKo:"힙합",color:"#e0e0e0",colorSecondary:"#737373",emoji:"■",description:"Rhythmic poetry over beats — born in the Bronx, shaped the world",descriptionKo:"브롱크스에서 태어난 리듬과 라임의 예술. 세계 문화를 재편한 장르.",eraOrigin:"1970s",subGenres:["trap","gangsta-rap","conscious-rap","boom-bap","drill","mumble-rap"],relatedGenres:["rnb","pop","electronic"],alsoListenTo:["rnb","pop","electronic"],characteristics:["Rhythmic flow","Sampling","Storytelling","Social commentary","Beat-driven"],topArtists:["Kendrick Lamar","Drake","Travis Scott","J. Cole","Kanye West"],listeners:2100000000},
+  {id:"rock",name:"Rock",nameKo:"록",color:"#d4d4d4",colorSecondary:"#525252",emoji:"▲",description:"Electric guitars, raw energy, rebellion — the backbone of modern music",descriptionKo:"일렉 기타의 포효. 반항의 에너지. 현대 음악의 척추.",eraOrigin:"1950s",subGenres:["classic-rock","alternative","grunge","punk","indie-rock","post-rock"],relatedGenres:["metal","indie","punk"],alsoListenTo:["metal","indie","punk"],characteristics:["Electric guitar","Strong rhythm section","Powerful vocals","4/4 time"],topArtists:["Led Zeppelin","The Beatles","Nirvana","Radiohead","Red Hot Chili Peppers"],listeners:1900000000},
+  {id:"metal",name:"Metal",nameKo:"메탈",color:"#a3a3a3",colorSecondary:"#262626",emoji:"▼",description:"Crushing riffs, blast beats, and extreme intensity",descriptionKo:"파괴적인 리프, 폭발적인 비트, 극한의 강도. 강철 같은 음악.",eraOrigin:"1970s",subGenres:["heavy-metal","death-metal","black-metal","thrash-metal","prog-metal","doom-metal"],relatedGenres:["rock","punk","electronic"],alsoListenTo:["rock","classical","punk"],characteristics:["Down-tuned guitars","Double bass drum","Screaming/growling vocals","Complex time signatures"],topArtists:["Metallica","Black Sabbath","Slayer","Iron Maiden","Tool"],listeners:820000000},
+  {id:"electronic",name:"Electronic",nameKo:"일렉트로닉",color:"#ffffff",colorSecondary:"#404040",emoji:"◆",description:"Synthesizers, drum machines, and the art of sonic architecture",descriptionKo:"신디사이저와 드럼 머신으로 쌓아올린 소리의 건축. 클럽부터 헤드폰까지.",eraOrigin:"1970s",subGenres:["house","techno","drum-n-bass","ambient","edm","lo-fi","synthwave"],relatedGenres:["pop","hiphop","rnb"],alsoListenTo:["hiphop","pop","rnb"],characteristics:["Synthesized sounds","4-on-the-floor beat","Build and drop","BPM-driven"],topArtists:["Daft Punk","Aphex Twin","The Chemical Brothers","Caribou","Four Tet"],listeners:1600000000},
+  {id:"rnb",name:"R&B / Soul",nameKo:"알앤비 / 소울",color:"#cccccc",colorSecondary:"#525252",emoji:"▬",description:"Silky grooves, emotional depth, rooted in gospel and blues",descriptionKo:"복음과 블루스에서 태어난 감성. 부드러운 그루브와 깊은 감정.",eraOrigin:"1940s",subGenres:["neo-soul","contemporary-r&b","gospel","funk","new-jack-swing"],relatedGenres:["pop","hiphop","jazz"],alsoListenTo:["hiphop","jazz","pop"],characteristics:["Melismatic vocals","Groove-based","Call and response","Emotional storytelling"],topArtists:["Beyoncé","Frank Ocean","SZA","D'Angelo","Erykah Badu"],listeners:1400000000},
+  {id:"jazz",name:"Jazz",nameKo:"재즈",color:"#b5b5b5",colorSecondary:"#404040",emoji:"✦",description:"Improvisation, complex harmony, and the sound of freedom",descriptionKo:"즉흥과 자유의 언어. 복잡한 화성과 끝없는 대화.",eraOrigin:"1900s",subGenres:["bebop","cool-jazz","fusion","free-jazz","acid-jazz","nu-jazz"],relatedGenres:["blues","rnb","classical"],alsoListenTo:["blues","classical","rnb"],characteristics:["Improvisation","Swing feel","Complex chords","Call and response"],topArtists:["Miles Davis","John Coltrane","Bill Evans","Thelonious Monk","Herbie Hancock"],listeners:580000000},
+  {id:"classical",name:"Classical",nameKo:"클래식",color:"#e5e5e5",colorSecondary:"#737373",emoji:"⬢",description:"Centuries of orchestral mastery — from baroque to contemporary",descriptionKo:"수백 년의 오케스트라 유산. 바로크부터 현대까지.",eraOrigin:"1600s",subGenres:["baroque","romantic","contemporary-classical","minimalist","opera","chamber"],relatedGenres:["jazz","metal","electronic"],alsoListenTo:["jazz","electronic"],characteristics:["Orchestral arrangement","Dynamic range","Formal structure","No percussion focus"],topArtists:["Ludwig van Beethoven","Wolfgang Amadeus Mozart","Johann Sebastian Bach","Frédéric Chopin","Max Richter"],listeners:450000000},
+  {id:"kpop",name:"K-Pop",nameKo:"케이팝",color:"#f5f5f5",colorSecondary:"#8a8a8a",emoji:"○",description:"Korean pop phenomenon — perfect choreography meets global production",descriptionKo:"완벽한 퍼포먼스와 글로벌 프로덕션이 만난 한국발 팝 혁명.",eraOrigin:"1990s",subGenres:["idol-pop","k-r&b","k-hip-hop","k-indie","bg","gg"],relatedGenres:["pop","rnb","electronic"],alsoListenTo:["pop","rnb","electronic"],characteristics:["Group formations","Synchronized choreo","Multilingual lyrics","High production value"],topArtists:["BTS","BLACKPINK","aespa","NewJeans","SEVENTEEN"],listeners:920000000},
+  {id:"indie",name:"Indie",nameKo:"인디",color:"#909090",colorSecondary:"#333333",emoji:"⬚",description:"Independent spirit, lo-fi aesthetic, authentic over polished",descriptionKo:"독립 정신. 세련됨보다 진정성. 주류가 아닌 자신만의 길.",eraOrigin:"1980s",subGenres:["indie-rock","indie-pop","dream-pop","shoegaze","folk-indie","bedroom-pop"],relatedGenres:["rock","pop","blues"],alsoListenTo:["rock","pop","electronic"],characteristics:["DIY aesthetic","Introspective lyrics","Unconventional structure","Authenticity"],topArtists:["Arctic Monkeys","Tame Impala","Sufjan Stevens","Bon Iver","Phoebe Bridgers"],listeners:1100000000},
+  {id:"latin",name:"Latin",nameKo:"라틴",color:"#c2c2c2",colorSecondary:"#525252",emoji:"◄",description:"Infectious rhythms from salsa to reggaeton — Latin America's gift",descriptionKo:"살사부터 레게톤까지. 라틴 아메리카가 세계에 선물한 리듬.",eraOrigin:"1950s",subGenres:["reggaeton","salsa","bachata","cumbia","latin-pop","trap-latino"],relatedGenres:["pop","rnb","electronic"],alsoListenTo:["pop","rnb","hiphop"],characteristics:["Clave rhythm","Call and response","Dance-focused","Polyrhythm"],topArtists:["Bad Bunny","J Balvin","Rosalía","Shakira","Daddy Yankee"],listeners:1300000000},
+  {id:"punk",name:"Punk",nameKo:"펑크",color:"#737373",colorSecondary:"#1f1f1f",emoji:"✖",description:"Fast, loud, political — 3 chords and the truth",descriptionKo:"빠르고 시끄럽고 정치적. 3개의 코드와 진실.",eraOrigin:"1970s",subGenres:["hardcore","pop-punk","post-punk","ska-punk","emo","anarcho-punk"],relatedGenres:["rock","metal","indie"],alsoListenTo:["metal","rock","indie"],characteristics:["Fast tempo","Short songs","Raw production","Anti-establishment lyrics"],topArtists:["The Clash","Sex Pistols","Ramones","Green Day","Black Flag"],listeners:480000000},
+  {id:"reggae",name:"Reggae",nameKo:"레게",color:"#8a8a8a",colorSecondary:"#2b2b2b",emoji:"≋",description:"Jamaican rhythms of peace, love, and resistance",descriptionKo:"자메이카에서 온 평화, 사랑, 저항의 리듬.",eraOrigin:"1960s",subGenres:["roots-reggae","dancehall","dub","ska","rocksteady"],relatedGenres:["latin","rnb","electronic"],alsoListenTo:["rnb","latin","electronic"],characteristics:["Offbeat rhythm","Bass-heavy","Positive lyrics","Ska influence"],topArtists:["Bob Marley","Peter Tosh","Damian Marley","Sean Paul","Protoje"],listeners:340000000},
+  {id:"blues",name:"Blues",nameKo:"블루스",color:"#a8a8a8",colorSecondary:"#3c3c3c",emoji:"⧩",description:"The root of all modern music — twelve bars of pure feeling",descriptionKo:"모든 현대 음악의 뿌리. 12마디 안에 담긴 순수한 감정.",eraOrigin:"1900s",subGenres:["delta-blues","chicago-blues","electric-blues","rhythm-and-blues","soul-blues"],relatedGenres:["jazz","rock","rnb"],alsoListenTo:["jazz","rock","rnb"],characteristics:["12-bar structure","Blue notes","Call and response","Guitar-centric"],topArtists:["B.B. King","Robert Johnson","Muddy Waters","Howlin Wolf","John Lee Hooker"],listeners:280000000},
+  {id:"country",name:"Country",nameKo:"컨트리",color:"#9e9e9e",colorSecondary:"#4a4a4a",emoji:"⧓",description:"Stories of heartbreak, highways, and home — from Nashville to the world",descriptionKo:"이별, 도로, 고향. 내슈빌에서 세계로 뻗은 이야기 음악.",eraOrigin:"1920s",subGenres:["classic-country","outlaw-country","country-pop","bluegrass","country-rock","americana"],relatedGenres:["indie","rock","blues"],alsoListenTo:["indie","rock","blues"],characteristics:["Storytelling lyrics","Acoustic guitar","Twang","Steel guitar","Narrative structure"],topArtists:["Johnny Cash","Dolly Parton","Hank Williams","Morgan Wallen","Zach Bryan"],listeners:760000000}
+];
+
+const SONGS = [
+  {id:1,rank:1,title:"Flowers",artist:"Miley Cyrus",genre:"pop",year:2023,popularity:98,duration:"3:21",streamCount:2100000000,rankChange:0},
+  {id:2,rank:2,title:"As It Was",artist:"Harry Styles",genre:"pop",year:2022,popularity:97,duration:"2:37",streamCount:2800000000,rankChange:-1},
+  {id:3,rank:3,title:"Blinding Lights",artist:"The Weeknd",genre:"pop",year:2019,popularity:96,duration:"3:20",streamCount:3800000000,rankChange:1},
+  {id:4,rank:4,title:"HUMBLE.",artist:"Kendrick Lamar",genre:"hiphop",year:2017,popularity:95,duration:"2:57",streamCount:1900000000,rankChange:2},
+  {id:5,rank:5,title:"God's Plan",artist:"Drake",genre:"hiphop",year:2018,popularity:94,duration:"3:19",streamCount:2200000000,rankChange:-1},
+  {id:6,rank:6,title:"STAY",artist:"The Kid LAROI & Justin Bieber",genre:"pop",year:2021,popularity:93,duration:"2:21",streamCount:2500000000,rankChange:3},
+  {id:7,rank:7,title:"Dynamite",artist:"BTS",genre:"kpop",year:2020,popularity:92,duration:"3:19",streamCount:1700000000,rankChange:0},
+  {id:8,rank:8,title:"drivers license",artist:"Olivia Rodrigo",genre:"pop",year:2021,popularity:91,duration:"4:02",streamCount:1600000000,rankChange:-2},
+  {id:9,rank:9,title:"Levitating",artist:"Dua Lipa",genre:"pop",year:2020,popularity:90,duration:"3:23",streamCount:1800000000,rankChange:1},
+  {id:10,rank:10,title:"SICKO MODE",artist:"Travis Scott",genre:"hiphop",year:2018,popularity:89,duration:"5:12",streamCount:1500000000,rankChange:0},
+  {id:11,rank:11,title:"Bohemian Rhapsody",artist:"Queen",genre:"rock",year:1975,popularity:95,duration:"5:55",streamCount:2400000000,rankChange:0},
+  {id:12,rank:12,title:"Hotel California",artist:"Eagles",genre:"rock",year:1977,popularity:94,duration:"6:30",streamCount:1300000000,rankChange:1},
+  {id:13,rank:13,title:"Enter Sandman",artist:"Metallica",genre:"metal",year:1991,popularity:92,duration:"5:31",streamCount:900000000,rankChange:-1},
+  {id:14,rank:14,title:"One More Time",artist:"Daft Punk",genre:"electronic",year:2000,popularity:90,duration:"5:20",streamCount:1200000000,rankChange:2},
+  {id:15,rank:15,title:"Lose Yourself",artist:"Eminem",genre:"hiphop",year:2002,popularity:93,duration:"5:26",streamCount:1800000000,rankChange:0},
+  {id:16,rank:16,title:"Pink + White",artist:"Frank Ocean",genre:"rnb",year:2016,popularity:89,duration:"3:05",streamCount:800000000,rankChange:3},
+  {id:17,rank:17,title:"All of Me",artist:"John Legend",genre:"rnb",year:2013,popularity:91,duration:"4:29",streamCount:2100000000,rankChange:0},
+  {id:18,rank:18,title:"Take Five",artist:"Dave Brubeck",genre:"jazz",year:1959,popularity:88,duration:"5:24",streamCount:400000000,rankChange:1},
+  {id:19,rank:19,title:"Moonlight Sonata",artist:"Ludwig van Beethoven",genre:"classical",year:1801,popularity:87,duration:"15:00",streamCount:350000000,rankChange:0},
+  {id:20,rank:20,title:"Butter",artist:"BTS",genre:"kpop",year:2021,popularity:90,duration:"2:44",streamCount:1400000000,rankChange:-2},
+  {id:21,rank:21,title:"Espresso",artist:"Sabrina Carpenter",genre:"pop",year:2024,popularity:96,duration:"2:55",streamCount:1600000000,rankChange:5},
+  {id:22,rank:22,title:"Die With A Smile",artist:"Lady Gaga & Bruno Mars",genre:"pop",year:2024,popularity:95,duration:"4:11",streamCount:1500000000,rankChange:4},
+  {id:23,rank:23,title:"APT.",artist:"ROSÉ & Bruno Mars",genre:"kpop",year:2024,popularity:94,duration:"2:51",streamCount:1300000000,rankChange:6},
+  {id:24,rank:24,title:"Like Crazy",artist:"Jimin",genre:"kpop",year:2023,popularity:88,duration:"3:27",streamCount:900000000,rankChange:-1},
+  {id:25,rank:25,title:"Vampire",artist:"Olivia Rodrigo",genre:"pop",year:2023,popularity:91,duration:"3:39",streamCount:1200000000,rankChange:0},
+  {id:26,rank:26,title:"Rich Flex",artist:"Drake & 21 Savage",genre:"hiphop",year:2022,popularity:89,duration:"3:58",streamCount:1100000000,rankChange:-3},
+  {id:27,rank:27,title:"Numb / Encore",artist:"Jay-Z & Linkin Park",genre:"rock",year:2004,popularity:87,duration:"3:24",streamCount:750000000,rankChange:1},
+  {id:28,rank:28,title:"Smells Like Teen Spirit",artist:"Nirvana",genre:"rock",year:1991,popularity:96,duration:"5:01",streamCount:1500000000,rankChange:0},
+  {id:29,rank:29,title:"Con Calma",artist:"Daddy Yankee & Snow",genre:"latin",year:2019,popularity:88,duration:"3:15",streamCount:1900000000,rankChange:-2},
+  {id:30,rank:30,title:"Tití Me Preguntó",artist:"Bad Bunny",genre:"latin",year:2022,popularity:90,duration:"3:57",streamCount:1000000000,rankChange:2}
+];
+
+const ERAS = [
+  {decade:"1950s",title:"Rock & Roll 혁명",titleEn:"The Rock & Roll Revolution",color:"#ffffff",gradient:"linear-gradient(135deg,#ffffff,#888888)",dominantGenres:["rock","blues","country","jazz"],keyArtists:["Elvis Presley","Chuck Berry","Little Richard","Ray Charles","Buddy Holly"],description:"로큰롤이 블루스와 컨트리의 혼합으로 탄생. 젊은 세대의 반란이 음악을 영원히 바꿨다.",descriptionEn:"Rock and roll emerged from the fusion of blues and country. Youth rebellion changed music forever.",culturalContext:"Post-WWII, baby boom, television era",birth:"로큰롤 탄생 ▲"},
+  {decade:"1960s",title:"사이키델릭 & 무브먼트",titleEn:"Psychedelic Era & Social Movement",color:"#e5e5e5",gradient:"linear-gradient(135deg,#e5e5e5,#666666)",dominantGenres:["rock","pop","blues","indie"],keyArtists:["The Beatles","The Rolling Stones","Jimi Hendrix","Bob Dylan","Janis Joplin"],description:"영국 인베이전, 히피 운동, 반전 운동. 음악이 사회 변혁의 언어가 됐다.",descriptionEn:"British Invasion, hippie movement, anti-war protests. Music became the language of social change.",culturalContext:"Vietnam War, civil rights movement, moon landing",birth:"레게 태동 ≋"},
+  {decade:"1970s",title:"장르의 폭발",titleEn:"Genre Explosion",color:"#cccccc",gradient:"linear-gradient(135deg,#cccccc,#555555)",dominantGenres:["rock","metal","punk","rnb","reggae","hiphop"],keyArtists:["Led Zeppelin","Black Sabbath","The Clash","Donna Summer","Bob Marley","DJ Kool Herc"],description:"헤비메탈, 펑크, 디스코, 힙합의 탄생. 하나의 '음악'이 수십 개의 문화권으로 분화.",descriptionEn:"Birth of heavy metal, punk, disco, hip-hop. Music fractured into dozens of distinct cultures.",culturalContext:"Oil crisis, counterculture, NYC urban decline, Bronx block parties",birth:"힙합 탄생 ■"},
+  {decade:"1980s",title:"신스팝 & MTV 시대",titleEn:"Synth Revolution & MTV Era",color:"#b5b5b5",gradient:"linear-gradient(135deg,#b5b5b5,#404040)",dominantGenres:["pop","rock","metal","electronic","hiphop"],keyArtists:["Michael Jackson","Madonna","Prince","Metallica","Run-DMC","Depeche Mode"],description:"MTV의 등장으로 시각 아이덴티티가 필수가 됐다. 신디사이저가 음악을 재정의했고, 힙합이 뿌리를 내렸다.",descriptionEn:"MTV made visual identity essential. Synthesizers redefined sound, hip-hop took root.",culturalContext:"Cold War, Reagan era, crack epidemic, AIDS crisis",birth:"인디 등장 ⬚"},
+  {decade:"1990s",title:"그런지 & 황금기",titleEn:"Grunge, Golden Ages",color:"#a3a3a3",gradient:"linear-gradient(135deg,#a3a3a3,#333333)",dominantGenres:["rock","hiphop","rnb","pop","electronic"],keyArtists:["Nirvana","Tupac","Biggie","Mariah Carey","Radiohead","Daft Punk"],description:"그런지가 헤어밴드를 몰아냈고, 힙합 황금기가 열렸다. R&B는 최고의 정점을 맞았다.",descriptionEn:"Grunge killed hair metal, hip-hop's golden age arrived. R&B reached its commercial peak.",culturalContext:"Internet birth, globalization, cassette → CD transition",birth:"K-Pop 태동 ○"},
+  {decade:"2000s",title:"디지털 혁명",titleEn:"Digital Revolution",color:"#909090",gradient:"linear-gradient(135deg,#909090,#262626)",dominantGenres:["pop","hiphop","rock","electronic","rnb"],keyArtists:["Eminem","Beyoncé","Linkin Park","Kanye West","Amy Winehouse","The Strokes"],description:"냅스터와 아이팟이 음악 산업을 뒤집었다. 팝펑크와 이모가 10대를 사로잡았다.",descriptionEn:"Napster and iPod disrupted the industry. Pop-punk and emo captured a generation.",culturalContext:"9/11, Iraq War, social media birth, piracy crisis",birth:"디지털 스트리밍 ◆"},
+  {decade:"2010s",title:"스트리밍 & K-Pop 글로벌화",titleEn:"Streaming Era & K-Pop Goes Global",color:"#7c7c7c",gradient:"linear-gradient(135deg,#7c7c7c,#1a1a1a)",dominantGenres:["pop","hiphop","electronic","kpop","indie"],keyArtists:["Drake","Taylor Swift","BTS","Kendrick Lamar","Adele","Frank Ocean"],description:"스포티파이가 음악 소비를 바꿨다. K-Pop이 글로벌 현상이 됐다. 트랩이 힙합을 접수했다.",descriptionEn:"Spotify transformed consumption. K-Pop became a global phenomenon. Trap took over hip-hop.",culturalContext:"Smartphone dominance, social media virality, streaming wars",birth:"트랩 지배 ●"},
+  {decade:"2020s",title:"하이퍼팝 & 장르의 해체",titleEn:"Hyperpop & Genre Dissolution",color:"#686868",gradient:"linear-gradient(135deg,#686868,#111111)",dominantGenres:["pop","hiphop","kpop","electronic","indie"],keyArtists:["Olivia Rodrigo","Bad Bunny","Doja Cat","Tyler the Creator","NewJeans","Sabrina Carpenter"],description:"장르 경계가 무너졌다. 아프로비츠, 하이퍼팝, 베드룸팝이 부상. TikTok이 새로운 차트가 됐다.",descriptionEn:"Genre boundaries dissolved. Afrobeats, hyperpop, bedroom pop rose. TikTok became the new chart.",culturalContext:"COVID-19, home studios, TikTok virality, global music democratization",birth:""}
+];
+
+/* ===================== STATE & TRANSITIONS ===================== */
+let currentLang = 'ko';
+let transitioned = false;
+let isTransitioning = false;
+const ART = 'playlist-artwork/';
+
+function transitionToApp() {
+  if (transitioned || isTransitioning) return;
+  isTransitioning = true;
+  transitioned = true;
+  
+  const landing = document.getElementById('landing-screen');
+  const app = document.getElementById('app-screen');
+  
+  landing.classList.add('exiting');
+  app.classList.remove('hidden');
+  app.classList.add('entering');
+  
+  // Set window hash to home to trigger routing if empty
+  if (!location.hash || location.hash === '#') {
+    location.hash = '#home';
+  } else {
+    handleRoute();
+  }
+  
+  setTimeout(() => {
+    landing.style.display = 'none';
+    app.classList.remove('entering');
+    isTransitioning = false;
+  }, 1200);
+}
+
+function transitionToLanding() {
+  if (!transitioned || isTransitioning) return;
+  isTransitioning = true;
+  transitioned = false;
+  
+  const landing = document.getElementById('landing-screen');
+  const app = document.getElementById('app-screen');
+  
+  landing.style.display = 'flex';
+  // Force browser reflow to enable animation restart
+  landing.offsetHeight;
+  
+  landing.classList.remove('exiting');
+  app.classList.add('exiting-app');
+  
+  // Close vibe analyzer if open
+  closeVibeAnalyzer();
+  
+  // Clear hash
+  history.pushState("", document.title, window.location.pathname + window.location.search);
+  
+  setTimeout(() => {
+    app.classList.add('hidden');
+    app.classList.remove('exiting-app');
+    sizeCovers(); // resize cover sizes to match window
+    isTransitioning = false;
+  }, 1200);
+}
+
+// Global language changer for BOTH panels
+function changeLanguage(lang) {
+  currentLang = lang;
+  
+  document.getElementById('lang-ko-landing').classList.toggle('active', lang==='ko');
+  document.getElementById('lang-en-landing').classList.toggle('active', lang==='en');
+  document.getElementById('lang-ko-app').classList.toggle('active', lang==='ko');
+  document.getElementById('lang-en-app').classList.toggle('active', lang==='en');
+  
+  document.documentElement.lang = lang;
+  
+  document.querySelectorAll('[data-ko]').forEach(el => {
+    if (el.classList.contains('feed-text')) {
+      el.innerHTML = lang === 'ko' ? el.dataset.ko : el.dataset.en;
+    } else {
+      el.textContent = lang === 'ko' ? el.dataset.ko : el.dataset.en;
+    }
+  });
+  
+  if (transitioned) {
+    handleRoute();
+  }
+}
+
+/* ===================== SCROLL AND GESTURE EVENT LISTENERS ===================== */
+window.addEventListener('wheel', (e) => {
+  if (isTransitioning) {
+    e.preventDefault();
+    return;
+  }
+  
+  if (!transitioned && e.deltaY > 12) {
+    e.preventDefault();
+    transitionToApp();
+  }
+}, { passive: false });
+
+// Key down listener
+window.addEventListener('keydown', (e) => {
+  if (isTransitioning) return;
+  if (!transitioned && ['ArrowDown', 'PageDown', ' ', 'Enter'].includes(e.key)) {
+    e.preventDefault();
+    transitionToApp();
+  }
+});
+
+// Swipe support for mobile
+let touchStartY = 0;
+window.addEventListener('touchstart', (e) => {
+  touchStartY = e.touches[0].clientY;
+}, { passive: true });
+
+window.addEventListener('touchmove', (e) => {
+  if (isTransitioning) return;
+  if (!touchStartY) return;
+  const touchEndY = e.touches[0].clientY;
+  const diffY = touchStartY - touchEndY;
+  
+  if (!transitioned && diffY > 48) { // Swiped up on landing
+    transitionToApp();
+    touchStartY = 0;
+  }
+}, { passive: true });
+
+window.addEventListener('touchend', () => {
+  touchStartY = 0;
+});
+
+/* ===================== COVERS WALL SCENE LOGIC ===================== */
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+function coverHTML(c){
+  const title = c.title && c.title!=='...' ? c.title : c.artist;
+  const artist = (c.title && c.title!=='...' && c.artist && c.artist!=='MusicLens') ? c.artist : 'MusicLens';
+  return `<div class="landing-cover">
+    <img loading="lazy" src="${ART}${encodeURIComponent(c.f)}" alt="${esc(title)}"
+         onerror="this.style.background='linear-gradient(135deg,#FF6B9D,#00D4FF)';this.removeAttribute('src');">
+    <div class="landing-hl">
+      <div class="landing-hl-title">${esc(title)}</div>
+      <div class="landing-hl-artist">${esc(artist)}</div>
+      <div class="landing-hl-now">
+        <span class="landing-eq"><span></span><span></span><span></span><span></span></span>
+        <span data-ko="하이라이트 재생 중" data-en="Playing highlight">하이라이트 재생 중</span>
+      </div>
+      <div class="landing-hl-prog"><div class="landing-hl-fill"></div></div>
+    </div>
+  </div>`;
+}
+
+function buildRow(items, dir, dur){
+  const inner = items.concat(items).map(coverHTML).join('');
+  return `<div class="landing-row"><div class="landing-track ${dir}" style="--dur:${dur}s">${inner}</div></div>`;
+}
+
+function shuffle(a){const x=a.slice();for(let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]];}return x;}
+
+const ROWS = 3, GAP = 18;
+function buildWall(){
+  const wall = document.getElementById('landing-wall');
+  // clear previous rows if rebuild is triggered
+  const hints = wall.querySelectorAll('.wall-hint');
+  wall.innerHTML = '';
+  hints.forEach(h => wall.appendChild(h));
+  
+  const pool = shuffle(COVERS);
+  const per = Math.ceil(pool.length / ROWS);
+  let html = '';
+  const dirs = ['left','right','left'];
+  const durs = [62, 78, 70];
+  for(let r=0;r<ROWS;r++){
+    const slice = pool.slice(r*per, (r+1)*per);
+    if(slice.length) html += buildRow(slice, dirs[r], durs[r]);
+  }
+  wall.insertAdjacentHTML('beforeend', html);
+  sizeCovers();
+}
+
+function sizeCovers(){
+  const wall = document.getElementById('landing-wall');
+  if(!wall || wall.clientHeight === 0) return;
+  const avail = wall.clientHeight - (ROWS-1)*GAP - 48; /* leave hint room */
+  let size = Math.floor(avail / ROWS);
+  size = Math.max(92, Math.min(176, size));
+  document.documentElement.style.setProperty('--cover', size + 'px');
+}
+
+let rT; window.addEventListener('resize', ()=>{clearTimeout(rT);rT=setTimeout(sizeCovers,150);});
+
+/* ===================== ROUTER ===================== */
+const routes = {
+  '#home': renderHome, '#chart': renderChart, '#genres': renderGenres,
+  '#search': renderSearch, '#timeline': renderTimeline, '#taste': renderTaste,
+};
+
+function handleRoute(){
+  const hash = location.hash || '#home';
+  const root = document.getElementById('view-root');
+  root.scrollTop = 0;
+  document.getElementById('main-content').scrollTop = 0;
+  let view = hash;
+  
+  if(hash.startsWith('#genre/')){
+    renderGenreDetail(hash.replace('#genre/',''));
+    view = '#genres';
+  } else {
+    (routes[hash] || renderHome)();
+  }
+  updateActiveNav(view);
+}
+window.addEventListener('hashchange', handleRoute);
+
+/* ===================== NAV ===================== */
+const NAV_ITEMS = [
+  {hash:'#home',ko:'홈',en:'Home',ic:'home'},
+  {hash:'#genres',ko:'장르 탐색',en:'Genres',ic:'genres'},
+  {hash:'#chart',ko:'장르 차트',en:'Genre Chart',ic:'chart'},
+  {hash:'#timeline',ko:'시대별 역사',en:'Timeline',ic:'timeline'},
+  {hash:'#taste',ko:'취향 DNA',en:'Taste DNA',ic:'taste'},
+  {hash:'#search',ko:'바이브 검색',en:'Vibe Search',ic:'search'},
+];
+
+const ICON = {
+  home:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+  chart:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
+  genres:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>',
+  timeline:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+  search:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+  taste:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="12" r="4"/><circle cx="16" cy="12" r="4"/></svg>',
+  play:'<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',
+  pause:'<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>',
+  prev:'<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>',
+  next:'<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zm-10.5 12l8.5-6-8.5-6z"/></svg>',
+  volume:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>',
+  close:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+};
+
+function renderNav(){
+  document.getElementById('header-nav').innerHTML = NAV_ITEMS.map(n =>
+    `<a class="nav-link" href="${n.hash}" data-hash="${n.hash}">
+      <span class="nav-ic">${ICON[n.ic]}</span>
+      <span data-ko="${n.ko}" data-en="${n.en}">${n.ko}</span>
+    </a>`).join('');
+  const mob = [NAV_ITEMS[0],NAV_ITEMS[1],NAV_ITEMS[2],NAV_ITEMS[4],NAV_ITEMS[5]];
+  document.getElementById('mobile-nav').innerHTML = mob.map(n =>
+    `<a href="${n.hash}" data-hash="${n.hash}">${ICON[n.ic]}<span data-ko="${n.ko}" data-en="${n.en}">${n.ko}</span></a>`).join('');
+}
+
+function updateActiveNav(hash){
+  document.querySelectorAll('.nav-link, .mobile-nav a').forEach(el => {
+    el.classList.toggle('active', el.dataset.hash === hash);
+  });
+  
+  // Show or hide "Back to intro page" button on top bar
+  const backBtn = document.querySelector('.back-to-landing-btn');
+  if (backBtn) {
+    backBtn.style.display = (hash === '#home') ? 'block' : 'none';
+  }
+}
+
+/* ===================== SHARING HELPER FUNCTIONS ===================== */
+const genreById = id => GENRES.find(g => g.id === id);
+const t = (ko, en) => currentLang === 'ko' ? ko : en;
+
+function fmtListeners(n){
+  if(n >= 1e9) return (n/1e9).toFixed(1).replace(/\.0$/,'') + 'B';
+  if(n >= 1e6) return (n/1e6).toFixed(0) + 'M';
+  return n.toLocaleString();
+}
+function durToSec(d){const [m,s]=d.split(':').map(Number);return m*60+s;}
+function secToDur(sec){const m=Math.floor(sec/60);const s=Math.floor(sec%60);return m+':'+String(s).padStart(2,'0');}
+
+function artGradient(genreId){
+  const g = genreById(genreId);
+  if(!g) return 'linear-gradient(135deg,#333,#555)';
+  return `linear-gradient(135deg,${g.color},${g.colorSecondary})`;
+}
+function artHTML(song, extraClass=''){
+  const g = genreById(song.genre);
+  return `<div class="art-thumb ${extraClass}" style="background:${artGradient(song.genre)}">
+    <span style="opacity:.55">${g?g.emoji:'🎵'}</span>
+  </div>`;
+}
+function genreTagHTML(genreId){
+  const g = genreById(genreId);
+  if(!g) return '';
+  return `<span class="genre-tag"><span class="gt-dot" style="background:${g.color}"></span>${t(g.nameKo,g.name)}</span>`;
+}
+const initials = name => name.split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+function avatarColor(name){
+  let h=0; for(let i=0;i<name.length;i++) h=name.charCodeAt(i)+((h<<5)-h);
+  return `hsl(0,0%,${25 + Math.abs(h)%35}%)`;
+}
+
+/* ===================== RENDER: HOME ===================== */
+function songCardHTML(song){
+  const bpm = getVibeData(song).tempo;
+  const streams = fmtListeners(song.streamCount);
+  return `<div class="song-card" onclick="playSong(${song.id})">
+    ${artHTML(song)}
+    <div class="sc-play"><button class="btn-play sm" onclick="event.stopPropagation();playSong(${song.id})">${ICON.play}</button></div>
+    <div class="sc-tooltip">
+      <div>BPM: ${bpm}</div>
+      <div>Streams: ${streams}</div>
+      <div>Year: ${song.year}</div>
+    </div>
+    <div class="sc-title">${esc(song.title)}</div>
+    <div class="sc-artist">${esc(song.artist)}</div>
+    <div class="sc-meta">${genreTagHTML(song.genre)}</div>
+  </div>`;
+}
+function featuredGenreCardHTML(g){
+  return `<a class="genre-card" href="#genre/${g.id}" style="background:linear-gradient(150deg,${g.color},${g.colorSecondary})">
+    <div class="gc-emoji">${g.emoji}</div>
+    <div>
+      <div class="gc-name">${t(g.nameKo,g.name)}<small>${g.id==='rnb'?'R&B / Soul':esc(g.name)}</small></div>
+      <div class="gc-artists">${g.topArtists.slice(0,3).map(esc).join(' · ')}</div>
+    </div>
+    <div class="gc-foot">
+      <div class="listeners-bar">
+        <div class="lb-label">${fmtListeners(g.listeners)} ${t('청취자','listeners')}</div>
+      </div>
+      <span class="gc-go">${t('탐색','Explore')} →</span>
+    </div>
+  </a>`;
+}
+function renderHome(){
+  const trending = [...SONGS].sort((a,b)=>b.popularity-a.popularity).slice(0,8);
+  const featured = ['pop','hiphop','rock','electronic','kpop','jazz'].map(genreById);
+  const popG = genreById('pop');
+  const eras = [ERAS[ERAS.length-1], ERAS[4]];
+  const html = `<div class="view">
+    <section class="hero-app">
+      <h1 data-ko="음악의 모든 장르를 탐험하다" data-en="Explore Every Genre">${t('음악의 모든 장르를 탐험하다','Explore Every Genre')}</h1>
+      <p data-ko="Explore Every Genre · Discover Your Taste" data-en="음악의 모든 장르를 탐험하다 · 당신의 취향을 발견하세요">${t('Explore Every Genre · Discover Your Taste','음악의 모든 장르를 탐험하다 · 당신의 취향을 발견하세요')}</p>
+      <a class="btn-primary" href="#genres">${t('장르 탐색 시작','Start Exploring')} →</a>
+    </section>
+
+    <!-- Two-column dashboard grid -->
+    <div class="home-dashboard-grid" style="position:relative; z-index:1; margin-bottom:var(--space-6)">
+      <!-- Column 1: Stats & Mood Radio -->
+      <div style="display:flex; flex-direction:column; gap:var(--space-6);">
+        <!-- Stats Section -->
+        <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-4);">
+          <div class="stats-panel" style="background:#050505; border:1px solid var(--border-subtle); padding:var(--space-4); display:flex; flex-direction:column; justify-content:center; border-radius:6px;">
+            <div style="font-size:10px; font-family:var(--font-mono); color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">${t('실시간 동시 청취자','Active Listeners')}</div>
+            <div id="stat-listeners" style="font-size:32px; font-weight:800; color:var(--accent-cyan); margin-top:8px; font-family:var(--font-mono)">0</div>
+            <div style="font-size:10px; color:var(--text-secondary); margin-top:4px;">▲ +4.2% ${t('지난 시간 대비','from last hour')}</div>
+          </div>
+          <div class="stats-panel" style="background:#050505; border:1px solid var(--border-subtle); padding:var(--space-4); display:flex; flex-direction:column; justify-content:center; border-radius:6px;">
+            <div style="font-size:10px; font-family:var(--font-mono); color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">${t('오늘의 누적 스트리밍','Daily Stream Volume')}</div>
+            <div id="stat-streams" style="font-size:32px; font-weight:800; color:#ffffff; margin-top:8px; font-family:var(--font-mono)">0</div>
+            <div style="font-size:10px; color:var(--text-secondary); margin-top:4px;">${t('지속적인 청취 증가세','Sustained upward trend')}</div>
+          </div>
+        </div>
+
+        <!-- Mood Radio -->
+        <div style="background:#050505; border:1px solid var(--border-subtle); padding:var(--space-4); border-radius:6px;">
+          <div style="font-size:12px; font-family:var(--font-mono); color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; font-weight:700;">
+            ${t('바이브 무드 라디오','Vibe Mood Radio')}
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:10px;">
+            <button class="btn-outlined" onclick="playMoodRadio('chill')" style="padding:12px; text-align:left; display:flex; align-items:center; justify-content:space-between; font-size:13px; font-weight:700; width:100%">
+              <span>🌊 Chill Vibe</span>
+              <span style="font-family:var(--font-mono); font-size:9px; color:var(--text-muted); font-weight:normal; margin-left:auto;">${t('차분한 곡','Calm')}</span>
+            </button>
+            <button class="btn-outlined" onclick="playMoodRadio('hype')" style="padding:12px; text-align:left; display:flex; align-items:center; justify-content:space-between; font-size:13px; font-weight:700; width:100%">
+              <span>🔥 Hype Vibe</span>
+              <span style="font-family:var(--font-mono); font-size:9px; color:var(--text-muted); font-weight:normal; margin-left:auto;">${t('에너지 높은 곡','High-energy')}</span>
+            </button>
+            <button class="btn-outlined" onclick="playMoodRadio('emotional')" style="padding:12px; text-align:left; display:flex; align-items:center; justify-content:space-between; font-size:13px; font-weight:700; width:100%">
+              <span>🍷 Mellow Vibe</span>
+              <span style="font-family:var(--font-mono); font-size:9px; color:var(--text-muted); font-weight:normal; margin-left:auto;">${t('어쿠스틱/감성','Acoustic')}</span>
+            </button>
+            <button class="btn-outlined" onclick="playMoodRadio('intense')" style="padding:12px; text-align:left; display:flex; align-items:center; justify-content:space-between; font-size:13px; font-weight:700; width:100%">
+              <span>⚡ Intense Vibe</span>
+              <span style="font-family:var(--font-mono); font-size:9px; color:var(--text-muted); font-weight:normal; margin-left:auto;">${t('빠르고 강렬','Fast/Loud')}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Column 2: Live Listener Feed -->
+      <div style="background:#050505; border:1px solid var(--border-subtle); padding:var(--space-4); display:flex; flex-direction:column; min-height:230px; border-radius:6px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <div style="font-size:12px; font-family:var(--font-mono); color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; font-weight:700; display:flex; align-items:center; gap:6px;">
+            <span style="display:inline-block; width:6px; height:6px; background:#10b981; border-radius:50%; animation:shimmer 1.5s infinite"></span>
+            ${t('실시간 감상 피드','Live Listening Stream')}
+          </div>
+          <span style="font-size:10px; font-family:var(--font-mono); color:var(--text-muted)">Live Feed</span>
+        </div>
+        <div id="live-feed-container" style="flex:1; display:flex; flex-direction:column; gap:8px; overflow:hidden; font-size:12px; line-height:1.4;">
+          <!-- Items will be dynamically inserted here -->
+        </div>
+      </div>
+    </div>
+
+    <section class="section">
+      <div class="section-head"><div><div class="section-title">${t('지금 트렌딩','Trending Now')}</div><div class="section-subtitle">${t('가장 뜨거운 곡들','The hottest tracks right now')}</div></div><a class="see-all" href="#chart">${t('전체 보기','See all')}</a></div>
+      <div class="horizontal-scroll">${trending.map(songCardHTML).join('')}</div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div><div class="section-title">${t('장르 쇼케이스','Featured Genres')}</div><div class="section-subtitle">${t('탐험할 준비가 된 사운드',"Sounds ready to explore")}</div></div><a class="see-all" href="#genres">${t('전체 보기','See all')}</a></div>
+      <div class="grid-3">${featured.map(featuredGenreCardHTML).join('')}</div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div><div class="section-title">${t('이번 주 발견','Weekly Discovery')}</div><div class="section-subtitle">${t('이 장르 듣는 사람이 듣는 다른 장르','What fans of this genre also enjoy')}</div></div></div>
+      <div class="ai-result">
+        <div class="ai-q">${t('팝을 좋아한다면','If you love Pop')} ${popG.emoji}</div>
+        <div class="ai-a">${t('이런 장르도 좋아할 거예요','You might also love')} → ${popG.alsoListenTo.map(id=>{const g=genreById(id);return g?`<a href="#genre/${g.id}" style="color:${g.color};font-weight:700">${t(g.nameKo,g.name)}</a>`:''}).filter(Boolean).join(', ')}</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div><div class="section-title">${t('시대별 스냅샷','Era Snapshot')}</div><div class="section-subtitle">${t('음악의 시간을 거슬러','Travel back through music history')}</div></div><a class="see-all" href="#timeline">${t('타임라인','Timeline')}</a></div>
+      <div class="grid-2">${eras.map(eraCardHTML).join('')}</div>
+    </section>
+  </div>`;
+  document.getElementById('view-root').innerHTML = html;
+  applyLang();
+  startLiveFeedLoop();
+  animateHomeStats();
+}
+
+/* ===================== RENDER: GENRES ===================== */
+let genreSort = 'all';
+let genreView = 'grid'; // 'grid' or 'map'
+
+const GENRE_MAP_COORDS = {
+  pop: {x: 400, y: 230},
+  kpop: {x: 520, y: 150},
+  rnb: {x: 280, y: 150},
+  electronic: {x: 510, y: 310},
+  hiphop: {x: 230, y: 230},
+  rock: {x: 570, y: 230},
+  metal: {x: 690, y: 160},
+  punk: {x: 690, y: 300},
+  indie: {x: 450, y: 90},
+  jazz: {x: 160, y: 120},
+  blues: {x: 120, y: 230},
+  classical: {x: 140, y: 340},
+  country: {x: 280, y: 340},
+  latin: {x: 400, y: 370},
+  reggae: {x: 310, y: 70}
+};
+
+function setGenreView(v) {
+  genreView = v;
+  renderGenres();
+}
+
+function highlightMapNode(id) {
+  const map = document.getElementById('genre-network-svg');
+  if (!map) return;
+  
+  const g = genreById(id);
+  if (!g) return;
+  
+  // Dim all nodes and lines
+  map.querySelectorAll('.map-node').forEach(n => {
+    n.classList.add('dimmed');
+    n.classList.remove('connected', 'highlighted');
+  });
+  
+  map.querySelectorAll('.map-link').forEach(l => {
+    l.classList.add('dimmed');
+    l.classList.remove('highlighted');
+  });
+  
+  // Highlight current node
+  const currentNode = map.querySelector(`.map-node[data-id="${id}"]`);
+  if (currentNode) {
+    currentNode.classList.remove('dimmed');
+    currentNode.classList.add('highlighted');
+  }
+  
+  // Find related ids
+  const relations = (g.relatedGenres || []).concat(g.alsoListenTo || []);
+  relations.forEach(relId => {
+    const relNode = map.querySelector(`.map-node[data-id="${relId}"]`);
+    if (relNode) {
+      relNode.classList.remove('dimmed');
+      relNode.classList.add('connected');
+    }
+    
+    // Highlight links
+    map.querySelectorAll(`.map-link[data-from="${id}"][data-to="${relId}"], .map-link[data-from="${relId}"][data-to="${id}"]`).forEach(l => {
+      l.classList.remove('dimmed');
+      l.classList.add('highlighted');
+    });
+  });
+  
+  // Update info card
+  const card = document.getElementById('map-desc-card');
+  if (card) {
+    card.style.opacity = 1;
+    card.innerHTML = `
+      <div style="font-size:16px; font-weight:800; color:${g.color}; display:flex; align-items:center; gap:8px;">
+        <span>${g.emoji}</span> <span>${t(g.nameKo, g.name)}</span>
+      </div>
+      <div style="font-size:11px; font-family:var(--font-mono); color:var(--text-secondary); margin-top:4px;">
+        ${t('탄생','Origin')}: ${g.eraOrigin} &nbsp;·&nbsp; ${fmtListeners(g.listeners)} ${t('청취자','listeners')}
+      </div>
+      <div style="font-size:12.5px; color:var(--text-primary); margin-top:8px; line-height:1.5;">
+        ${t(g.descriptionKo, g.description)}
+      </div>
+      <div style="font-size:11px; font-family:var(--font-mono); color:${g.color}; margin-top:8px; text-transform:uppercase; letter-spacing:0.5px;">
+        ${t('대표 아티스트','Top Artists')}: ${g.topArtists.slice(0,3).join(', ')}
+      </div>
+    `;
+  }
+}
+
+function resetMapHighlight() {
+  const map = document.getElementById('genre-network-svg');
+  if (!map) return;
+  
+  map.querySelectorAll('.map-node').forEach(n => {
+    n.classList.remove('dimmed', 'highlighted', 'connected');
+  });
+  
+  map.querySelectorAll('.map-link').forEach(l => {
+    l.classList.remove('dimmed', 'highlighted');
+  });
+  
+  const card = document.getElementById('map-desc-card');
+  if (card) {
+    card.style.opacity = 0.5;
+    card.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:12px; padding:20px 0;">${t('장르 노드에 마우스를 올리면 연결 정보와 세부 설명이 표시됩니다.','Hover over a genre node to view connections and details.')}</div>`;
+  }
+}
+
+function renderGenres(){
+  let list = [...GENRES];
+  if(genreSort==='era') list.sort((a,b)=>parseInt(a.eraOrigin)-parseInt(b.eraOrigin));
+  else if(genreSort==='popular') list.sort((a,b)=>b.listeners-a.listeners);
+  else if(genreSort==='alpha') list.sort((a,b)=>a.name.localeCompare(b.name));
+  
+  const filters = [['all','전체','All'],['era','시대순','By era'],['popular','인기순','Popular'],['alpha','알파벳순','A-Z']];
+  
+  const toggleHTML = `
+    <div class="view-toggle-bar" style="margin-bottom: var(--space-4); display: flex; gap: 8px;">
+      <button class="btn-outlined ${genreView==='grid'?'active':''}" onclick="setGenreView('grid')" style="font-family:var(--font-mono); font-size:10px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; padding:6px 14px;">${t('리스트 뷰','Grid List')}</button>
+      <button class="btn-outlined ${genreView==='map'?'active':''}" onclick="setGenreView('map')" style="font-family:var(--font-mono); font-size:10px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; padding:6px 14px;">${t('관계도 맵 뷰','Lineage Map')}</button>
+    </div>
+  `;
+  
+  let html = '';
+  if (genreView === 'grid') {
+    html = `<div class="view">
+      <div class="section-head" style="margin-bottom:var(--space-5)"><div><div class="section-title">${t('장르 탐색','Explore Genres')}</div><div class="section-subtitle">${t('15개 장르, 무한한 발견','15 genres, infinite discovery')}</div></div></div>
+      ${toggleHTML}
+      <div class="filter-bar">${filters.map(([k,ko,en])=>`<button class="btn-outlined ${genreSort===k?'active':''}" onclick="genreSort='${k}';renderGenres()">${t(ko,en)}</button>`).join('')}</div>
+      <div class="grid-3">${list.map(genreGridCardHTML).join('')}</div>
+    </div>`;
+  } else {
+    // Generate links
+    let linesHTML = '';
+    const drawn = new Set();
+    GENRES.forEach(g => {
+      const coordsA = GENRE_MAP_COORDS[g.id];
+      if (!coordsA) return;
+      const relations = (g.relatedGenres || []).concat(g.alsoListenTo || []);
+      relations.forEach(relId => {
+        const coordsB = GENRE_MAP_COORDS[relId];
+        if (!coordsB) return;
+        const key = [g.id, relId].sort().join('-');
+        if (!drawn.has(key)) {
+          drawn.add(key);
+          linesHTML += `<line class="map-link" data-from="${g.id}" data-to="${relId}" x1="${coordsA.x}" y1="${coordsA.y}" x2="${coordsB.x}" y2="${coordsB.y}" style="--link-color:${g.color};" />`;
+        }
+      });
+    });
+
+    // Generate nodes
+    let nodesHTML = '';
+    GENRES.forEach(g => {
+      const coords = GENRE_MAP_COORDS[g.id];
+      if (!coords) return;
+      nodesHTML += `
+        <g class="map-node" data-id="${g.id}" onclick="location.hash='#genre/${g.id}'" onmouseenter="highlightMapNode('${g.id}')" onmouseleave="resetMapHighlight()" style="--node-color:${g.color};">
+          <circle class="glow" cx="${coords.x}" cy="${coords.y}" r="25" fill="${g.color}10" stroke="${g.color}" stroke-width="1.2" />
+          <circle cx="${coords.x}" cy="${coords.y}" r="15" fill="${g.color}25" />
+          <text x="${coords.x}" y="${coords.y + 5}" font-size="13" text-anchor="middle" style="user-select:none; pointer-events:none;">${g.emoji}</text>
+          <text class="node-label" x="${coords.x}" y="${coords.y + 38}" fill="#ffffff" font-size="9.5" font-weight="700" text-anchor="middle" style="user-select:none; pointer-events:none; text-shadow: 0 1px 3px rgba(0,0,0,0.85);">${t(g.nameKo, g.name)}</text>
+        </g>
+      `;
+    });
+
+    html = `<div class="view">
+      <div class="section-head" style="margin-bottom:var(--space-5)"><div><div class="section-title">${t('장르 관계도 맵','Genre Lineage Map')}</div><div class="section-subtitle">${t('장르 간의 음악적 연결성과 유사도를 인터랙티브하게 탐험해 보세요.','Interactive sound networks mapping out audio kinship.')}</div></div></div>
+      ${toggleHTML}
+      
+      <div style="display:flex; flex-direction:column; gap:var(--space-4);">
+        <div style="background:#050505; border:1px solid var(--border-subtle); padding:var(--space-3); overflow-x:auto; position:relative; z-index:1;">
+          <svg id="genre-network-svg" width="800" height="420" viewBox="0 0 800 420" style="display:block; margin:0 auto; max-width:100%; overflow:visible;">
+            <rect width="800" height="420" fill="none" />
+            <g>${linesHTML}</g>
+            <g>${nodesHTML}</g>
+          </svg>
+        </div>
+        
+        <div id="map-desc-card" class="map-desc-card" style="opacity: 0.5;">
+          <div style="text-align:center; color:var(--text-muted); font-size:12px; padding:20px 0;">
+            ${t('장르 노드에 마우스를 올리면 연결 정보와 세부 설명이 표시됩니다.','Hover over a genre node to view connections and details.')}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+  
+  document.getElementById('view-root').innerHTML = html;
+  applyLang();
+}
+function genreGridCardHTML(g){
+  const maxL = 2800000000;
+  const pct = Math.round(g.listeners/maxL*100);
+  return `<a class="genre-card" href="#genre/${g.id}" style="background:linear-gradient(150deg,${g.color},${g.colorSecondary})">
+    <div>
+      <div class="gc-emoji">${g.emoji}</div>
+      <div class="gc-name" style="margin-top:8px">${t(g.nameKo,g.name)}<small>${g.id==='rnb'?'R&B / Soul':esc(g.name)}</small></div>
+    </div>
+    <div class="gc-sub">${g.subGenres.slice(0,4).map(s=>s.replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase())).join(' · ')}</div>
+    <div class="gc-foot">
+      <div class="listeners-bar">
+        <div class="lb-track"><div class="lb-fill" style="width:${pct}%"></div></div>
+        <div class="lb-label">${fmtListeners(g.listeners)} ${t('청취자','listeners')}</div>
+      </div>
+      <span class="gc-go">${t('탐색하기','Explore')} →</span>
+    </div>
+  </a>`;
+}
+
+/* ===================== RENDER: GENRE DETAIL ===================== */
+function renderGenreDetail(id){
+  const g = genreById(id);
+  if(!g){ renderGenres(); return; }
+  const songs = SONGS.filter(s=>s.genre===id).sort((a,b)=>b.popularity-a.popularity).slice(0,10);
+  const related = (g.alsoListenTo||g.relatedGenres).map(genreById).filter(Boolean);
+  const eraHistory = ERAS.filter(e=>e.dominantGenres.includes(id));
+  const songRows = songs.length ? songs.map((s,i)=>`
+    <div class="chart-row gd" onclick="playSong(${s.id})">
+      <div class="cr-rankcell"><span class="cr-rank">${i+1}</span><button class="btn-play sm cr-playbtn" onclick="event.stopPropagation();playSong(${s.id})">${ICON.play}</button></div>
+      <div class="cr-song">${artHTML(s)}<div style="min-width:0"><div class="cr-title">${esc(s.title)}</div><div class="cr-artist">${esc(s.artist)}</div></div></div>
+      <div class="cr-num cr-year">${s.year}</div>
+      <div class="cr-num">${fmtListeners(s.streamCount)}</div>
+      <div class="cr-num">${s.duration}</div>
+    </div>`).join('')
+    : `<div class="empty-state"><div class="es-emoji">🎧</div>${t('이 장르의 차트 곡은 준비 중이에요','Chart tracks for this genre are coming soon')}</div>`;
+
+  const html = `<div class="view">
+    <section class="genre-hero" style="background:linear-gradient(160deg,${g.color},${g.colorSecondary} 45%,#07050f)">
+      <div class="gh-emoji">${g.emoji}</div>
+      <div class="era-badge" style="width:fit-content;margin-bottom:12px;background:rgba(0,0,0,.3)">${t('탄생','Origin')}: ${g.eraOrigin}</div>
+      <h1>${t(g.nameKo,g.name)}</h1>
+      <div class="gh-desc">${t(g.descriptionKo,g.description)}</div>
+      <div class="char-pills">${g.characteristics.map(c=>`<span class="genre-tag" style="background:rgba(0,0,0,.28)">${esc(c)}</span>`).join('')}</div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div class="section-title">${t('인기 곡','Top Songs')}</div></div>
+      <div class="chart-head gd"><div style="text-align:center">#</div><div>${t('곡','Song')}</div><div class="cr-year" style="text-align:right">${t('연도','Year')}</div><div style="text-align:right">${t('스트림','Streams')}</div><div style="text-align:right">${t('길이','Length')}</div></div>
+      <div style="margin-top:8px">${songRows}</div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div class="section-title">${t('서브장르','Sub-Genres')}</div></div>
+      <div class="horizontal-scroll" style="overflow-x:auto">${g.subGenres.map(s=>`<span class="pill-tag">${s.replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}</span>`).join('')}</div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div><div class="section-title">${t('이 장르를 듣는 사람은 이것도 들어요','Also listen to')}</div><div class="section-subtitle">${t('연결된 사운드 탐험','Explore connected sounds')}</div></div></div>
+      <div class="grid-3">${related.map(r=>`
+        <a class="related-card" href="#genre/${r.id}">
+          <div class="rc-art" style="background:${artGradient(r.id)};display:grid;place-items:center;font-size:24px">${r.emoji}</div>
+          <div><div class="rc-name">${t(r.nameKo,r.name)}<small>${fmtListeners(r.listeners)} ${t('청취자','listeners')}</small></div></div>
+        </a>`).join('')}</div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div class="section-title">${t('대표 아티스트','Top Artists')}</div></div>
+      <div class="artist-grid">${g.topArtists.map(a=>`
+        <div class="artist-cell">
+          <div class="artist-avatar" style="background:${avatarColor(a)}">${initials(a)}</div>
+          <div class="an">${esc(a)}</div>
+        </div>`).join('')}</div>
+    </section>
+
+    ${eraHistory.length?`<section class="section">
+      <div class="section-head"><div><div class="section-title">${t('시대별 역사','In History')}</div><div class="section-subtitle">${t('이 장르가 빛난 시대','Eras where this genre shaped music')}</div></div></div>
+      <div class="horizontal-scroll">${eraHistory.map(e=>`
+        <a href="#timeline" class="song-card" style="width:220px;background:${e.gradient};text-decoration:none">
+          <div style="font-size:30px;font-weight:700">${e.decade}</div>
+          <div style="font-size:13px;font-weight:600;margin-top:6px;text-shadow:0 1px 4px rgba(0,0,0,.4)">${t(e.title,e.titleEn)}</div>
+        </a>`).join('')}</div>
+    </section>`:''}
+  </div>`;
+  document.getElementById('view-root').innerHTML = html;
+  applyLang();
+}
+
+/* ===================== RENDER: CHART ===================== */
+let chartGenreFilter = 'all', chartDecadeFilter = 'all';
+function rankChangeHTML(rc){
+  if(rc > 0) return `<span class="rank-change rc-up">▲ ${rc}</span>`;
+  if(rc < 0) return `<span class="rank-change rc-down">▼ ${Math.abs(rc)}</span>`;
+  return `<span class="rank-change rc-same">—</span>`;
+}
+function renderLiveGenreDynamics(){
+  const shares = [
+    {id: 'pop', pct: 28, color: '#ffffff', nameKo: '팝', nameEn: 'Pop'},
+    {id: 'hiphop', pct: 22, color: '#cccccc', nameKo: '힙합', nameEn: 'Hip-Hop'},
+    {id: 'kpop', pct: 18, color: '#aaaaaa', nameKo: '케이팝', nameEn: 'K-Pop'},
+    {id: 'rock', pct: 14, color: '#888888', nameKo: '록', nameEn: 'Rock'},
+    {id: 'electronic', pct: 10, color: '#555555', nameKo: '일렉트로닉', nameEn: 'Electronic'},
+    {id: 'others', pct: 8, color: '#222222', nameKo: '기타 장르', nameEn: 'Others'}
+  ];
+  
+  return `
+    <div class="share-widget">
+      <div class="sw-head">
+        <div class="sw-title"><span class="sw-pulsing-dot"></span>${t('실시간 장르 트렌드 점유율','Live Genre Market Share')}</div>
+        <div style="font-size:11px; color:var(--text-muted)">${t('매시간 실시간 스트리밍 가속도 반영','Updated hourly based on stream velocity')}</div>
+      </div>
+      <div class="sw-bars">
+        ${shares.map(s => `
+          <div class="sw-bar-row">
+            <span class="sw-bar-label">${t(s.nameKo, s.nameEn)}</span>
+            <div class="sw-bar-track"><div class="sw-bar-fill" style="width:${s.pct}%; background:${s.color}"></div></div>
+            <span class="sw-bar-val">${s.pct}%</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+function renderChart(){
+  let list = [...SONGS].sort((a,b)=>a.rank-b.rank);
+  if(chartGenreFilter!=='all') list = list.filter(s=>s.genre===chartGenreFilter);
+  if(chartDecadeFilter!=='all'){
+    const d = parseInt(chartDecadeFilter);
+    list = list.filter(s=>s.year>=d && s.year<d+10);
+  }
+  const genreOpts = [['all','전체','All'],...GENRES.map(g=>[g.id,g.nameKo,g.name])];
+  const decades = ['all',1970,1980,1990,2000,2010,2020];
+  const rows = list.length ? list.map(s=>`
+    <div class="chart-row" onclick="playSong(${s.id})">
+      <div class="cr-rankcell"><span class="cr-rank">${String(s.rank).padStart(2,'0')}</span><button class="btn-play sm cr-playbtn" onclick="event.stopPropagation();playSong(${s.id})">${ICON.play}</button></div>
+      <div class="cr-song">${artHTML(s)}<div style="min-width:0"><div class="cr-title">${esc(s.title)}</div><div class="cr-artist">${esc(s.artist)}</div></div></div>
+      <div class="cr-genre-col">${genreTagHTML(s.genre)}</div>
+      <div class="cr-num cr-year">${s.year}</div>
+      <div class="cr-num">${fmtListeners(s.streamCount)}</div>
+      <div class="cr-change">${rankChangeHTML(s.rankChange)}</div>
+    </div>`).join('') : `<div class="empty-state"><div class="es-emoji">🔍</div>${t('조건에 맞는 곡이 없어요','No tracks match these filters')}</div>`;
+  const html = `<div class="view">
+    <div class="section-head" style="margin-bottom:var(--space-5)"><div><div class="section-title">${t('차트 100','Chart 100')}</div><div class="section-subtitle">${t('지금 가장 많이 듣는 곡',"What the world is listening to")}</div></div></div>
+    ${renderLiveGenreDynamics()}
+    <div class="filter-bar">${genreOpts.map(([k,ko,en])=>`<button class="btn-outlined ${chartGenreFilter===k?'active':''}" onclick="chartGenreFilter='${k}';renderChart()">${t(ko,esc(en))}</button>`).join('')}</div>
+    <div class="filter-bar">${decades.map(d=>`<button class="btn-outlined ${chartDecadeFilter==d?'active':''}" onclick="chartDecadeFilter='${d}';renderChart()">${d==='all'?t('모든 연도','All years'):d+'s'}</button>`).join('')}</div>
+    <div class="chart-head">
+      <div style="text-align:center">#</div><div>${t('곡','Song')}</div>
+      <div class="ch-genre">${t('장르','Genre')}</div><div class="ch-year cr-year" style="text-align:right">${t('연도','Year')}</div>
+      <div style="text-align:right">${t('스트림','Streams')}</div><div class="ch-change" style="text-align:center">${t('변동','+/-')}</div>
+    </div>
+    <div style="margin-top:8px">${rows}</div>
+  </div>`;
+  document.getElementById('view-root').innerHTML = html;
+  applyLang();
+}
+
+/* ===================== RENDER: TIMELINE ===================== */
+function eraCardHTML(e){
+  return `<div class="era-card" onclick="this.classList.toggle('open')">
+    <div class="ec-top" style="background:${e.gradient}">
+      <div class="ec-decade">${e.decade}</div>
+      <div class="ec-title">${t(e.title,e.titleEn)}</div>
+    </div>
+    <div class="ec-body">
+      <p>${t(e.description,e.descriptionEn)}</p>
+      <div class="ec-label">${t('지배 장르','Dominant genres')}</div>
+      <div class="ec-genres">${e.dominantGenres.map(id=>{const g=genreById(id);return g?`<a class="genre-tag" href="#genre/${g.id}" onclick="event.stopPropagation()" style="background:${g.color}22;color:${g.color}"><span class="gt-dot" style="background:${g.color}"></span>${t(g.nameKo,g.name)}</a>`:''}).filter(Boolean).join('')}</div>
+      <div class="ec-label">${t('주요 아티스트','Key artists')}</div>
+      <div class="ec-genres">${e.keyArtists.map(a=>`<span class="pill-tag" style="font-size:11px;padding:6px 12px" onclick="event.stopPropagation()">${esc(a)}</span>`).join('')}</div>
+      <div class="ec-context">${esc(e.culturalContext)}</div>
+    </div>
+  </div>`;
+}
+function renderTimeline(){
+  const html = `<div class="view">
+    <div class="section-head" style="margin-bottom:var(--space-5)"><div><div class="section-title">${t('시대별 역사','Timeline')}</div><div class="section-subtitle">${t('카드를 눌러 시대를 펼쳐보세요 · 1950s → 2020s','Tap a card to expand · 1950s → 2020s')}</div></div></div>
+    <div class="timeline">${ERAS.map((e,i)=>`
+      ${eraCardHTML(e)}
+      ${i<ERAS.length-1 && ERAS[i].birth ? `<div style="align-self:center;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--text-secondary)">
+        <svg width="40" height="20" viewBox="0 0 40 20" fill="none"><path d="M2 10h32m0 0l-6-5m6 5l-6 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span style="font-family:var(--font-mono);font-size:10px;font-weight:800;white-space:nowrap;letter-spacing:0.5px">${ERAS[i].birth}</span>
+      </div>`:''}
+    `).join('')}</div>
+  </div>`;
+  document.getElementById('view-root').innerHTML = html;
+  applyLang();
+}
+
+/* ===================== RENDER: SEARCH ===================== */
+let searchQuery = '';
+const AI_RULES = [
+  {keys:['빠르','시끄','기타','fast','loud','guitar'],genres:['rock','metal','punk'],ko:'빠르고 강렬한 기타 사운드네요',en:'Sounds like fast, intense guitar music'},
+  {keys:['느리','감성','슬프','slow','emotional','sad','mellow'],genres:['indie','jazz','rnb'],ko:'느리고 감성적인 분위기예요',en:'A slow, emotional mood'},
+  {keys:['반복','비트','전자','신스','repetitive','beat','electronic','synth'],genres:['electronic','hiphop'],ko:'반복적인 비트 기반 사운드네요',en:'Repetitive, beat-driven sound'},
+  {keys:['퍼포먼스','군무','아이돌','choreo','performance','idol'],genres:['kpop'],ko:'완벽한 퍼포먼스의 음악이네요',en:'Music built around perfect performance'},
+];
+function runAISuggest(q){
+  const lower = q.toLowerCase();
+  for(const r of AI_RULES){ if(r.keys.some(k=>lower.includes(k))) return r; }
+  return null;
+}
+function renderSearch(){
+  const q = searchQuery.trim();
+  let results = [], ai = null;
+  if(q){
+    const lower = q.toLowerCase();
+    results = SONGS.filter(s=>s.title.toLowerCase().includes(lower)||s.artist.toLowerCase().includes(lower));
+    ai = runAISuggest(q);
+  }
+  const examples = ['빠르고 시끄러운 기타','느리고 감성적인','반복적인 비트','완벽한 퍼포먼스'];
+  let body;
+  if(!q){
+    body = `<div class="empty-state"><div class="es-emoji">▲</div>${t('곡명·아티스트를 검색하거나, 느낌을 설명해보세요','Search a song / artist, or describe a vibe')}</div>`;
+  } else {
+    const aiHTML = ai ? `<div class="ai-result">
+      <div class="ai-q">[SYSTEM] ${t('AI 장르 식별','AI genre detection')}: "${esc(q)}"</div>
+      <div class="ai-a">${t(ai.ko,ai.en)} → ${ai.genres.map(id=>{const g=genreById(id);return `<a href="#genre/${g.id}" style="color:${g.color};font-weight:700">${t(g.nameKo,g.name)}</a>`}).join(', ')}</div>
+    </div>` : '';
+    const resHTML = results.length ? `<div class="section-head"><div class="section-title">${t('검색 결과','Results')} (${results.length})</div></div>
+      <div class="grid-3">${results.map(s=>`
+        <div class="related-card" onclick="playSong(${s.id})">
+          <div class="rc-art" style="background:${artGradient(s.genre)};display:grid;place-items:center;font-size:18px">${genreById(s.genre).emoji}</div>
+          <div style="min-width:0"><div class="rc-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(s.title)}<small>${esc(s.artist)} · ${s.year}</small></div><div style="margin-top:6px">${genreTagHTML(s.genre)}</div></div>
+        </div>`).join('')}</div>`
+      : (ai ? '' : `<div class="empty-state"><div class="es-emoji">◆</div>${t('일치하는 곡이 없어요. 느낌을 설명해볼까요?','No matching songs. Try describing a vibe instead.')}</div>`);
+    body = aiHTML + resHTML;
+  }
+  const html = `<div class="view">
+    <div class="section-head" style="margin-bottom:var(--space-5)"><div><div class="section-title">${t('장르 검색','Search')}</div><div class="section-subtitle">${t('곡·아티스트 검색 또는 느낌으로 장르 찾기','Find by track, artist, or vibe')}</div></div></div>
+    <div class="search-box">
+      ${ICON.search}
+      <input class="search-input" id="search-input" value="${esc(searchQuery)}" placeholder="${t('곡명, 아티스트, 또는 느낌…','Song, artist, or a vibe…')}" oninput="onSearchInput(this.value)" autocomplete="off">
+    </div>
+    <div class="ai-suggest">${examples.map(e=>`<button class="pill-tag" onclick="quickSearch('${e}')">${e}</button>`).join('')}</div>
+    ${body}
+  </div>`;
+  document.getElementById('view-root').innerHTML = html;
+  applyLang();
+  const inp = document.getElementById('search-input');
+  if(inp && q){ inp.focus(); inp.setSelectionRange(inp.value.length,inp.value.length); }
+}
+let searchTimer;
+function onSearchInput(v){
+  searchQuery = v;
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(renderSearch, 220);
+}
+function quickSearch(v){ searchQuery = v; renderSearch(); }
+
+/* ===================== RENDER: TASTE DNA ===================== */
+let tasteState = { step: 1, genres: [], vibe: '', era: '' };
+
+function renderTaste(){
+  const root = document.getElementById('view-root');
+  if (tasteState.step === 'result') {
+    renderTasteResult(root);
+    return;
+  }
+  
+  let content = '';
+  if (tasteState.step === 1) {
+    const genreButtons = GENRES.map(g => {
+      const isSelected = tasteState.genres.includes(g.id);
+      return `<button class="taste-option-btn ${isSelected?'selected':''}" onclick="toggleTasteGenre('${g.id}')">
+        <span>${g.emoji}</span>
+        <span>${t(g.nameKo, g.name)}</span>
+      </button>`;
+    }).join('');
+    
+    content = `
+      <div class="taste-step">
+        <div class="taste-step-title">Step 1. ${t('최애 장르 선택 (최대 3개)','Select Favorite Genres (Max 3)')}</div>
+        <div class="taste-step-desc">${t('당신의 가슴을 뛰게 만드는 장르들을 골라보세요.','Choose the genres that make your heart beat.')}</div>
+        <div class="taste-grid-toggle">${genreButtons}</div>
+      </div>
+    `;
+  } else if (tasteState.step === 2) {
+    const vibes = [
+      {id: 'hype', ko: '신나고 파워풀한 비트', en: 'Hype & Powerful Beats', emoji: '●'},
+      {id: 'chill', ko: '차분하고 몽환적인 감성', en: 'Calm & Dreamy Vibes', emoji: '◆'},
+      {id: 'emotional', ko: '서정적이고 아련한 멜로디', en: 'Melodic & Emotional', emoji: '▲'},
+      {id: 'intense', ko: '어둡고 묵직한 날것의 에너지', en: 'Dark & Intense Raw Energy', emoji: '▼'}
+    ];
+    
+    const vibeButtons = vibes.map(v => {
+      const isSelected = tasteState.vibe === v.id;
+      return `<button class="taste-option-btn ${isSelected?'selected':''}" onclick="selectTasteVibe('${v.id}')">
+        <span>${v.emoji}</span>
+        <span>${t(v.ko, v.en)}</span>
+      </button>`;
+    }).join('');
+
+    content = `
+      <div class="taste-step">
+        <div class="taste-step-title">Step 2. ${t('선호하는 음악 분위기','Preferred Music Vibe')}</div>
+        <div class="taste-step-desc">${t('지금 끌리는 음악적 색깔은 무엇인가요?','What musical colors are you drawn to right now?')}</div>
+        <div class="taste-grid-toggle" style="grid-template-columns: 1fr;">${vibeButtons}</div>
+      </div>
+    `;
+  } else if (tasteState.step === 3) {
+    const eras = [
+      {id: 'retro', ko: '클래식 레트로 (1950s - 1970s)', en: 'Classic Retro (1950s - 1970s)', emoji: '■'},
+      {id: 'millennium', ko: '골든 밀레니엄 (1980s - 2000s)', en: 'Golden Millennium (1980s - 2000s)', emoji: '▬'},
+      {id: 'modern', ko: '트렌디 디지털 (2010s - 2020s)', en: 'Trendy Digital (2010s - 2020s)', emoji: '✦'}
+    ];
+    
+    const eraButtons = eras.map(e => {
+      const isSelected = tasteState.era === e.id;
+      return `<button class="taste-option-btn ${isSelected?'selected':''}" onclick="selectTasteEra('${e.id}')">
+        <span>${e.emoji}</span>
+        <span>${t(e.ko, e.en)}</span>
+      </button>`;
+    }).join('');
+
+    content = `
+      <div class="taste-step">
+        <div class="taste-step-title">Step 3. ${t('선호하는 시대 감성','Preferred Music Era')}</div>
+        <div class="taste-step-desc">${t('당신의 감성이 머무는 시간대를 선택해 주세요.','Select the era where your sentiment belongs.')}</div>
+        <div class="taste-grid-toggle" style="grid-template-columns: 1fr;">${eraButtons}</div>
+      </div>
+    `;
+  }
+  
+  const stepDots = [1, 2, 3].map(s => 
+    `<div class="tpd-dot ${tasteState.step===s?'active':''}"></div>`
+  ).join('');
+
+  const nextBtn = tasteState.step === 3 
+    ? `<button class="btn-primary" onclick="calculateTasteDNA()">${t('DNA 분석하기','Analyze DNA')}</button>`
+    : `<button class="btn-secondary" onclick="nextTasteStep()">${t('다음 단계','Next')} →</button>`;
+    
+  const prevBtn = tasteState.step > 1 
+    ? `<button class="btn-outlined" onclick="prevTasteStep()">← ${t('이전','Prev')}</button>`
+    : `<div></div>`;
+
+  const html = `
+    <div class="view">
+      <div class="section-head" style="margin-bottom:var(--space-6)">
+        <div>
+          <div class="section-title">${t('취향 DNA 분석기','Taste DNA Profiler')}</div>
+          <div class="section-subtitle">${t('선택을 통해 나만의 음악적 자아를 발견해 보세요','Discover your musical ego through steps')}</div>
+        </div>
+      </div>
+      
+      <div class="taste-container">
+        ${content}
+        
+        <div class="taste-progress">
+          ${prevBtn}
+          <div class="taste-progress-dots">${stepDots}</div>
+          ${nextBtn}
+        </div>
+      </div>
+    </div>
+  `;
+  root.innerHTML = html;
+  applyLang();
+}
+
+function toggleTasteGenre(id){
+  const idx = tasteState.genres.indexOf(id);
+  if (idx > -1) {
+    tasteState.genres.splice(idx, 1);
+  } else {
+    if (tasteState.genres.length < 3) {
+      tasteState.genres.push(id);
+    }
+  }
+  renderTaste();
+}
+
+function selectTasteVibe(id){
+  tasteState.vibe = id;
+  renderTaste();
+}
+
+function selectTasteEra(id){
+  tasteState.era = id;
+  renderTaste();
+}
+
+function nextTasteStep(){
+  if (tasteState.step === 1 && tasteState.genres.length === 0) {
+    alert(t('최소 1개의 장르를 선택해 주세요!','Please select at least 1 genre!'));
+    return;
+  }
+  tasteState.step++;
+  renderTaste();
+}
+
+function prevTasteStep(){
+  tasteState.step--;
+  renderTaste();
+}
+
+function calculateTasteDNA(){
+  if (!tasteState.vibe) {
+    alert(t('음악 분위기를 선택해 주세요!','Please select a music vibe!'));
+    return;
+  }
+  if (!tasteState.era) {
+    alert(t('선호하는 시대를 선택해 주세요!','Please select a preferred era!'));
+    return;
+  }
+  tasteState.step = 'result';
+  renderTaste();
+}
+
+function resetTaste(){
+  tasteState = { step:1, genres:[], vibe:'', era:'' };
+  renderTaste();
+}
+
+function renderTasteResult(root){
+  const gs = tasteState.genres;
+  const vb = tasteState.vibe;
+  const er = tasteState.era;
+  
+  let profileKo = '자유로운 사운드 탐험가';
+  let profileEn = 'Eclectic Sound Explorer';
+  let descKo = '당신은 장르에 얽매이지 않고 소리의 다채로움을 즐기는 모험가입니다. 다양한 음악적 요소를 즐기는 능력이 뛰어납니다.';
+  let descEn = 'You are an adventurer who enjoys the colorful textures of sound, unbound by strict genre barriers. You appreciate diverse elements.';
+  let badge = 'EXPLORER';
+  
+  if ((gs.includes('rock') || gs.includes('metal') || gs.includes('punk')) && vb === 'intense') {
+    profileKo = '강철 같은 에너지 리프 추적자';
+    profileEn = 'Heavy Metal Iron Riffer';
+    descKo = '거친 일렉 기타의 포효와 가슴을 때리는 비트에 본능적으로 끌리는 군요. 파워풀하고 정제되지 않은 진정성을 소중히 여깁니다.';
+    descEn = 'You are drawn to raw electric guitars and thunderous beats. You value heavy energy and unpolished musical authenticity.';
+    badge = 'RAW POWER';
+  } else if ((gs.includes('jazz') || gs.includes('blues') || gs.includes('rnb')) && vb === 'chill') {
+    profileKo = '미드나잇 소울 메이트';
+    profileEn = 'Midnight Soul Cruiser';
+    descKo = '차분하고 그루브한 베이스와 재즈틱한 화음 속에서 가장 편안함을 느낍니다. 낭만적이고 사색적인 밤에 어울리는 감성의 소유자입니다.';
+    descEn = 'You find peace in warm, groovy basslines and jazz chords. A true romantic who belongs in the quiet hours of a rainy evening.';
+    badge = 'GROOVE & SOUL';
+  } else if ((gs.includes('pop') || gs.includes('kpop') || gs.includes('electronic')) && vb === 'hype') {
+    profileKo = '짜릿한 스파클링 리듬 체이서';
+    profileEn = 'Sparkling Rhythm Chaser';
+    descKo = '캐치한 훅 멜로디와 어깨를 들썩이게 만드는 화려한 일렉트로닉 비트에 열광합니다. 트렌디한 감각과 에너제틱한 삶의 태도를 가지고 있습니다.';
+    descEn = 'You thrive on catchy hooks and neon synth beats. You have a trendy ear and a dynamic, high-energy outlook on life.';
+    badge = 'SPARKLING HYPE';
+  } else if (gs.includes('indie') || vb === 'emotional') {
+    profileKo = '아날로그 다이어리 몽상가';
+    profileEn = 'Analog Diary Dreamer';
+    descKo = '세련됨보다는 가사 한 줄에 스며든 진정성 있는 멜로디에 감동받습니다. 몽환적이거나 아련한 어쿠스틱 사운드를 탐색하는 섬세한 취향을 지녔습니다.';
+    descEn = 'You prefer authentic lyricism and genuine emotions over commercial polish. You possess a delicate ear for dreamy, reflective sounds.';
+    badge = 'MELODIC DREAM';
+  }
+  
+  let melody = 35 + (vb === 'emotional' ? 35 : 0) + (gs.includes('pop') || gs.includes('rnb') ? 15 : 0) + (gs.includes('kpop') ? 10 : 0);
+  let rhythm = 30 + (vb === 'hype' ? 40 : 0) + (gs.includes('hiphop') || gs.includes('electronic') ? 20 : 0) + (gs.includes('latin') ? 10 : 0);
+  let acoustic = 30 + (er === 'retro' ? 40 : 0) + (gs.includes('jazz') || gs.includes('classical') || gs.includes('blues') || gs.includes('country') ? 20 : 0);
+  let electronic = 25 + (er === 'modern' ? 20 : 0) + (gs.includes('electronic') || gs.includes('metal') ? 35 : 0) + (gs.includes('kpop') ? 10 : 0);
+  
+  melody = Math.min(98, melody);
+  rhythm = Math.min(98, rhythm);
+  acoustic = Math.min(98, acoustic);
+  electronic = Math.min(98, electronic);
+  
+  const recSongs = SONGS.filter(s => gs.includes(s.genre)).slice(0, 3);
+  const finalRecSongs = recSongs.length ? recSongs : SONGS.slice(0, 3);
+  
+  const relatedG = gs.map(genreById).filter(Boolean).flatMap(g => g.relatedGenres).filter((v, i, self) => self.indexOf(v) === i && !gs.includes(v)).slice(0, 3).map(genreById).filter(Boolean);
+  const finalRelatedG = relatedG.length ? relatedG : [genreById('indie'), genreById('rnb')];
+
+  const html = `
+    <div class="view td-result">
+      <div class="section-head" style="margin-bottom:var(--space-5)">
+        <div>
+          <div class="section-title">${t('나의 음악 취향 DNA','My Music Taste DNA')}</div>
+          <div class="section-subtitle">${t('당신의 음악적 자아가 지닌 특성을 분석한 결과입니다.','The analytical profile of your musical ego.')}</div>
+        </div>
+      </div>
+      
+      <div class="taste-container">
+        <span class="td-badge">${badge}</span>
+        <div class="td-dna-name">${t(profileKo, profileEn)}</div>
+        <div class="td-dna-desc">${t(descKo, descEn)}</div>
+        
+        <div class="td-visual-row">
+          <div class="td-chart">
+            <div class="ec-label">${t('음악적 4대 성향','Four Musical Core Values')}</div>
+            <div class="td-chart-item">
+              <div class="td-chart-label"><span>${t('멜로디 감수성 (Melody Focus)','Melody Sensitivity')}</span><span>${melody}%</span></div>
+              <div class="td-chart-bar"><div class="td-chart-fill" style="width:${melody}%"></div></div>
+            </div>
+            <div class="td-chart-item">
+              <div class="td-chart-label"><span>${t('리듬 & 비트 타격감 (Rhythm & Beat)','Rhythm & Beat Impact')}</span><span>${rhythm}%</span></div>
+              <div class="td-chart-bar"><div class="td-chart-fill" style="width:${rhythm}%"></div></div>
+            </div>
+            <div class="td-chart-item">
+              <div class="td-chart-label"><span>${t('아날로그 감성 온도 (Acoustic Warmth)','Acoustic Sentiment')}</span><span>${acoustic}%</span></div>
+              <div class="td-chart-bar"><div class="td-chart-fill" style="width:${acoustic}%"></div></div>
+            </div>
+            <div class="td-chart-item">
+              <div class="td-chart-label"><span>${t('일렉트로닉 에너지 (Electronic Energy)','Electronic Energy')}</span><span>${electronic}%</span></div>
+              <div class="td-chart-bar"><div class="td-chart-fill" style="width:${electronic}%"></div></div>
+            </div>
+          </div>
+          
+          <div style="display:flex; flex-direction:column; gap:var(--space-4)">
+            <div class="ec-label">${t('연결된 새로운 장르 추천','Connected Genres For You')}</div>
+            <div style="display:flex; flex-direction:column; gap:8px">
+              ${finalRelatedG.map(g => `
+                <a class="related-card" href="#genre/${g.id}" style="padding:10px">
+                  <div class="rc-art" style="background:${artGradient(g.id)};width:36px;height:36px;display:grid;place-items:center;font-size:16px">${g.emoji}</div>
+                  <div><div class="rc-name" style="font-size:13px">${t(g.nameKo,g.name)}</div></div>
+                </a>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+        
+        <div class="section" style="margin-bottom: var(--space-5);">
+          <div class="ec-label">${t('당신의 DNA에 매칭되는 숨겨진 명곡','Tracks Matching Your DNA')}</div>
+          <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top:8px">
+            ${finalRecSongs.map(s => `
+              <div class="song-card" style="width:100%" onclick="playSong(${s.id})">
+                ${artHTML(s)}
+                <div class="sc-title" style="font-size:12px">${esc(s.title)}</div>
+                <div class="sc-artist" style="font-size:10px">${esc(s.artist)}</div>
+                <div class="sc-meta">${genreTagHTML(s.genre)}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        
+        <div style="display:flex; justify-content:flex-end; margin-top:var(--space-4)">
+          <button class="btn-outlined" onclick="resetTaste()">${t('다시 분석하기','Retake Test')}</button>
+        </div>
+      </div>
+    </div>
+  `;
+  root.innerHTML = html;
+  applyLang();
+}
+
+/* ===================== NOW PLAYING / VIBE ANALYZER ===================== */
+let npState = { song:null, playing:false, elapsed:0, total:0, timer:null, volume:0.7 };
+
+function getVibeData(song) {
+  const hash = (song.id * 17) % 100;
+  let tempo = 120;
+  let energy = 70 + (hash % 25);
+  let mood = 50 + (hash % 41) - 20;
+  let organic = 15 + (hash % 70);
+  
+  if (song.genre === 'pop') {
+    tempo = 100 + (hash % 30);
+    organic = Math.max(10, organic - 20);
+  } else if (song.genre === 'hiphop') {
+    tempo = 80 + (hash % 20);
+    energy = Math.max(70, energy);
+    organic = Math.max(15, organic - 15);
+  } else if (song.genre === 'rock') {
+    tempo = 115 + (hash % 30);
+    energy = Math.max(75, energy);
+    organic = Math.max(30, organic + 10);
+  } else if (song.genre === 'metal') {
+    tempo = 135 + (hash % 40);
+    energy = Math.max(85, energy + 10);
+    organic = Math.min(25, organic / 2);
+  } else if (song.genre === 'electronic') {
+    tempo = 120 + (hash % 20);
+    organic = Math.min(20, organic / 3);
+  } else if (song.genre === 'rnb') {
+    tempo = 70 + (hash % 30);
+    organic = Math.max(40, organic + 15);
+    energy = Math.min(75, energy);
+  } else if (song.genre === 'jazz') {
+    tempo = 60 + (hash % 50);
+    organic = Math.max(70, organic + 30);
+    energy = Math.min(60, energy - 10);
+  } else if (song.genre === 'classical') {
+    tempo = 50 + (hash % 80);
+    organic = 95;
+    energy = Math.min(50, energy - 20);
+  } else if (song.genre === 'kpop') {
+    tempo = 110 + (hash % 30);
+    organic = Math.max(10, organic - 20);
+    energy = Math.max(80, energy);
+  } else if (song.genre === 'indie') {
+    tempo = 90 + (hash % 40);
+    organic = Math.max(45, organic + 15);
+  }
+  
+  tempo = Math.round(tempo);
+  energy = Math.min(100, Math.max(0, Math.round(energy)));
+  mood = Math.min(100, Math.max(0, Math.round(mood)));
+  organic = Math.min(100, Math.max(0, Math.round(organic)));
+
+  const g = genreById(song.genre);
+  const genreName = g ? t(g.nameKo, g.name) : song.genre;
+  
+  let analysisKo = `이 곡은 ${song.year}년에 발표된 ${song.artist}의 작품으로, ${genreName} 장르 특유의 예술적 기법과 고유한 사운드가 돋보입니다. 템포는 ${tempo} BPM으로 안정적이면서도 리드미컬한 긴장감을 유지하며, ${energy}%의 높은 에너지 레벨을 바탕으로 곡의 테마를 힘 있게 전달합니다. 특히 전자 악기와 어쿠스틱 사운드의 비율이 적절히 조화를 이루어, 이 장르를 선호하는 이들의 취향에 아주 잘 부합하는 명곡입니다.`;
+  let analysisEn = `Released in ${song.year} by ${song.artist}, this track is a stellar representation of the ${song.genre.toUpperCase()} genre. Clocking in at ${tempo} BPM, it strikes an elegant balance between rhythm and emotional depth. With an energy rating of ${energy}%, it drives its musical theme forward with absolute confidence. The mix showcases a ${organic}% acoustic texture blended with genre-defining elements, offering a rich soundscape for curious ears.`;
+
+  return { tempo, energy, mood, organic, analysisKo, analysisEn };
+}
+
+function closeVibeAnalyzer(){
+  document.getElementById('vibe-analyzer').classList.remove('open');
+}
+
+function renderVibeAnalyzer(){
+  const drawer = document.getElementById('vibe-analyzer');
+  if(!npState.song){
+    drawer.innerHTML = '';
+    drawer.classList.remove('open');
+    stopVisualizer();
+    return;
+  }
+  const s = npState.song;
+  const v = getVibeData(s);
+  
+  let waveBars = '';
+  const barCount = 25;
+  for (let i = 0; i < barCount; i++) {
+    const h = 8 + Math.round(Math.abs(Math.sin((i / barCount) * Math.PI * 2) * 16)) + (s.id * i % 6);
+    waveBars += `<rect class="va-bar va-bar-${i}" x="${i * 7 + 2}" y="${16 - h/2}" width="4.5" height="${h}" rx="1.5"/>`;
+  }
+
+  drawer.innerHTML = `
+    <div class="va-head">
+      <h2>${t('바이브 분석기','Vibe Analyzer')}</h2>
+      <button class="va-close" onclick="closeVibeAnalyzer()">${ICON.close}</button>
+    </div>
+    <div class="va-body">
+      <div class="va-song-show">
+        <div class="va-art-wrap" style="background:${artGradient(s.genre)}">
+          <span style="opacity:0.8">${genreById(s.genre)?.emoji || '🎵'}</span>
+        </div>
+        <div class="va-title">${esc(s.title)}</div>
+        <div class="va-artist">${esc(s.artist)}</div>
+        <div style="margin-top:6px">${genreTagHTML(s.genre)}</div>
+      </div>
+      
+      <div class="va-player-ctrl">
+        <div class="vap-row">
+          <button class="btn-play sm" onclick="togglePlay()">${npState.playing?ICON.pause:ICON.play}</button>
+          <span class="vap-time" id="va-elapsed">0:00</span>
+          <svg class="va-wave-svg" id="va-wave" onclick="seekWave(event)" viewBox="0 0 180 32">
+            ${waveBars}
+          </svg>
+          <span class="vap-time">${s.duration}</span>
+        </div>
+      </div>
+      
+      <!-- Simulated real-time canvas visualizer -->
+      <canvas id="va-visualizer" width="360" height="60" style="width:100%; height:60px; background:#050505; border:1px solid var(--border-subtle); display:block; margin: 12px 0 4px; border-radius:6px;"></canvas>
+
+      <div class="va-stats">
+        <div class="va-stat-row">
+          <div class="va-stat-lbl"><span>${t('에너지 (Energy)','Energy')}</span><span>${v.energy}%</span></div>
+          <div class="va-stat-track"><div class="va-stat-fill" style="width:${v.energy}%"></div></div>
+        </div>
+        <div class="va-stat-row">
+          <div class="va-stat-lbl"><span>${t('템포 (Tempo)','Tempo')}</span><span>${v.tempo} BPM</span></div>
+          <div class="va-stat-track"><div class="va-stat-fill" style="width:${(v.tempo - 40) / 140 * 100}%"></div></div>
+        </div>
+        <div class="va-stat-row">
+          <div class="va-stat-lbl"><span>${t('어쿠스틱 감성 (Acoustic)','Acoustic Warmth')}</span><span>${v.organic}%</span></div>
+          <div class="va-stat-track"><div class="va-stat-fill" style="width:${v.organic}%"></div></div>
+        </div>
+        <div class="va-stat-row">
+          <div class="va-stat-lbl"><span>${t('감정 온도 (Mood)','Emotional Mood')}</span><span>${v.mood > 60 ? t('쾌활함/밝음','Bright/Happy') : t('차분함/어두움','Calm/Moody')} (${v.mood}%)</span></div>
+          <div class="va-stat-track"><div class="va-stat-fill" style="width:${v.mood}%"></div></div>
+        </div>
+      </div>
+
+      <div class="va-anal-text">
+        ${t(v.analysisKo, v.analysisEn)}
+      </div>
+    </div>`;
+  
+  drawer.classList.add('open');
+  updateProgress();
+  if (npState.playing) {
+    startVisualizer();
+  }
+}
+
+function playSong(id){
+  const song = SONGS.find(s=>s.id===id);
+  if(!song) return;
+  npState.song = song;
+  npState.total = durToSec(song.duration);
+  npState.elapsed = 0;
+  npState.playing = true;
+  renderVibeAnalyzer();
+  startTimer();
+  startVisualizer();
+}
+
+function togglePlay(){
+  if(!npState.song) return;
+  npState.playing = !npState.playing;
+  if(npState.playing) {
+    startTimer();
+    startVisualizer();
+  } else {
+    stopTimer();
+    stopVisualizer();
+  }
+  const btn = document.querySelector('.va-player-ctrl .btn-play');
+  if(btn) btn.innerHTML = npState.playing ? ICON.pause : ICON.play;
+}
+
+function startTimer(){
+  stopTimer();
+  npState.timer = setInterval(()=>{
+    if(npState.elapsed >= npState.total){ nextSong(); return; }
+    npState.elapsed++;
+    updateProgress();
+  }, 1000);
+}
+
+/* ===================== NEW PREMIUM UTILITIES & ANIMATIONS ===================== */
+let visualizerAnimationId = null;
+function startVisualizer() {
+  stopVisualizer();
+  const canvas = document.getElementById('va-visualizer');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const song = npState.song;
+  if (!song) return;
+  const vibe = getVibeData(song);
+  const genre = genreById(song.genre);
+  const color1 = genre ? genre.color : '#00ffff';
+  const color2 = genre ? genre.colorSecondary || '#ff00ff' : '#ff00ff';
+  
+  let frame = 0;
+  function draw() {
+    if (!npState.playing || !document.getElementById('va-visualizer')) {
+      visualizerAnimationId = null;
+      return;
+    }
+    visualizerAnimationId = requestAnimationFrame(draw);
+    
+    // Clear canvas
+    ctx.fillStyle = '#050505';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    const width = canvas.width;
+    const height = canvas.height;
+    const barWidth = 4;
+    const barGap = 3;
+    const totalBars = Math.floor(width / (barWidth + barGap));
+    
+    // Create gradient
+    const gradient = ctx.createLinearGradient(0, height, 0, 0);
+    gradient.addColorStop(0, color1);
+    gradient.addColorStop(1, color2);
+    
+    frame += (vibe.tempo / 60) * 0.05; // speed depends on tempo
+    const energyFactor = vibe.energy / 100;
+    
+    for (let i = 0; i < totalBars; i++) {
+      const wave1 = Math.sin(i * 0.15 + frame) * 0.4;
+      const wave2 = Math.sin(i * 0.3 - frame * 1.5) * 0.2;
+      const wave3 = Math.cos(i * 0.05 + frame * 0.8) * 0.3;
+      
+      let noise = (Math.sin(i * 2.3 + frame * 10) * 0.1) * energyFactor;
+      
+      let amplitude = (wave1 + wave2 + wave3 + 0.5) * energyFactor * 0.8 + 0.1 + noise;
+      amplitude = Math.max(0.05, Math.min(1, amplitude));
+      
+      const barHeight = amplitude * height * 0.85;
+      const x = i * (barWidth + barGap);
+      const y = height - barHeight;
+      
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      if (typeof ctx.roundRect === 'function') {
+        ctx.roundRect(x, y, barWidth, barHeight, 2);
+      } else {
+        ctx.rect(x, y, barWidth, barHeight);
+      }
+      ctx.fill();
+    }
+  }
+  
+  visualizerAnimationId = requestAnimationFrame(draw);
+}
+
+function stopVisualizer() {
+  if (visualizerAnimationId) {
+    cancelAnimationFrame(visualizerAnimationId);
+    visualizerAnimationId = null;
+  }
+}
+
+// Live Listener Feed data & functions
+const FEED_USERS = ['Lucas', 'Emma', 'Minho', 'Sophia', 'Yuki', 'Oliver', 'Chloe', 'Ji-won', 'Leo', 'Mia', 'Aiden', 'Elena', 'Haruto', 'Amelie'];
+const FEED_CITIES = ['Paris', 'Seoul', 'Tokyo', 'London', 'New York', 'Berlin', 'Sydney', 'Toronto', 'Singapore', 'Mumbai', 'Vienna', 'São Paulo'];
+let liveFeedIntervalId = null;
+
+function updateLiveFeed() {
+  const container = document.getElementById('live-feed-container');
+  if (!container) return;
+  
+  const user = FEED_USERS[Math.floor(Math.random() * FEED_USERS.length)];
+  const city = FEED_CITIES[Math.floor(Math.random() * FEED_CITIES.length)];
+  const song = SONGS[Math.floor(Math.random() * SONGS.length)];
+  const actionType = Math.random() > 0.4 ? 'play' : 'fav';
+  
+  let textKo = '', textEn = '';
+  if (actionType === 'play') {
+    textKo = `${user} (${city}) 님이 <span class="feed-song" onclick="playSong(${song.id})" style="color:var(--accent-cyan); cursor:pointer; font-weight:700; text-decoration:underline">${esc(song.title)}</span> 재생 시작`;
+    textEn = `${user} in ${city} started playing <span class="feed-song" onclick="playSong(${song.id})" style="color:var(--accent-cyan); cursor:pointer; font-weight:700; text-decoration:underline">${esc(song.title)}</span>`;
+  } else {
+    textKo = `${user} (${city}) 님이 <span class="feed-song" onclick="playSong(${song.id})" style="color:var(--accent-cyan); cursor:pointer; font-weight:700; text-decoration:underline">${esc(song.title)}</span> 곡을 최애 저장!`;
+    textEn = `${user} in ${city} favorited <span class="feed-song" onclick="playSong(${song.id})" style="color:var(--accent-cyan); cursor:pointer; font-weight:700; text-decoration:underline">${esc(song.title)}</span>`;
+  }
+  
+  const item = document.createElement('div');
+  item.className = 'live-feed-item';
+  item.style.fontSize = '11.5px';
+  item.style.borderBottom = '1px solid var(--border-subtle)';
+  item.style.padding = '8px 0';
+  item.style.display = 'flex';
+  item.style.justifyContent = 'space-between';
+  item.style.alignItems = 'center';
+  
+  const textSpan = document.createElement('span');
+  textSpan.innerHTML = currentLang === 'ko' ? textKo : textEn;
+  textSpan.dataset.ko = textKo;
+  textSpan.dataset.en = textEn;
+  textSpan.className = 'feed-text';
+  
+  const timeSpan = document.createElement('span');
+  timeSpan.style.color = 'var(--text-muted)';
+  timeSpan.style.fontSize = '9px';
+  timeSpan.style.fontFamily = 'var(--font-mono)';
+  timeSpan.textContent = t('방금 전', 'just now');
+  timeSpan.dataset.ko = '방금 전';
+  timeSpan.dataset.en = 'just now';
+  
+  item.appendChild(textSpan);
+  item.appendChild(timeSpan);
+  
+  container.insertBefore(item, container.firstChild);
+  
+  while (container.children.length > 5) {
+    container.removeChild(container.lastChild);
+  }
+  
+  for (let i = 1; i < container.children.length; i++) {
+    const ts = container.children[i].querySelector('span:last-child');
+    if (ts) {
+      const secs = i * 4;
+      ts.textContent = currentLang === 'ko' ? `${secs}초 전` : `${secs}s ago`;
+      ts.dataset.ko = `${secs}초 전`;
+      ts.dataset.en = `${secs}s ago`;
+    }
+  }
+}
+
+function startLiveFeedLoop() {
+  if (liveFeedIntervalId) clearInterval(liveFeedIntervalId);
+  const container = document.getElementById('live-feed-container');
+  if (container) {
+    container.innerHTML = '';
+    for (let i = 0; i < 4; i++) {
+      updateLiveFeed();
+    }
+  }
+  liveFeedIntervalId = setInterval(updateLiveFeed, 3500);
+}
+
+// Mood Radio matching & play
+function playMoodRadio(mood) {
+  let candidates = [];
+  if (mood === 'chill') {
+    candidates = SONGS.filter(s => {
+      const v = getVibeData(s);
+      return v.energy < 70 && v.tempo < 105;
+    });
+  } else if (mood === 'hype') {
+    candidates = SONGS.filter(s => {
+      const v = getVibeData(s);
+      return v.energy >= 70 && v.tempo >= 105;
+    });
+  } else if (mood === 'emotional') {
+    candidates = SONGS.filter(s => {
+      const v = getVibeData(s);
+      return v.organic >= 35 && v.energy < 75;
+    });
+  } else if (mood === 'intense') {
+    candidates = SONGS.filter(s => {
+      const v = getVibeData(s);
+      return v.energy >= 80;
+    });
+  }
+  
+  if (candidates.length === 0) candidates = SONGS;
+  const chosen = candidates[Math.floor(Math.random() * candidates.length)];
+  playSong(chosen.id);
+}
+
+// Stats animations
+function animateValue(id, start, end, duration, isCompact = false) {
+  const obj = document.getElementById(id);
+  if (!obj) return;
+  let startTimestamp = null;
+  const step = (timestamp) => {
+    if (!startTimestamp) startTimestamp = timestamp;
+    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+    const current = Math.floor(progress * (end - start) + start);
+    if (isCompact) {
+      obj.textContent = fmtListeners(current);
+    } else {
+      obj.textContent = current.toLocaleString();
+    }
+    if (progress < 1) {
+      window.requestAnimationFrame(step);
+    }
+  }
+  window.requestAnimationFrame(step);
+}
+
+function animateHomeStats() {
+  const activeListeners = 142580 + Math.floor(Math.random() * 100);
+  const dailyStreams = 12840920 + Math.floor(Math.random() * 1000);
+  
+  animateValue('stat-listeners', 0, activeListeners, 1000, true);
+  animateValue('stat-streams', 0, dailyStreams, 1200, false);
+}
+
+function stopTimer(){ if(npState.timer){ clearInterval(npState.timer); npState.timer=null; } }
+
+function stepSong(dir){
+  if(!npState.song) return;
+  const idx = SONGS.findIndex(s=>s.id===npState.song.id);
+  const next = SONGS[(idx + dir + SONGS.length) % SONGS.length];
+  playSong(next.id);
+}
+function nextSong(){ stepSong(1); }
+function prevSong(){
+  if(npState.elapsed > 3){ npState.elapsed=0; updateProgress(); return; }
+  stepSong(-1);
+}
+
+function updateProgress(){
+  const el = document.getElementById('va-elapsed');
+  if(el) el.textContent = secToDur(npState.elapsed);
+  
+  const wave = document.getElementById('va-wave');
+  if(wave){
+    const pct = npState.elapsed / npState.total;
+    const barCount = 25;
+    const activeIndex = Math.floor(pct * barCount);
+    for (let i = 0; i < barCount; i++) {
+      const bar = wave.querySelector(`.va-bar-${i}`);
+      if(bar){
+        if (i <= activeIndex) {
+          bar.setAttribute('fill', 'var(--accent-cyan)');
+        } else {
+          bar.setAttribute('fill', 'rgba(255, 255, 255, 0.15)');
+        }
+      }
+    }
+  }
+}
+
+function seekWave(e){
+  const r = document.getElementById('va-wave').getBoundingClientRect();
+  npState.elapsed = Math.round((e.clientX-r.left)/r.width*npState.total);
+  updateProgress();
+}
+
+/* ===================== LANGUAGE SETUP ===================== */
+function applyLang(){
+  document.querySelectorAll('[data-ko]').forEach(el => {
+    el.textContent = currentLang==='ko' ? el.dataset.ko : el.dataset.en;
+  });
+}
+
+/* ===================== INIT ===================== */
+document.getElementById('nav-back').onclick = () => {
+  // If we are at app home and go back, trigger transition to landing
+  if (location.hash === '#home' || !location.hash) {
+    transitionToLanding();
+  } else {
+    history.back();
+  }
+};
+document.getElementById('nav-fwd').onclick = () => history.forward();
+
+document.getElementById('main-content').addEventListener('scroll', e => {
+  document.getElementById('global-header').classList.toggle('scrolled', e.target.scrollTop > 12);
+});
+
+// Setup deep links and page state on load
+window.addEventListener('DOMContentLoaded', () => {
+  renderNav();
+  
+  if (location.hash && location.hash !== '#home' && location.hash !== '#') {
+    // Deep linked directly to subpage - bypass landing page
+    transitioned = true;
+    document.getElementById('landing-screen').style.display = 'none';
+    document.getElementById('app-screen').classList.remove('hidden');
+    handleRoute();
+    changeLanguage('ko');
+  } else {
+    // Normal entry starting at landing page
+    buildWall();
+    changeLanguage('ko');
+  }
+});
+</script>
+</body>
+</html>
