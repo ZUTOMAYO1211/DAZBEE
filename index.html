@@ -618,138 +618,6 @@ a{color:inherit;text-decoration:none;}
 .app-screen .view{animation:fadeIn .25s ease;}
 .app-screen .skeleton{animation:shimmer 1.5s ease infinite;background:#1a1a1a;}
 @keyframes shimmer{0%,100%{opacity:.4;}50%{opacity:.8;}}
-
-/* ===================== PREMIUM DENSITY ADDITIONS ===================== */
-.app-screen::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-  background-size: 24px 24px;
-  pointer-events: none;
-  z-index: 0;
-}
-.app-screen .global-header {
-  background: rgba(0, 0, 0, 0.65) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-}
-.app-screen .vibe-analyzer {
-  background: rgba(8, 8, 8, 0.75) !important;
-  backdrop-filter: blur(32px) saturate(150%) !important;
-  -webkit-backdrop-filter: blur(32px) saturate(150%) !important;
-}
-.app-screen .mobile-nav {
-  background: rgba(0, 0, 0, 0.75) !important;
-  backdrop-filter: blur(20px) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
-}
-.app-screen .song-card {
-  position: relative;
-}
-.app-screen .sc-tooltip {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  right: 10px;
-  background: rgba(0, 0, 0, 0.95);
-  border: 1px solid var(--border-subtle);
-  padding: 6px 8px;
-  font-family: var(--font-mono);
-  font-size: 9px;
-  color: var(--text-secondary);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s ease, transform 0.25s ease;
-  transform: translateY(-4px);
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  backdrop-filter: blur(8px);
-}
-.app-screen .song-card:hover .sc-tooltip {
-  opacity: 1;
-  transform: translateY(0);
-}
-.app-screen .map-link {
-  stroke: rgba(255, 255, 255, 0.08);
-  stroke-width: 1.5;
-  transition: stroke 0.3s, stroke-width 0.3s, opacity 0.3s;
-}
-.app-screen .map-link.highlighted {
-  stroke: var(--link-color, rgba(255, 255, 255, 0.6));
-  stroke-width: 2.5;
-  opacity: 1;
-  filter: drop-shadow(0 0 6px var(--link-color, rgba(255, 255, 255, 0.5)));
-}
-.app-screen .map-link.dimmed {
-  opacity: 0.1;
-}
-.app-screen .map-node {
-  cursor: pointer;
-  transition: opacity 0.3s, transform 0.3s;
-}
-.app-screen .map-node circle.glow {
-  transition: fill-opacity 0.3s, stroke 0.3s, filter 0.3s;
-}
-.app-screen .map-node:hover circle.glow {
-  fill-opacity: 0.25;
-  filter: drop-shadow(0 0 8px var(--node-color));
-}
-.app-screen .map-node.dimmed {
-  opacity: 0.15;
-}
-.app-screen .map-node.connected {
-  opacity: 1;
-}
-.app-screen .map-node.highlighted {
-  transform: scale(1.1);
-}
-.app-screen .map-desc-card {
-  background: rgba(10, 10, 10, 0.85);
-  border: 1px solid var(--border-subtle);
-  padding: var(--space-4);
-  border-radius: 0px;
-  backdrop-filter: blur(16px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  min-height: 110px;
-}
-@media(min-width: 769px) {
-  .app-screen .home-dashboard-grid {
-    display: grid;
-    grid-template-columns: 1.8fr 1fr;
-    gap: var(--space-6);
-    margin-bottom: var(--space-8);
-  }
-}
-@media(max-width: 768px) {
-  .app-screen .home-dashboard-grid {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-5);
-    margin-bottom: var(--space-6);
-  }
-}
-.app-screen .stats-panel {
-  transition: border-color 0.2s;
-}
-.app-screen .stats-panel:hover {
-  border-color: #ffffff;
-}
-.app-screen .live-feed-item {
-  border-bottom: 1px solid var(--border-muted);
-  padding-bottom: 6px;
-  animation: feedItemEnter 0.4s ease forwards;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-@keyframes feedItemEnter {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
 </style>
 </head>
 <body>
@@ -1092,11 +960,7 @@ function changeLanguage(lang) {
   document.documentElement.lang = lang;
   
   document.querySelectorAll('[data-ko]').forEach(el => {
-    if (el.classList.contains('feed-text')) {
-      el.innerHTML = lang === 'ko' ? el.dataset.ko : el.dataset.en;
-    } else {
-      el.textContent = lang === 'ko' ? el.dataset.ko : el.dataset.en;
-    }
+    el.textContent = lang === 'ko' ? el.dataset.ko : el.dataset.en;
   });
   
   if (transitioned) {
@@ -1315,16 +1179,9 @@ function avatarColor(name){
 
 /* ===================== RENDER: HOME ===================== */
 function songCardHTML(song){
-  const bpm = getVibeData(song).tempo;
-  const streams = fmtListeners(song.streamCount);
   return `<div class="song-card" onclick="playSong(${song.id})">
     ${artHTML(song)}
     <div class="sc-play"><button class="btn-play sm" onclick="event.stopPropagation();playSong(${song.id})">${ICON.play}</button></div>
-    <div class="sc-tooltip">
-      <div>BPM: ${bpm}</div>
-      <div>Streams: ${streams}</div>
-      <div>Year: ${song.year}</div>
-    </div>
     <div class="sc-title">${esc(song.title)}</div>
     <div class="sc-artist">${esc(song.artist)}</div>
     <div class="sc-meta">${genreTagHTML(song.genre)}</div>
@@ -1357,65 +1214,6 @@ function renderHome(){
       <a class="btn-primary" href="#genres">${t('장르 탐색 시작','Start Exploring')} →</a>
     </section>
 
-    <!-- Two-column dashboard grid -->
-    <div class="home-dashboard-grid" style="position:relative; z-index:1; margin-bottom:var(--space-6)">
-      <!-- Column 1: Stats & Mood Radio -->
-      <div style="display:flex; flex-direction:column; gap:var(--space-6);">
-        <!-- Stats Section -->
-        <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-4);">
-          <div class="stats-panel" style="background:#050505; border:1px solid var(--border-subtle); padding:var(--space-4); display:flex; flex-direction:column; justify-content:center; border-radius:6px;">
-            <div style="font-size:10px; font-family:var(--font-mono); color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">${t('실시간 동시 청취자','Active Listeners')}</div>
-            <div id="stat-listeners" style="font-size:32px; font-weight:800; color:var(--accent-cyan); margin-top:8px; font-family:var(--font-mono)">0</div>
-            <div style="font-size:10px; color:var(--text-secondary); margin-top:4px;">▲ +4.2% ${t('지난 시간 대비','from last hour')}</div>
-          </div>
-          <div class="stats-panel" style="background:#050505; border:1px solid var(--border-subtle); padding:var(--space-4); display:flex; flex-direction:column; justify-content:center; border-radius:6px;">
-            <div style="font-size:10px; font-family:var(--font-mono); color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">${t('오늘의 누적 스트리밍','Daily Stream Volume')}</div>
-            <div id="stat-streams" style="font-size:32px; font-weight:800; color:#ffffff; margin-top:8px; font-family:var(--font-mono)">0</div>
-            <div style="font-size:10px; color:var(--text-secondary); margin-top:4px;">${t('지속적인 청취 증가세','Sustained upward trend')}</div>
-          </div>
-        </div>
-
-        <!-- Mood Radio -->
-        <div style="background:#050505; border:1px solid var(--border-subtle); padding:var(--space-4); border-radius:6px;">
-          <div style="font-size:12px; font-family:var(--font-mono); color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; font-weight:700;">
-            ${t('바이브 무드 라디오','Vibe Mood Radio')}
-          </div>
-          <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:10px;">
-            <button class="btn-outlined" onclick="playMoodRadio('chill')" style="padding:12px; text-align:left; display:flex; align-items:center; justify-content:space-between; font-size:13px; font-weight:700; width:100%">
-              <span>🌊 Chill Vibe</span>
-              <span style="font-family:var(--font-mono); font-size:9px; color:var(--text-muted); font-weight:normal; margin-left:auto;">${t('차분한 곡','Calm')}</span>
-            </button>
-            <button class="btn-outlined" onclick="playMoodRadio('hype')" style="padding:12px; text-align:left; display:flex; align-items:center; justify-content:space-between; font-size:13px; font-weight:700; width:100%">
-              <span>🔥 Hype Vibe</span>
-              <span style="font-family:var(--font-mono); font-size:9px; color:var(--text-muted); font-weight:normal; margin-left:auto;">${t('에너지 높은 곡','High-energy')}</span>
-            </button>
-            <button class="btn-outlined" onclick="playMoodRadio('emotional')" style="padding:12px; text-align:left; display:flex; align-items:center; justify-content:space-between; font-size:13px; font-weight:700; width:100%">
-              <span>🍷 Mellow Vibe</span>
-              <span style="font-family:var(--font-mono); font-size:9px; color:var(--text-muted); font-weight:normal; margin-left:auto;">${t('어쿠스틱/감성','Acoustic')}</span>
-            </button>
-            <button class="btn-outlined" onclick="playMoodRadio('intense')" style="padding:12px; text-align:left; display:flex; align-items:center; justify-content:space-between; font-size:13px; font-weight:700; width:100%">
-              <span>⚡ Intense Vibe</span>
-              <span style="font-family:var(--font-mono); font-size:9px; color:var(--text-muted); font-weight:normal; margin-left:auto;">${t('빠르고 강렬','Fast/Loud')}</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Column 2: Live Listener Feed -->
-      <div style="background:#050505; border:1px solid var(--border-subtle); padding:var(--space-4); display:flex; flex-direction:column; min-height:230px; border-radius:6px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-          <div style="font-size:12px; font-family:var(--font-mono); color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; font-weight:700; display:flex; align-items:center; gap:6px;">
-            <span style="display:inline-block; width:6px; height:6px; background:#10b981; border-radius:50%; animation:shimmer 1.5s infinite"></span>
-            ${t('실시간 감상 피드','Live Listening Stream')}
-          </div>
-          <span style="font-size:10px; font-family:var(--font-mono); color:var(--text-muted)">Live Feed</span>
-        </div>
-        <div id="live-feed-container" style="flex:1; display:flex; flex-direction:column; gap:8px; overflow:hidden; font-size:12px; line-height:1.4;">
-          <!-- Items will be dynamically inserted here -->
-        </div>
-      </div>
-    </div>
-
     <section class="section">
       <div class="section-head"><div><div class="section-title">${t('지금 트렌딩','Trending Now')}</div><div class="section-subtitle">${t('가장 뜨거운 곡들','The hottest tracks right now')}</div></div><a class="see-all" href="#chart">${t('전체 보기','See all')}</a></div>
       <div class="horizontal-scroll">${trending.map(songCardHTML).join('')}</div>
@@ -1441,197 +1239,21 @@ function renderHome(){
   </div>`;
   document.getElementById('view-root').innerHTML = html;
   applyLang();
-  startLiveFeedLoop();
-  animateHomeStats();
 }
 
 /* ===================== RENDER: GENRES ===================== */
 let genreSort = 'all';
-let genreView = 'grid'; // 'grid' or 'map'
-
-const GENRE_MAP_COORDS = {
-  pop: {x: 400, y: 230},
-  kpop: {x: 520, y: 150},
-  rnb: {x: 280, y: 150},
-  electronic: {x: 510, y: 310},
-  hiphop: {x: 230, y: 230},
-  rock: {x: 570, y: 230},
-  metal: {x: 690, y: 160},
-  punk: {x: 690, y: 300},
-  indie: {x: 450, y: 90},
-  jazz: {x: 160, y: 120},
-  blues: {x: 120, y: 230},
-  classical: {x: 140, y: 340},
-  country: {x: 280, y: 340},
-  latin: {x: 400, y: 370},
-  reggae: {x: 310, y: 70}
-};
-
-function setGenreView(v) {
-  genreView = v;
-  renderGenres();
-}
-
-function highlightMapNode(id) {
-  const map = document.getElementById('genre-network-svg');
-  if (!map) return;
-  
-  const g = genreById(id);
-  if (!g) return;
-  
-  // Dim all nodes and lines
-  map.querySelectorAll('.map-node').forEach(n => {
-    n.classList.add('dimmed');
-    n.classList.remove('connected', 'highlighted');
-  });
-  
-  map.querySelectorAll('.map-link').forEach(l => {
-    l.classList.add('dimmed');
-    l.classList.remove('highlighted');
-  });
-  
-  // Highlight current node
-  const currentNode = map.querySelector(`.map-node[data-id="${id}"]`);
-  if (currentNode) {
-    currentNode.classList.remove('dimmed');
-    currentNode.classList.add('highlighted');
-  }
-  
-  // Find related ids
-  const relations = (g.relatedGenres || []).concat(g.alsoListenTo || []);
-  relations.forEach(relId => {
-    const relNode = map.querySelector(`.map-node[data-id="${relId}"]`);
-    if (relNode) {
-      relNode.classList.remove('dimmed');
-      relNode.classList.add('connected');
-    }
-    
-    // Highlight links
-    map.querySelectorAll(`.map-link[data-from="${id}"][data-to="${relId}"], .map-link[data-from="${relId}"][data-to="${id}"]`).forEach(l => {
-      l.classList.remove('dimmed');
-      l.classList.add('highlighted');
-    });
-  });
-  
-  // Update info card
-  const card = document.getElementById('map-desc-card');
-  if (card) {
-    card.style.opacity = 1;
-    card.innerHTML = `
-      <div style="font-size:16px; font-weight:800; color:${g.color}; display:flex; align-items:center; gap:8px;">
-        <span>${g.emoji}</span> <span>${t(g.nameKo, g.name)}</span>
-      </div>
-      <div style="font-size:11px; font-family:var(--font-mono); color:var(--text-secondary); margin-top:4px;">
-        ${t('탄생','Origin')}: ${g.eraOrigin} &nbsp;·&nbsp; ${fmtListeners(g.listeners)} ${t('청취자','listeners')}
-      </div>
-      <div style="font-size:12.5px; color:var(--text-primary); margin-top:8px; line-height:1.5;">
-        ${t(g.descriptionKo, g.description)}
-      </div>
-      <div style="font-size:11px; font-family:var(--font-mono); color:${g.color}; margin-top:8px; text-transform:uppercase; letter-spacing:0.5px;">
-        ${t('대표 아티스트','Top Artists')}: ${g.topArtists.slice(0,3).join(', ')}
-      </div>
-    `;
-  }
-}
-
-function resetMapHighlight() {
-  const map = document.getElementById('genre-network-svg');
-  if (!map) return;
-  
-  map.querySelectorAll('.map-node').forEach(n => {
-    n.classList.remove('dimmed', 'highlighted', 'connected');
-  });
-  
-  map.querySelectorAll('.map-link').forEach(l => {
-    l.classList.remove('dimmed', 'highlighted');
-  });
-  
-  const card = document.getElementById('map-desc-card');
-  if (card) {
-    card.style.opacity = 0.5;
-    card.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:12px; padding:20px 0;">${t('장르 노드에 마우스를 올리면 연결 정보와 세부 설명이 표시됩니다.','Hover over a genre node to view connections and details.')}</div>`;
-  }
-}
-
 function renderGenres(){
   let list = [...GENRES];
   if(genreSort==='era') list.sort((a,b)=>parseInt(a.eraOrigin)-parseInt(b.eraOrigin));
   else if(genreSort==='popular') list.sort((a,b)=>b.listeners-a.listeners);
   else if(genreSort==='alpha') list.sort((a,b)=>a.name.localeCompare(b.name));
-  
   const filters = [['all','전체','All'],['era','시대순','By era'],['popular','인기순','Popular'],['alpha','알파벳순','A-Z']];
-  
-  const toggleHTML = `
-    <div class="view-toggle-bar" style="margin-bottom: var(--space-4); display: flex; gap: 8px;">
-      <button class="btn-outlined ${genreView==='grid'?'active':''}" onclick="setGenreView('grid')" style="font-family:var(--font-mono); font-size:10px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; padding:6px 14px;">${t('리스트 뷰','Grid List')}</button>
-      <button class="btn-outlined ${genreView==='map'?'active':''}" onclick="setGenreView('map')" style="font-family:var(--font-mono); font-size:10px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; padding:6px 14px;">${t('관계도 맵 뷰','Lineage Map')}</button>
-    </div>
-  `;
-  
-  let html = '';
-  if (genreView === 'grid') {
-    html = `<div class="view">
-      <div class="section-head" style="margin-bottom:var(--space-5)"><div><div class="section-title">${t('장르 탐색','Explore Genres')}</div><div class="section-subtitle">${t('15개 장르, 무한한 발견','15 genres, infinite discovery')}</div></div></div>
-      ${toggleHTML}
-      <div class="filter-bar">${filters.map(([k,ko,en])=>`<button class="btn-outlined ${genreSort===k?'active':''}" onclick="genreSort='${k}';renderGenres()">${t(ko,en)}</button>`).join('')}</div>
-      <div class="grid-3">${list.map(genreGridCardHTML).join('')}</div>
-    </div>`;
-  } else {
-    // Generate links
-    let linesHTML = '';
-    const drawn = new Set();
-    GENRES.forEach(g => {
-      const coordsA = GENRE_MAP_COORDS[g.id];
-      if (!coordsA) return;
-      const relations = (g.relatedGenres || []).concat(g.alsoListenTo || []);
-      relations.forEach(relId => {
-        const coordsB = GENRE_MAP_COORDS[relId];
-        if (!coordsB) return;
-        const key = [g.id, relId].sort().join('-');
-        if (!drawn.has(key)) {
-          drawn.add(key);
-          linesHTML += `<line class="map-link" data-from="${g.id}" data-to="${relId}" x1="${coordsA.x}" y1="${coordsA.y}" x2="${coordsB.x}" y2="${coordsB.y}" style="--link-color:${g.color};" />`;
-        }
-      });
-    });
-
-    // Generate nodes
-    let nodesHTML = '';
-    GENRES.forEach(g => {
-      const coords = GENRE_MAP_COORDS[g.id];
-      if (!coords) return;
-      nodesHTML += `
-        <g class="map-node" data-id="${g.id}" onclick="location.hash='#genre/${g.id}'" onmouseenter="highlightMapNode('${g.id}')" onmouseleave="resetMapHighlight()" style="--node-color:${g.color};">
-          <circle class="glow" cx="${coords.x}" cy="${coords.y}" r="25" fill="${g.color}10" stroke="${g.color}" stroke-width="1.2" />
-          <circle cx="${coords.x}" cy="${coords.y}" r="15" fill="${g.color}25" />
-          <text x="${coords.x}" y="${coords.y + 5}" font-size="13" text-anchor="middle" style="user-select:none; pointer-events:none;">${g.emoji}</text>
-          <text class="node-label" x="${coords.x}" y="${coords.y + 38}" fill="#ffffff" font-size="9.5" font-weight="700" text-anchor="middle" style="user-select:none; pointer-events:none; text-shadow: 0 1px 3px rgba(0,0,0,0.85);">${t(g.nameKo, g.name)}</text>
-        </g>
-      `;
-    });
-
-    html = `<div class="view">
-      <div class="section-head" style="margin-bottom:var(--space-5)"><div><div class="section-title">${t('장르 관계도 맵','Genre Lineage Map')}</div><div class="section-subtitle">${t('장르 간의 음악적 연결성과 유사도를 인터랙티브하게 탐험해 보세요.','Interactive sound networks mapping out audio kinship.')}</div></div></div>
-      ${toggleHTML}
-      
-      <div style="display:flex; flex-direction:column; gap:var(--space-4);">
-        <div style="background:#050505; border:1px solid var(--border-subtle); padding:var(--space-3); overflow-x:auto; position:relative; z-index:1;">
-          <svg id="genre-network-svg" width="800" height="420" viewBox="0 0 800 420" style="display:block; margin:0 auto; max-width:100%; overflow:visible;">
-            <rect width="800" height="420" fill="none" />
-            <g>${linesHTML}</g>
-            <g>${nodesHTML}</g>
-          </svg>
-        </div>
-        
-        <div id="map-desc-card" class="map-desc-card" style="opacity: 0.5;">
-          <div style="text-align:center; color:var(--text-muted); font-size:12px; padding:20px 0;">
-            ${t('장르 노드에 마우스를 올리면 연결 정보와 세부 설명이 표시됩니다.','Hover over a genre node to view connections and details.')}
-          </div>
-        </div>
-      </div>
-    </div>`;
-  }
-  
+  const html = `<div class="view">
+    <div class="section-head" style="margin-bottom:var(--space-5)"><div><div class="section-title">${t('장르 탐색','Explore Genres')}</div><div class="section-subtitle">${t('15개 장르, 무한한 발견','15 genres, infinite discovery')}</div></div></div>
+    <div class="filter-bar">${filters.map(([k,ko,en])=>`<button class="btn-outlined ${genreSort===k?'active':''}" onclick="genreSort='${k}';renderGenres()">${t(ko,en)}</button>`).join('')}</div>
+    <div class="grid-3">${list.map(genreGridCardHTML).join('')}</div>
+  </div>`;
   document.getElementById('view-root').innerHTML = html;
   applyLang();
 }
@@ -2245,7 +1867,6 @@ function renderVibeAnalyzer(){
   if(!npState.song){
     drawer.innerHTML = '';
     drawer.classList.remove('open');
-    stopVisualizer();
     return;
   }
   const s = npState.song;
@@ -2283,9 +1904,6 @@ function renderVibeAnalyzer(){
           <span class="vap-time">${s.duration}</span>
         </div>
       </div>
-      
-      <!-- Simulated real-time canvas visualizer -->
-      <canvas id="va-visualizer" width="360" height="60" style="width:100%; height:60px; background:#050505; border:1px solid var(--border-subtle); display:block; margin: 12px 0 4px; border-radius:6px;"></canvas>
 
       <div class="va-stats">
         <div class="va-stat-row">
@@ -2313,9 +1931,6 @@ function renderVibeAnalyzer(){
   
   drawer.classList.add('open');
   updateProgress();
-  if (npState.playing) {
-    startVisualizer();
-  }
 }
 
 function playSong(id){
@@ -2327,19 +1942,12 @@ function playSong(id){
   npState.playing = true;
   renderVibeAnalyzer();
   startTimer();
-  startVisualizer();
 }
 
 function togglePlay(){
   if(!npState.song) return;
   npState.playing = !npState.playing;
-  if(npState.playing) {
-    startTimer();
-    startVisualizer();
-  } else {
-    stopTimer();
-    stopVisualizer();
-  }
+  if(npState.playing) startTimer(); else stopTimer();
   const btn = document.querySelector('.va-player-ctrl .btn-play');
   if(btn) btn.innerHTML = npState.playing ? ICON.pause : ICON.play;
 }
@@ -2351,218 +1959,6 @@ function startTimer(){
     npState.elapsed++;
     updateProgress();
   }, 1000);
-}
-
-/* ===================== NEW PREMIUM UTILITIES & ANIMATIONS ===================== */
-let visualizerAnimationId = null;
-function startVisualizer() {
-  stopVisualizer();
-  const canvas = document.getElementById('va-visualizer');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const song = npState.song;
-  if (!song) return;
-  const vibe = getVibeData(song);
-  const genre = genreById(song.genre);
-  const color1 = genre ? genre.color : '#00ffff';
-  const color2 = genre ? genre.colorSecondary || '#ff00ff' : '#ff00ff';
-  
-  let frame = 0;
-  function draw() {
-    if (!npState.playing || !document.getElementById('va-visualizer')) {
-      visualizerAnimationId = null;
-      return;
-    }
-    visualizerAnimationId = requestAnimationFrame(draw);
-    
-    // Clear canvas
-    ctx.fillStyle = '#050505';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    const width = canvas.width;
-    const height = canvas.height;
-    const barWidth = 4;
-    const barGap = 3;
-    const totalBars = Math.floor(width / (barWidth + barGap));
-    
-    // Create gradient
-    const gradient = ctx.createLinearGradient(0, height, 0, 0);
-    gradient.addColorStop(0, color1);
-    gradient.addColorStop(1, color2);
-    
-    frame += (vibe.tempo / 60) * 0.05; // speed depends on tempo
-    const energyFactor = vibe.energy / 100;
-    
-    for (let i = 0; i < totalBars; i++) {
-      const wave1 = Math.sin(i * 0.15 + frame) * 0.4;
-      const wave2 = Math.sin(i * 0.3 - frame * 1.5) * 0.2;
-      const wave3 = Math.cos(i * 0.05 + frame * 0.8) * 0.3;
-      
-      let noise = (Math.sin(i * 2.3 + frame * 10) * 0.1) * energyFactor;
-      
-      let amplitude = (wave1 + wave2 + wave3 + 0.5) * energyFactor * 0.8 + 0.1 + noise;
-      amplitude = Math.max(0.05, Math.min(1, amplitude));
-      
-      const barHeight = amplitude * height * 0.85;
-      const x = i * (barWidth + barGap);
-      const y = height - barHeight;
-      
-      ctx.fillStyle = gradient;
-      ctx.beginPath();
-      if (typeof ctx.roundRect === 'function') {
-        ctx.roundRect(x, y, barWidth, barHeight, 2);
-      } else {
-        ctx.rect(x, y, barWidth, barHeight);
-      }
-      ctx.fill();
-    }
-  }
-  
-  visualizerAnimationId = requestAnimationFrame(draw);
-}
-
-function stopVisualizer() {
-  if (visualizerAnimationId) {
-    cancelAnimationFrame(visualizerAnimationId);
-    visualizerAnimationId = null;
-  }
-}
-
-// Live Listener Feed data & functions
-const FEED_USERS = ['Lucas', 'Emma', 'Minho', 'Sophia', 'Yuki', 'Oliver', 'Chloe', 'Ji-won', 'Leo', 'Mia', 'Aiden', 'Elena', 'Haruto', 'Amelie'];
-const FEED_CITIES = ['Paris', 'Seoul', 'Tokyo', 'London', 'New York', 'Berlin', 'Sydney', 'Toronto', 'Singapore', 'Mumbai', 'Vienna', 'São Paulo'];
-let liveFeedIntervalId = null;
-
-function updateLiveFeed() {
-  const container = document.getElementById('live-feed-container');
-  if (!container) return;
-  
-  const user = FEED_USERS[Math.floor(Math.random() * FEED_USERS.length)];
-  const city = FEED_CITIES[Math.floor(Math.random() * FEED_CITIES.length)];
-  const song = SONGS[Math.floor(Math.random() * SONGS.length)];
-  const actionType = Math.random() > 0.4 ? 'play' : 'fav';
-  
-  let textKo = '', textEn = '';
-  if (actionType === 'play') {
-    textKo = `${user} (${city}) 님이 <span class="feed-song" onclick="playSong(${song.id})" style="color:var(--accent-cyan); cursor:pointer; font-weight:700; text-decoration:underline">${esc(song.title)}</span> 재생 시작`;
-    textEn = `${user} in ${city} started playing <span class="feed-song" onclick="playSong(${song.id})" style="color:var(--accent-cyan); cursor:pointer; font-weight:700; text-decoration:underline">${esc(song.title)}</span>`;
-  } else {
-    textKo = `${user} (${city}) 님이 <span class="feed-song" onclick="playSong(${song.id})" style="color:var(--accent-cyan); cursor:pointer; font-weight:700; text-decoration:underline">${esc(song.title)}</span> 곡을 최애 저장!`;
-    textEn = `${user} in ${city} favorited <span class="feed-song" onclick="playSong(${song.id})" style="color:var(--accent-cyan); cursor:pointer; font-weight:700; text-decoration:underline">${esc(song.title)}</span>`;
-  }
-  
-  const item = document.createElement('div');
-  item.className = 'live-feed-item';
-  item.style.fontSize = '11.5px';
-  item.style.borderBottom = '1px solid var(--border-subtle)';
-  item.style.padding = '8px 0';
-  item.style.display = 'flex';
-  item.style.justifyContent = 'space-between';
-  item.style.alignItems = 'center';
-  
-  const textSpan = document.createElement('span');
-  textSpan.innerHTML = currentLang === 'ko' ? textKo : textEn;
-  textSpan.dataset.ko = textKo;
-  textSpan.dataset.en = textEn;
-  textSpan.className = 'feed-text';
-  
-  const timeSpan = document.createElement('span');
-  timeSpan.style.color = 'var(--text-muted)';
-  timeSpan.style.fontSize = '9px';
-  timeSpan.style.fontFamily = 'var(--font-mono)';
-  timeSpan.textContent = t('방금 전', 'just now');
-  timeSpan.dataset.ko = '방금 전';
-  timeSpan.dataset.en = 'just now';
-  
-  item.appendChild(textSpan);
-  item.appendChild(timeSpan);
-  
-  container.insertBefore(item, container.firstChild);
-  
-  while (container.children.length > 5) {
-    container.removeChild(container.lastChild);
-  }
-  
-  for (let i = 1; i < container.children.length; i++) {
-    const ts = container.children[i].querySelector('span:last-child');
-    if (ts) {
-      const secs = i * 4;
-      ts.textContent = currentLang === 'ko' ? `${secs}초 전` : `${secs}s ago`;
-      ts.dataset.ko = `${secs}초 전`;
-      ts.dataset.en = `${secs}s ago`;
-    }
-  }
-}
-
-function startLiveFeedLoop() {
-  if (liveFeedIntervalId) clearInterval(liveFeedIntervalId);
-  const container = document.getElementById('live-feed-container');
-  if (container) {
-    container.innerHTML = '';
-    for (let i = 0; i < 4; i++) {
-      updateLiveFeed();
-    }
-  }
-  liveFeedIntervalId = setInterval(updateLiveFeed, 3500);
-}
-
-// Mood Radio matching & play
-function playMoodRadio(mood) {
-  let candidates = [];
-  if (mood === 'chill') {
-    candidates = SONGS.filter(s => {
-      const v = getVibeData(s);
-      return v.energy < 70 && v.tempo < 105;
-    });
-  } else if (mood === 'hype') {
-    candidates = SONGS.filter(s => {
-      const v = getVibeData(s);
-      return v.energy >= 70 && v.tempo >= 105;
-    });
-  } else if (mood === 'emotional') {
-    candidates = SONGS.filter(s => {
-      const v = getVibeData(s);
-      return v.organic >= 35 && v.energy < 75;
-    });
-  } else if (mood === 'intense') {
-    candidates = SONGS.filter(s => {
-      const v = getVibeData(s);
-      return v.energy >= 80;
-    });
-  }
-  
-  if (candidates.length === 0) candidates = SONGS;
-  const chosen = candidates[Math.floor(Math.random() * candidates.length)];
-  playSong(chosen.id);
-}
-
-// Stats animations
-function animateValue(id, start, end, duration, isCompact = false) {
-  const obj = document.getElementById(id);
-  if (!obj) return;
-  let startTimestamp = null;
-  const step = (timestamp) => {
-    if (!startTimestamp) startTimestamp = timestamp;
-    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-    const current = Math.floor(progress * (end - start) + start);
-    if (isCompact) {
-      obj.textContent = fmtListeners(current);
-    } else {
-      obj.textContent = current.toLocaleString();
-    }
-    if (progress < 1) {
-      window.requestAnimationFrame(step);
-    }
-  }
-  window.requestAnimationFrame(step);
-}
-
-function animateHomeStats() {
-  const activeListeners = 142580 + Math.floor(Math.random() * 100);
-  const dailyStreams = 12840920 + Math.floor(Math.random() * 1000);
-  
-  animateValue('stat-listeners', 0, activeListeners, 1000, true);
-  animateValue('stat-streams', 0, dailyStreams, 1200, false);
 }
 
 function stopTimer(){ if(npState.timer){ clearInterval(npState.timer); npState.timer=null; } }
