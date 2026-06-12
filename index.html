@@ -1,186 +1,24 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+<script>
+    (function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (!urlParams.has('intro') && !sessionStorage.getItem('intro_seen')) {
+            window.location.replace('./intro.html');
+        } else {
+            sessionStorage.setItem('intro_seen', 'true');
+        }
+    })();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MusicLens · 음악의 모든 장르를 탐험하다</title>
+<title>MusicLens · 뮤직렌즈</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* ===================== BASE RESET ===================== */
-*{margin:0;padding:0;box-sizing:border-box;}
-html,body{height:100%;margin:0;padding:0;}
-body{
-  -webkit-font-smoothing:antialiased;
-  overflow:hidden;
-  position:relative;
-  background:#121212;
-  width:100%;
-  height:100%;
-}
-button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
-a{color:inherit;text-decoration:none;}
-
-/* ===================== LANDING SCREEN STYLES ===================== */
-.landing-screen {
-  --bg-base:#121212; --bg-surface:#181818; --bg-elevated:#1f1f1f; --bg-card:#252525;
-  --text-primary:#ffffff; --text-secondary:#b3b3b3; --text-muted:#7c7c7c;
-  --accent:#a855f7; --accent-dark:#7e22ce;
-  --border-subtle:#4d4d4d; --border-muted:#2a2a2a;
-  --shadow-heavy:rgba(0,0,0,0.5) 0px 8px 24px;
-  --shadow-glow:0 0 0 3px rgba(168,85,247,.65), 0 24px 60px rgba(0,0,0,.75);
-  --radius-pill:9999px; --radius-lg:8px;
-  --font-ui:'DM Sans','Helvetica Neue',helvetica,arial,sans-serif;
-  --cover:150px;
-
-  font-family:var(--font-ui); background:var(--bg-base); color:var(--text-primary);
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  z-index: 100;
-  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), filter 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-  transform-origin: center center;
-}
-
-/* Immersive Zoom portal exiting state */
-.landing-screen.exiting {
-  transform: scale(1.15) translateY(-5vh);
-  opacity: 0;
-  filter: blur(15px);
-  pointer-events: none;
-}
-
-.landing-screen .ambient{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
-.landing-screen .blob{position:absolute;border-radius:50%;filter:blur(110px);opacity:.4;animation:drift 16s ease-in-out infinite;}
-.landing-screen .blob.b1{width:480px;height:480px;background:#9b59b6;top:-140px;left:-80px;}
-.landing-screen .blob.b2{width:420px;height:420px;background:#00D4FF;bottom:-160px;right:6%;animation-delay:-5s;}
-.landing-screen .blob.b3{width:360px;height:360px;background:#a855f7;top:30%;right:36%;animation-delay:-9s;}
-@keyframes drift{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(50px,-40px) scale(1.12);}66%{transform:translate(-40px,30px) scale(.94);}}
-
-.landing-screen .landing-top{position:relative;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:16px 40px 4px;}
-.landing-screen .landing-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:22px;}
-.landing-screen .landing-logo .mark{color:var(--accent);display:grid;place-items:center;}
-.landing-screen .lang-toggle-landing{display:flex;background:rgba(31,31,31,.7);border-radius:var(--radius-pill);padding:3px;backdrop-filter:blur(8px);}
-.landing-screen .lang-toggle-landing button{padding:7px 16px;border-radius:var(--radius-pill);font-size:12px;font-weight:700;letter-spacing:1.4px;color:var(--text-secondary);text-transform:uppercase;background:none;border:none;cursor:pointer;}
-.landing-screen .lang-toggle-landing button.active{background:var(--accent);color:#fff;}
-
-.landing-screen .hero-landing{position:relative;z-index:20;text-align:center;padding:0 24px 4px;flex-shrink:0;transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);}
-.landing-screen .hero-landing .eyebrow{font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:10px;}
-.landing-screen .hero-landing h1{font-size:clamp(28px,4.4vw,50px);font-weight:700;line-height:1.05;letter-spacing:-1px;}
-.landing-screen .hero-landing p{font-size:clamp(13px,1.6vw,16px);color:var(--text-secondary);margin-top:10px;}
-.landing-screen .hero-landing .cta{display:inline-flex;align-items:center;gap:8px;margin-top:18px;background:linear-gradient(135deg, var(--accent), #06b6d4);color:#fff;font-weight:700;font-size:14px;padding:14px 34px;border-radius:var(--radius-pill);letter-spacing:1.4px;text-transform:uppercase;transition:transform .15s ease,box-shadow .15s;border:none;cursor:pointer;}
-.landing-screen .hero-landing .cta:hover{transform:scale(1.05);box-shadow:0 0 20px rgba(168,85,247,0.45);}
-
-.landing-screen .landing-wall{position:relative;z-index:10;flex:1;display:flex;flex-direction:column;justify-content:center;gap:18px;padding:20px 0 28px;min-height:0;transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);}
-.landing-screen .wall-hint{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:25;font-size:12px;font-weight:600;letter-spacing:.5px;color:var(--text-muted);display:flex;align-items:center;gap:7px;}
-.landing-screen .wall-hint .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pulse 1.6s ease infinite;}
-@keyframes pulse{0%,100%{opacity:.4;transform:scale(1);}50%{opacity:1;transform:scale(1.4);}}
-
-.landing-screen .landing-row{position:relative;height:var(--cover);overflow-x:clip;overflow-y:visible;}
-.landing-screen .landing-track{display:flex;gap:18px;width:max-content;will-change:transform;}
-.landing-screen .landing-track.left{animation:scroll-left var(--dur,60s) linear infinite;}
-.landing-screen .landing-track.right{animation:scroll-right var(--dur,60s) linear infinite;}
-@keyframes scroll-left{from{transform:translateX(0);}to{transform:translateX(-50%);}}
-@keyframes scroll-right{from{transform:translateX(-50%);}to{transform:translateX(0);}}
-.landing-screen .landing-row:hover .landing-track{animation-play-state:paused;}
-
-.landing-screen .landing-cover {
-  position:relative;width:var(--cover);height:var(--cover);flex-shrink:0;border-radius:var(--radius-lg);
-  overflow:visible;cursor:pointer;
-  transition:transform .4s cubic-bezier(.2,.8,.2,1), opacity .4s ease, filter .4s ease;
-  transform-origin:center center;
-  will-change:transform, opacity, filter;
-}
-.landing-screen .landing-cover img{width:100%;height:100%;object-fit:cover;border-radius:var(--radius-lg);display:block;box-shadow:0 8px 20px rgba(0,0,0,.45);transition:box-shadow .4s ease;background:#252525;}
-
-.landing-screen .landing-wall:hover .landing-cover {
-  opacity: 0.3;
-  filter: blur(4px) grayscale(45%);
-  transform: scale(0.82);
-}
-.landing-screen .landing-wall:has(.landing-cover:hover) .landing-cover:not(:hover) {
-  pointer-events: none;
-}
-.landing-screen .landing-wall .landing-cover:hover {
-  opacity: 1;
-  filter: none;
-  transform: scale(1.55);
-  z-index: 60;
-}
-.landing-screen .landing-wall .landing-cover:hover img{box-shadow:var(--shadow-glow);}
-
-.landing-screen .landing-hl{
-  position:absolute;left:50%;top:calc(100% + 7px);transform:translateX(-50%) translateY(6px);
-  width:140px;background:rgba(18,18,18,.96);border:1px solid var(--border-muted);border-radius:6px;
-  padding:8px 9px;opacity:0;pointer-events:none;transition:opacity .25s ease .05s,transform .25s ease .05s;
-  box-shadow:var(--shadow-heavy);
-}
-.landing-screen .landing-wall .landing-cover:hover .landing-hl{opacity:1;transform:translateX(-50%) translateY(0) scale(.62);transform-origin:top center;}
-.landing-screen .landing-hl-title{font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.landing-screen .landing-hl-artist{font-size:10px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;}
-.landing-screen .landing-hl-now{display:flex;align-items:center;gap:5px;margin-top:6px;font-size:8px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--accent);}
-.landing-screen .landing-eq{display:inline-flex;align-items:flex-end;gap:2px;height:10px;}
-.landing-screen .landing-eq span{width:2px;background:var(--accent);border-radius:1px;animation:eqbar .9s ease-in-out infinite;}
-.landing-screen .landing-eq span:nth-child(1){animation-delay:-.2s;} .landing-screen .landing-eq span:nth-child(2){animation-delay:-.5s;}
-.landing-screen .landing-eq span:nth-child(3){animation-delay:-.8s;} .landing-screen .landing-eq span:nth-child(4){animation-delay:-.35s;}
-@keyframes eqbar{0%,100%{height:3px;}50%{height:10px;}}
-.landing-screen .landing-hl-prog{margin-top:6px;height:3px;border-radius:2px;background:#333;overflow:hidden;}
-.landing-screen .landing-hl-fill{height:100%;width:0;background:var(--accent);border-radius:2px;}
-.landing-screen .landing-wall .landing-cover:hover .landing-hl-fill{animation:hlrun 12s linear forwards;}
-@keyframes hlrun{from{width:0;}to{width:100%;}}
-
-.landing-screen .landing-foot{position:relative;z-index:20;text-align:center;padding:0 24px 64px;color:var(--text-muted);font-size:12px;margin-top:auto;flex-shrink:0;}
-.landing-screen .landing-foot a{color:var(--text-secondary);font-weight:600;}
-.landing-screen .landing-foot a:hover{color:#fff;text-decoration:underline;}
-
-.landing-screen .scroll-indicator {
-  position: absolute;
-  bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  color: var(--text-muted);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  animation: fadeInOut 2s ease infinite;
-  pointer-events: none;
-}
-.landing-screen .scroll-indicator svg.bounce {
-  animation: bounce 1.6s ease infinite;
-}
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(6px); }
-}
-@keyframes fadeInOut {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.8; }
-}
-
-@media(max-width:768px){
-  .landing-screen .landing-top{padding:10px 18px 2px;}
-  .landing-screen .hero-landing{padding:0 16px 2px;}
-  .landing-screen .hero-landing h1{letter-spacing:-.6px;}
-  .landing-screen .landing-wall{gap:14px;padding:16px 0 24px;}
-  .landing-screen .landing-cover:hover{transform:scale(1.6);}
-  .landing-screen .landing-hl{width:118px;}
-}
-@media(prefers-reduced-motion:reduce){
-  .landing-screen .landing-track{animation:none!important;}
-  .landing-screen .blob{animation:none!important;}
-}
-
-/* ===================== APP SCREEN STYLES ===================== */
-.app-screen {
+:root{
   --bg-base:#000000; 
   --bg-surface:#0a0a0a; 
   --bg-elevated:#121212; 
@@ -200,631 +38,482 @@ a{color:inherit;text-decoration:none;}
   --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px;
   --space-5:20px; --space-6:24px; --space-8:32px;
   --header-h:72px; --vibe-drawer-w:400px;
-
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;}
+body{
   font-family:var(--font-ui); background:var(--bg-base); color:var(--text-primary);
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100vh;
-  z-index: 50;
-  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), filter 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-  transform-origin: center center;
+  -webkit-font-smoothing:antialiased; overflow:hidden;
+  position:relative;
 }
+/* Ambient background hidden */
+.ambient-bg{display:none;}
 
-.app-screen.hidden {
-  display: none !important;
-  opacity: 0;
-  transform: scale(0.92) translateY(5vh);
-  filter: blur(15px);
-}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-thumb{background:#262626;border-radius:0px;}
+::-webkit-scrollbar-thumb:hover{background:#404040;}
+::-webkit-scrollbar-track{background:transparent;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+img{display:block;}
 
-.app-screen.entering {
-  display: block !important;
-  animation: appEnter 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.app-screen.exiting-app {
-  animation: appExit 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes appEnter {
-  from { opacity: 0; transform: scale(0.92) translateY(5vh); filter: blur(15px); }
-  to { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
-}
-@keyframes appExit {
-  from { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
-  to { opacity: 0; transform: scale(0.92) translateY(5vh); filter: blur(15px); }
-}
-
-.app-screen ::-webkit-scrollbar{width:8px;height:8px;}
-.app-screen ::-webkit-scrollbar-thumb{background:#262626;border-radius:0px;}
-.app-screen ::-webkit-scrollbar-thumb:hover{background:#404040;}
-.app-screen ::-webkit-scrollbar-track{background:transparent;}
-
-.app-screen .app-container{
+/* ---------- Layout ---------- */
+.app-container{
   display:flex; flex-direction:column; height:100vh; position:relative; z-index:1;
 }
-.app-screen .global-header{
+@media(min-width:769px){
+  .app-container{
+    transition: padding-right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .app-container.vibe-open{
+    padding-right: var(--vibe-drawer-w);
+  }
+}
+.global-header{
   height:var(--header-h); display:flex; align-items:center; justify-content:space-between;
   padding:0 var(--space-6); background:rgba(0, 0, 0, 0.8); backdrop-filter:blur(16px);
   -webkit-backdrop-filter:blur(16px); border-bottom:1px solid var(--border-subtle);
   position:sticky; top:0; z-index:40; transition:background .2s;
 }
-.app-screen .global-header.scrolled{background:#000000;}
-.app-screen .header-left{display:flex; align-items:center; gap:var(--space-6);}
-.app-screen .header-right{display:flex; align-items:center; gap:var(--space-4);}
+.global-header.scrolled{background:#000000;}
+.header-left{display:flex; align-items:center; gap:var(--space-6);}
+.header-right{display:flex; align-items:center; gap:var(--space-4);}
 
-.app-screen .nav-logo{display:flex;align-items:center;gap:var(--space-2);font-family:var(--font-mono);font-weight:700;font-size:18px;letter-spacing:1px;}
-.app-screen .nav-logo .logo-mark{color:#ffffff;display:grid;place-items:center;}
-.app-screen .topbar-nav{display:flex;gap:var(--space-2);}
-.app-screen .topbar-nav button{
+.nav-logo{display:flex;align-items:center;gap:var(--space-2);font-family:var(--font-mono);font-weight:700;font-size:18px;letter-spacing:1px;}
+.nav-logo .logo-mark{color:#ffffff;display:grid;place-items:center;}
+.topbar-nav{display:flex;gap:var(--space-2);}
+.topbar-nav button{
   width:32px;height:32px;border-radius:0px;font-family:var(--font-mono);
   background:#0a0a0a; display:grid;place-items:center;color:var(--text-secondary);
   border:1px solid var(--border-subtle); transition:background .15s, color .15s;
 }
-.app-screen .topbar-nav button:hover{color:#fff; background:#161616; border-color:#8a8a8a;}
+.topbar-nav button:hover{color:#fff; background:#161616; border-color:#8a8a8a;}
 
-.app-screen .header-nav{display:flex; gap:var(--space-1); align-items:center;}
-.app-screen .header-nav .nav-link{
+.header-nav{display:flex; gap:var(--space-1); align-items:center;}
+.header-nav .nav-link{
   display:flex;align-items:center;gap:8px;padding:6px 14px;
   border-radius:0px;color:var(--text-secondary);font-family:var(--font-mono);font-weight:600;font-size:12px;
   transition:color .15s,background .15s, border-color .15s;
   border:1px solid transparent;
 }
-.app-screen .header-nav .nav-link:hover{color:#fff; background:#161616; border-color:#262626;}
-.app-screen .header-nav .nav-link.active{
+.header-nav .nav-link:hover{color:#fff; background:#161616; border-color:#262626;}
+.header-nav .nav-link.active{
   color:#fff; background:#222222; border-color:#ffffff;
 }
-.app-screen .header-nav .nav-link.active .nav-ic{color:#ffffff;}
-.app-screen .nav-ic{display:grid;place-items:center;width:18px;height:18px;flex-shrink:0;}
+.header-nav .nav-link.active .nav-ic{color:#ffffff;}
+.nav-ic{display:grid;place-items:center;width:18px;height:18px;flex-shrink:0;}
 
-.app-screen .main-content{
+.main-content{
   flex:1; overflow-y:auto; position:relative;
 }
-.app-screen .main-inner{padding:var(--space-6) var(--space-6) 80px;max-width:1300px;margin:0 auto;}
+.main-inner{padding:var(--space-6) var(--space-6) 80px;max-width:1300px;margin:0 auto;}
 
-.app-screen .lang-toggle-app{display:flex;background:#0d0d0d;border-radius:0px;padding:0px;border:1px solid var(--border-subtle);}
-.app-screen .lang-toggle-app button{
+.lang-toggle{display:flex;background:#0d0d0d;border-radius:0px;padding:0px;border:1px solid var(--border-subtle);}
+.lang-toggle button{
   padding:6px 12px;border-radius:0px;font-family:var(--font-mono);font-size:11px;font-weight:700;
   letter-spacing:1px;color:var(--text-secondary);text-transform:uppercase; transition:background .15s, color .15s;
 }
-.app-screen .lang-toggle-app button.active{background:#ffffff;color:#000000;}
+.lang-toggle button.active{background:#ffffff;color:#000000;}
 
-.app-screen .btn-primary{
+/* ---------- Buttons ---------- */
+.btn-primary{
   background:#ffffff;color:#000000;font-family:var(--font-mono);font-weight:700;font-size:12px;
   padding:12px 28px;border-radius:0px;letter-spacing:1px;text-transform:uppercase;
   transition:background .15s, color .15s; display:inline-block; border:1px solid #ffffff; text-align:center;
 }
-.app-screen .btn-primary:hover{background:#000000;color:#ffffff;border-color:#ffffff;}
-.app-screen .btn-secondary{
+.btn-primary:hover{background:#000000;color:#ffffff;border-color:#ffffff;}
+.btn-secondary{
   background:#0a0a0a;color:#ffffff;font-family:var(--font-mono);font-weight:700;font-size:11px;
   padding:9px 18px;border-radius:0px;letter-spacing:0.8px;text-transform:uppercase;
   transition:background .15s, border-color .15s; border:1px solid var(--border-subtle);
 }
-.app-screen .btn-secondary:hover{background:#161616;border-color:#ffffff;}
-.app-screen .btn-outlined{
+.btn-secondary:hover{background:#161616;border-color:#ffffff;}
+.btn-outlined{
   border:1px solid var(--border-subtle);color:var(--text-secondary);font-family:var(--font-mono);font-weight:600;font-size:11px;
   padding:7px 16px;border-radius:0px;transition:border-color .15s,color .15s,background .15s;
 }
-.app-screen .btn-outlined:hover{border-color:#fff;color:#fff;background:#111111;}
-.app-screen .btn-outlined.active{border-color:#ffffff;color:#ffffff;background:#1a1a1a;}
+.btn-outlined:hover{border-color:#fff;color:#fff;background:#111111;}
+.btn-outlined.active{border-color:#ffffff;color:#ffffff;background:#1a1a1a;}
 
-.app-screen .btn-play{
+.btn-play{
   width:44px;height:44px;border-radius:0px;background:#ffffff;
   color:#000000;display:grid;place-items:center;transition:background .15s, color .15s;
   border:1px solid #ffffff;
 }
-.app-screen .btn-play:hover{background:#000000;color:#ffffff;}
-.app-screen .btn-play.sm{width:32px;height:32px;}
-.app-screen .btn-play.sm svg{width:14px;height:14px;}
-.app-screen .btn-icon{width:36px;height:36px;border-radius:0px;display:grid;place-items:center;color:var(--text-secondary);transition:color .15s,background .15s; border:1px solid transparent;}
-.app-screen .btn-icon:hover{color:#fff;background:#111111;border-color:var(--border-subtle);}
+.btn-play:hover{background:#000000;color:#ffffff;}
+.btn-play.sm{width:32px;height:32px;}
+.btn-play.sm svg{width:14px;height:14px;}
+.btn-icon{width:36px;height:36px;border-radius:0px;display:grid;place-items:center;color:var(--text-secondary);transition:color .15s,background .15s; border:1px solid transparent;}
+.btn-icon:hover{color:#fff;background:#111111;border-color:var(--border-subtle);}
 
-.app-screen .section{margin-bottom:var(--space-8);}
-.app-screen .section-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:var(--space-4);}
-.app-screen .section-title{font-size:22px;font-weight:700;letter-spacing:-0.5px;}
-.app-screen .section-subtitle{font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);margin-top:4px;}
-.app-screen .see-all{font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);transition:color .15s;}
-.app-screen .see-all:hover{color:#ffffff;text-decoration:underline;}
+/* ---------- Sections ---------- */
+.section{margin-bottom:var(--space-8);}
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:var(--space-4);}
+.section-title{font-size:22px;font-weight:700;letter-spacing:-0.5px;}
+.section-subtitle{font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);margin-top:4px;}
+.see-all{font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);transition:color .15s;}
+.see-all:hover{color:#ffffff;text-decoration:underline;}
 
-.app-screen .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-5);}
-.app-screen .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--space-5);}
-.app-screen .horizontal-scroll{display:flex;gap:var(--space-4);overflow-x:auto;padding-bottom:var(--space-3);scroll-snap-type:x proximity;}
-.app-screen .horizontal-scroll>*{scroll-snap-align:start;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-5);}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--space-5);}
+.horizontal-scroll{display:flex;gap:var(--space-4);overflow-x:auto;padding-bottom:var(--space-3);scroll-snap-type:x proximity;}
+.horizontal-scroll>*{scroll-snap-align:start;}
 
-.app-screen .hero-app{
+/* ---------- Hero ---------- */
+.hero{
   position:relative;border-radius:0px;overflow:hidden;padding:48px var(--space-6);
   margin-bottom:var(--space-6); isolation:isolate;
   background:#0a0a0a; border:1px solid var(--border-subtle);
 }
-.app-screen .hero-app h1{font-size:clamp(28px,4.5vw,46px);font-weight:700;line-height:1.1;letter-spacing:-1.5px;max-width:640px;}
-.app-screen .hero-app p{font-family:var(--font-mono);font-size:13px;color:var(--text-secondary);margin:var(--space-3) 0 var(--space-5);max-width:480px;line-height:1.5;letter-spacing:-0.2px;}
+.hero-bg{display:none;}
+.hero h1{font-size:clamp(28px,4.5vw,46px);font-weight:700;line-height:1.1;letter-spacing:-1.5px;max-width:640px;}
+.hero p{font-family:var(--font-mono);font-size:13px;color:var(--text-secondary);margin:var(--space-3) 0 var(--space-5);max-width:480px;line-height:1.5;letter-spacing:-0.2px;}
 
-.app-screen .genre-card{
+/* ---------- Genre Card ---------- */
+.genre-card{
   position:relative;border-radius:0px;overflow:hidden;padding:var(--space-4) var(--space-5);
   min-height:180px;display:flex;flex-direction:column;justify-content:space-between;
   cursor:pointer;transition:border-color .2s, background-color .2s;
   border:1px solid var(--border-subtle);
   background:#0a0a0a !important;
 }
-.app-screen .genre-card>*{position:relative;z-index:1;}
-.app-screen .genre-card:hover{border-color:#ffffff;background:#111111 !important;}
-.app-screen .genre-card .gc-emoji{font-family:var(--font-mono);font-size:24px;color:#ffffff;}
-.app-screen .genre-card .gc-name{font-size:20px;font-weight:700;}
-.app-screen .genre-card .gc-name small{font-family:var(--font-mono);font-size:12px;font-weight:500;color:var(--text-secondary);display:block;margin-top:2px;}
-.app-screen .genre-card .gc-sub{font-family:var(--font-mono);font-size:10px;font-weight:500;color:var(--text-secondary);line-height:1.5;min-height:33px;margin-top:8px;}
-.app-screen .genre-card .gc-foot{display:flex;align-items:center;justify-content:space-between;gap:var(--space-2);margin-top:auto;}
-.app-screen .listeners-bar{flex:1;}
-.app-screen .listeners-bar .lb-track{height:4px;border-radius:0px;background:#1a1a1a;overflow:hidden;margin-bottom:4px;}
-.app-screen .listeners-bar .lb-fill{height:100%;background:#ffffff;border-radius:0px;}
-.app-screen .listeners-bar .lb-label{font-family:var(--font-mono);font-size:9px;font-weight:700;color:var(--text-secondary);}
-.app-screen .gc-go{background:#161616;border:1px solid var(--border-subtle);color:#fff;font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;padding:6px 12px;border-radius:0px;white-space:nowrap; transition:background .15s, border-color .15s;}
-.app-screen .gc-go:hover{background:#262626;border-color:#ffffff;}
-.app-screen .gc-artists{font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);line-height:1.5;}
+.genre-card::after{display:none;}
+.genre-card>*{position:relative;z-index:1;}
+.genre-card:hover{border-color:#ffffff;background:#111111 !important;}
+.genre-card .gc-emoji{font-family:var(--font-mono);font-size:24px;color:#ffffff;}
+.genre-card .gc-name{font-size:20px;font-weight:700;}
+.genre-card .gc-name small{font-family:var(--font-mono);font-size:12px;font-weight:500;color:var(--text-secondary);display:block;margin-top:2px;}
+.genre-card .gc-sub{font-family:var(--font-mono);font-size:10px;font-weight:500;color:var(--text-secondary);line-height:1.5;min-height:33px;margin-top:8px;}
+.genre-card .gc-foot{display:flex;align-items:center;justify-content:space-between;gap:var(--space-2);margin-top:auto;}
+.listeners-bar{flex:1;}
+.listeners-bar .lb-track{height:4px;border-radius:0px;background:#1a1a1a;overflow:hidden;margin-bottom:4px;}
+.listeners-bar .lb-fill{height:100%;background:#ffffff;border-radius:0px;}
+.listeners-bar .lb-label{font-family:var(--font-mono);font-size:9px;font-weight:700;color:var(--text-secondary);}
+.gc-go{background:#161616;border:1px solid var(--border-subtle);color:#fff;font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;padding:6px 12px;border-radius:0px;white-space:nowrap; transition:background .15s, border-color .15s;}
+.gc-go:hover{background:#262626;border-color:#ffffff;}
+.gc-artists{font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);line-height:1.5;}
 
-.app-screen .song-card{
+/* ---------- Song Card (Explorer/Taste Style) ---------- */
+.song-card{
   width:165px;flex-shrink:0;background:#0a0a0a;border-radius:0px;
   padding:var(--space-3);transition:background .2s, border-color .2s;cursor:pointer;position:relative;
   border:1px solid var(--border-subtle);
 }
-.app-screen .song-card:hover{background:#111111;border-color:#ffffff;}
-.app-screen .song-card:hover .sc-play{opacity:1;transform:translateY(0);}
-.app-screen .art-thumb{
+.song-card:hover{background:#111111;border-color:#ffffff;}
+.song-card:hover .sc-play{opacity:1;transform:translateY(0);}
+.art-thumb{
   width:100%;aspect-ratio:1;border-radius:0px;margin-bottom:var(--space-2);
   position:relative;overflow:hidden;display:grid;place-items:center;font-size:24px;
   border:1px solid var(--border-subtle);
 }
-.app-screen .sc-play{
+.sc-play{
   position:absolute;bottom:8px;right:8px;opacity:0;transform:translateY(0);
   transition:opacity .2s;z-index:2;
 }
-.app-screen .song-card .sc-title{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.app-screen .song-card .sc-artist{font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.app-screen .song-card .sc-meta{display:flex;align-items:center;gap:var(--space-1);margin-top:var(--space-2);}
+.song-card .sc-title{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.song-card .sc-artist{font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.song-card .sc-meta{display:flex;align-items:center;gap:var(--space-1);margin-top:var(--space-2);}
 
-.app-screen .genre-tag{
+/* ---------- Tags ---------- */
+.genre-tag{
   display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:10px;font-weight:700;
   padding:2px 8px;border-radius:0px;letter-spacing:.3px;
   background:#141414;color:#fff;white-space:nowrap;
   border:1px solid var(--border-subtle);
 }
-.app-screen .genre-tag .gt-dot{width:4px;height:4px;border-radius:0px;background:#ffffff !important;}
-.app-screen .era-badge{display:inline-flex;align-items:center;gap:5px;font-family:var(--font-mono);font-size:10px;font-weight:700;padding:4px 10px;border-radius:0px;background:#111111;letter-spacing:.3px; border:1px solid var(--border-subtle);}
-.app-screen .pill-tag{display:inline-flex;align-items:center;font-family:var(--font-mono);font-size:11px;font-weight:600;padding:6px 14px;border-radius:0px;background:#0d0d0d;color:var(--text-secondary);white-space:nowrap;transition:background .15s,color .15s,border-color .15s;cursor:pointer; border:1px solid var(--border-subtle);}
-.app-screen .pill-tag:hover{background:#1c1c1c;color:#fff; border-color:#ffffff;}
+.genre-tag .gt-dot{width:4px;height:4px;border-radius:0px;background:#ffffff;}
+.era-badge{display:inline-flex;align-items:center;gap:5px;font-family:var(--font-mono);font-size:10px;font-weight:700;padding:4px 10px;border-radius:0px;background:#111111;letter-spacing:.3px; border:1px solid var(--border-subtle);}
+.pill-tag{display:inline-flex;align-items:center;font-family:var(--font-mono);font-size:11px;font-weight:600;padding:6px 14px;border-radius:0px;background:#0d0d0d;color:var(--text-secondary);white-space:nowrap;transition:background .15s,color .15s,border-color .15s;cursor:pointer; border:1px solid var(--border-subtle);}
+.pill-tag:hover{background:#1c1c1c;color:#fff; border-color:#ffffff;}
 
-.app-screen .chart-head{display:grid;grid-template-columns:36px 1fr 100px 70px 80px 48px;gap:var(--space-3);padding:0 var(--space-3) var(--space-3);border-bottom:1px solid var(--border-subtle);font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);align-items:center;}
-.app-screen .chart-row{
+/* ---------- Editorial Rank Charts ---------- */
+.chart-head{display:grid;grid-template-columns:36px 1fr 100px 70px 80px 48px;gap:var(--space-3);padding:0 var(--space-3) var(--space-3);border-bottom:1px solid var(--border-subtle);font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);align-items:center;}
+.chart-row{
   display:grid;grid-template-columns:36px 1fr 100px 70px 80px 48px;gap:var(--space-3);
   padding:var(--space-3);border-radius:0px;align-items:center;
   background:#050505; border:1px solid var(--border-subtle); margin-bottom:8px;
   transition:background .15s ease, border-color .15s;cursor:pointer;
 }
-.app-screen .chart-head.gd,.app-screen .chart-row.gd{grid-template-columns:36px 1fr 64px 84px 56px;}
-.app-screen .chart-row:hover{background:#111111; border-color:#ffffff;}
-.app-screen .cr-rankcell{position:relative;display:grid;place-items:center;height:36px;}
-.app-screen .cr-rank{font-family:var(--font-mono);font-size:16px;font-weight:700;color:var(--text-muted);}
-.app-screen .cr-playbtn{position:absolute;inset:0;margin:auto;opacity:0;pointer-events:none;}
-.app-screen .chart-row:hover .cr-rank{opacity:0;}
-.app-screen .chart-row:hover .cr-playbtn{opacity:1;pointer-events:auto;}
-.app-screen .cr-song{display:flex;align-items:center;gap:var(--space-3);min-width:0;}
-.app-screen .cr-song .art-thumb{width:40px;height:40px;margin:0;font-size:14px;flex-shrink:0;border-radius:0px;}
-.app-screen .cr-song .cr-title{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.app-screen .cr-song .cr-artist{font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.app-screen .cr-num{font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);text-align:right;}
-.app-screen .rank-change{font-family:var(--font-mono);display:flex;align-items:center;justify-content:center;gap:2px;font-size:10px;font-weight:700;}
-.app-screen .rc-up{color:#ffffff;} .app-screen .rc-down{color:#8a8a8a;} .app-screen .rc-same{color:var(--text-muted);}
-.app-screen .rc-new{background:#ffffff;color:#000000;font-family:var(--font-mono);font-size:8px;padding:2px 5px;border-radius:0px;letter-spacing:.3px; font-weight:700;}
+.chart-head.gd,.chart-row.gd{grid-template-columns:36px 1fr 64px 84px 56px;}
+.chart-row:hover{background:#111111; border-color:#ffffff;}
+.cr-rankcell{position:relative;display:grid;place-items:center;height:36px;}
+.cr-rank{font-family:var(--font-mono);font-size:16px;font-weight:700;color:var(--text-muted);}
+.cr-playbtn{position:absolute;inset:0;margin:auto;opacity:0;pointer-events:none;}
+.chart-row:hover .cr-rank{opacity:0;}
+.chart-row:hover .cr-playbtn{opacity:1;pointer-events:auto;}
+.cr-song{display:flex;align-items:center;gap:var(--space-3);min-width:0;}
+.cr-song .art-thumb{width:40px;height:40px;margin:0;font-size:14px;flex-shrink:0;border-radius:0px;}
+.cr-song .cr-title{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cr-song .cr-artist{font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cr-num{font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);text-align:right;}
+.rank-change{font-family:var(--font-mono);display:flex;align-items:center;justify-content:center;gap:2px;font-size:10px;font-weight:700;}
+.rc-up{color:#ffffff;} .rc-down{color:#8a8a8a;} .rc-same{color:var(--text-muted);}
+.rc-new{background:#ffffff;color:#000000;font-family:var(--font-mono);font-size:8px;padding:2px 5px;border-radius:0px;letter-spacing:.3px; font-weight:700;}
 
-.app-screen .filter-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:var(--space-5);}
+/* ---------- filter bar ---------- */
+.filter-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:var(--space-5);}
 
-.app-screen .genre-hero{
+/* ---------- Genre detail ---------- */
+.genre-hero{
   position:relative;border-radius:0px;overflow:hidden;padding:48px var(--space-6) var(--space-5);
   min-height:280px;display:flex;flex-direction:column;justify-content:flex-end;margin-bottom:var(--space-6);
   border:1px solid var(--border-subtle);
   background:#0a0a0a !important;
 }
-.app-screen .genre-hero .gh-emoji{font-family:var(--font-mono);font-size:48px;margin-bottom:var(--space-2);color:#ffffff;}
-.app-screen .genre-hero h1{font-size:clamp(32px,5.5vw,56px);font-weight:700;letter-spacing:-1.5px;}
-.app-screen .genre-hero .gh-desc{font-size:14px;color:var(--text-secondary);max-width:600px;margin-top:var(--space-3);line-height:1.6;}
-.app-screen .char-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:var(--space-4);}
+.genre-hero::after{display:none;}
+.genre-hero>*{position:relative;z-index:1;}
+.genre-hero .gh-emoji{font-family:var(--font-mono);font-size:48px;margin-bottom:var(--space-2);color:#ffffff;}
+.genre-hero h1{font-size:clamp(32px,5.5vw,56px);font-weight:700;letter-spacing:-1.5px;}
+.genre-hero .gh-desc{font-size:14px;color:var(--text-secondary);max-width:600px;margin-top:var(--space-3);line-height:1.6;}
+.char-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:var(--space-4);}
 
-.app-screen .artist-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--space-4);}
-.app-screen .artist-cell{display:flex;flex-direction:column;align-items:center;gap:var(--space-2);text-align:center;}
-.app-screen .artist-avatar{width:90px;height:90px;border-radius:0px;display:grid;place-items:center;font-family:var(--font-mono);font-size:24px;font-weight:700;color:#fff;border:1px solid var(--border-subtle);}
-.app-screen .artist-cell .an{font-size:13px;font-weight:600;color:var(--text-primary);}
+.artist-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--space-4);}
+.artist-cell{display:flex;flex-direction:column;align-items:center;gap:var(--space-2);text-align:center;}
+.artist-avatar{width:90px;height:90px;border-radius:0px;display:grid;place-items:center;font-family:var(--font-mono);font-size:24px;font-weight:700;color:#fff;border:1px solid var(--border-subtle);}
+.artist-cell .an{font-size:13px;font-weight:600;color:var(--text-primary);}
 
-.app-screen .related-card{background:#0a0a0a;border-radius:0px;padding:var(--space-3);display:flex;align-items:center;gap:var(--space-3);cursor:pointer;transition:background .2s, border-color .2s; border:1px solid var(--border-subtle);}
-.app-screen .related-card:hover{background:#111111; border-color:#ffffff;}
-.app-screen .related-card .rc-art{width:48px;height:48px;border-radius:0px;flex-shrink:0;border:1px solid var(--border-subtle);}
-.app-screen .related-card .rc-name{font-size:14px;font-weight:700;}
-.app-screen .related-card .rc-name small{font-family:var(--font-mono);display:block;font-size:11px;color:var(--text-secondary);font-weight:600;margin-top:2px;}
+.related-card{background:#0a0a0a;border-radius:0px;padding:var(--space-3);display:flex;align-items:center;gap:var(--space-3);cursor:pointer;transition:background .2s, border-color .2s; border:1px solid var(--border-subtle);}
+.related-card:hover{background:#111111; border-color:#ffffff;}
+.related-card .rc-art{width:48px;height:48px;border-radius:0px;flex-shrink:0;border:1px solid var(--border-subtle);}
+.related-card .rc-name{font-size:14px;font-weight:700;}
+.related-card .rc-name small{font-family:var(--font-mono);display:block;font-size:11px;color:var(--text-secondary);font-weight:600;margin-top:2px;}
 
-.app-screen .share-widget{
+/* ---------- Live Share Visualizer Widget ---------- */
+.share-widget{
   background:#0a0a0a; border:1px solid var(--border-subtle); border-radius:0px;
   padding:var(--space-4); margin-bottom:var(--space-6); display:flex; flex-direction:column; gap:var(--space-3);
 }
-.app-screen .sw-head{display:flex; justify-content:space-between; align-items:center;}
-.app-screen .sw-title{font-family:var(--font-mono);font-size:12px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; color:var(--text-primary); display:flex; align-items:center; gap:8px;}
-.app-screen .sw-pulsing-dot{width:6px; height:6px; background:#ffffff; border-radius:0px; animation:pulseGlow 2s infinite;}
+.sw-head{display:flex; justify-content:space-between; align-items:center;}
+.sw-title{font-family:var(--font-mono);font-size:12px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; color:var(--text-primary); display:flex; align-items:center; gap:8px;}
+.sw-pulsing-dot{width:6px; height:6px; background:#ffffff; border-radius:0px; animation:pulseGlow 2s infinite;}
 @keyframes pulseGlow{0%,100%{opacity:0.3;}50%{opacity:1;}}
-.app-screen .sw-bars{display:flex; flex-direction:column; gap:8px;}
-.app-screen .sw-bar-row{display:flex; align-items:center; gap:var(--space-3); font-family:var(--font-mono);font-size:11px; font-weight:700;}
-.app-screen .sw-bar-label{width:90px; text-align:left;}
-.app-screen .sw-bar-track{flex:1; height:6px; background:#161616; border-radius:0px; overflow:hidden;}
-.app-screen .sw-bar-fill{height:100%; border-radius:0px; transition:width 1s cubic-bezier(0.16, 1, 0.3, 1);}
-.app-screen .sw-bar-val{width:45px; text-align:right; color:var(--text-secondary);}
+.sw-bars{display:flex; flex-direction:column; gap:8px;}
+.sw-bar-row{display:flex; align-items:center; gap:var(--space-3); font-family:var(--font-mono);font-size:11px; font-weight:700;}
+.sw-bar-label{width:90px; text-align:left;}
+.sw-bar-track{flex:1; height:6px; background:#161616; border-radius:0px; overflow:hidden;}
+.sw-bar-fill{height:100%; border-radius:0px; transition:width 1s cubic-bezier(0.16, 1, 0.3, 1);}
+.sw-bar-val{width:45px; text-align:right; color:var(--text-secondary);}
 
-.app-screen .timeline{display:flex;gap:var(--space-6);overflow-x:auto;padding:var(--space-4) 0; position:relative;}
-.app-screen .era-card{
-  min-width:270px;flex-shrink:0;border-radius:0px;overflow:hidden;
-  cursor:pointer;transition:border-color .2s;position:relative;align-self:flex-start;
+/* ---------- Timeline Flow & Lineage ---------- */
+.timeline{display:flex;flex-direction:column;gap:var(--space-6);padding:var(--space-4) 0; position:relative; max-width:680px; margin:0 auto;}
+.era-card{
+  width:100%; flex-shrink:0;border-radius:0px;overflow:hidden;
+  cursor:pointer;transition:border-color .2s;position:relative;
   border:1px solid var(--border-subtle); background:#0a0a0a;
 }
-.app-screen .era-card:hover{border-color:#ffffff;}
-.app-screen .era-card .ec-top{padding:var(--space-5);min-height:140px;display:flex;flex-direction:column;justify-content:flex-end;position:relative;}
-.app-screen .era-card .ec-top>*{position:relative;z-index:1;}
-.app-screen .era-card .ec-decade{font-family:var(--font-mono);font-size:32px;font-weight:700;letter-spacing:-1.5px;}
-.app-screen .era-card .ec-title{font-size:13px;font-weight:600;color:#fff;}
-.app-screen .era-card .ec-body{background:#0d0d0d;padding:0;max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s ease;}
-.app-screen .era-card.open .ec-body{max-height:600px;padding:var(--space-4);border-top:1px solid var(--border-subtle);}
-.app-screen .era-card .ec-body p{font-size:12px;color:var(--text-secondary);line-height:1.6;margin-bottom:var(--space-3);}
-.app-screen .ec-label{font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:var(--space-2);}
-.app-screen .ec-genres{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:var(--space-3);}
-.app-screen .ec-context{font-family:var(--font-mono);font-size:10px;color:var(--text-muted);border-top:1px solid var(--border-muted);padding-top:var(--space-2);margin-top:var(--space-2);}
+.era-card:hover{border-color:#ffffff;}
+.era-card .ec-top{padding:var(--space-5);min-height:140px;display:flex;flex-direction:column;justify-content:flex-end;position:relative;}
+.era-card .ec-top::after{display:none;}
+.era-card .ec-top>*{position:relative;z-index:1;}
+.era-card .ec-decade{font-family:var(--font-mono);font-size:32px;font-weight:700;letter-spacing:-1.5px;text-shadow:0 2px 4px rgba(0,0,0,0.6);}
+.era-card .ec-title{font-size:13px;font-weight:600;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,0.6);}
+.era-card .ec-body{background:#0d0d0d;padding:0;max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s ease;}
+.era-card.open .ec-body{max-height:600px;padding:var(--space-4);border-top:1px solid var(--border-subtle);}
+.era-card .ec-body p{font-size:12px;color:var(--text-secondary);line-height:1.6;margin-bottom:var(--space-3);}
+.ec-label{font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:var(--space-2);}
+.ec-genres{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:var(--space-3);}
+.ec-context{font-family:var(--font-mono);font-size:10px;color:var(--text-muted);border-top:1px solid var(--border-muted);padding-top:var(--space-2);margin-top:var(--space-2);}
 
-.app-screen .search-box{position:relative;max-width:560px;margin-bottom:var(--space-5);}
-.app-screen .search-box svg{position:absolute;left:18px;top:50%;transform:translateY(-50%);color:var(--text-muted);}
-.app-screen .search-input{
+/* ---------- Search ---------- */
+.search-box{position:relative;max-width:560px;margin-bottom:var(--space-5);}
+.search-box svg{position:absolute;left:18px;top:50%;transform:translateY(-50%);color:var(--text-muted);}
+.search-input{
   width:100%;padding:14px 20px 14px 50px;border-radius:0px;
   background:#0a0a0a;color:#fff;font-family:var(--font-mono);font-size:13px;font-weight:500;
   border:1px solid var(--border-subtle); transition:border-color .15s, background .15s;
 }
-.app-screen .search-input:focus{outline:none; border-color:#ffffff; background:#111111;}
-.app-screen .search-input::placeholder{color:var(--text-muted);}
-.app-screen .ai-suggest{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:var(--space-5);}
-.app-screen .ai-result{background:#0a0a0a;border-radius:0px;padding:var(--space-4);margin-bottom:var(--space-5);border-left:3px solid #ffffff; border-top:1px solid var(--border-subtle); border-right:1px solid var(--border-subtle); border-bottom:1px solid var(--border-subtle);}
-.app-screen .ai-result .ai-q{font-family:var(--font-mono);font-size:11px;color:var(--text-muted);margin-bottom:var(--space-2);font-weight:700;}
-.app-screen .ai-result .ai-a{font-size:13px;line-height:1.6;}
-.app-screen .empty-state{text-align:center;padding:60px 20px;color:var(--text-muted);font-family:var(--font-mono);font-size:12px;}
-.app-screen .empty-state .es-emoji{font-size:32px;margin-bottom:var(--space-3);opacity:0.5;}
+.search-input:focus{outline:none; border-color:#ffffff; background:#111111;}
+.search-input::placeholder{color:var(--text-muted);}
+.ai-suggest{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:var(--space-5);}
+.ai-result{background:#0a0a0a;border-radius:0px;padding:var(--space-4);margin-bottom:var(--space-5);border-left:3px solid #ffffff; border-top:1px solid var(--border-subtle); border-right:1px solid var(--border-subtle); border-bottom:1px solid var(--border-subtle);}
+.ai-result .ai-q{font-family:var(--font-mono);font-size:11px;color:var(--text-muted);margin-bottom:var(--space-2);font-weight:700;}
+.ai-result .ai-a{font-size:13px;line-height:1.6;}
+.empty-state{text-align:center;padding:60px 20px;color:var(--text-muted);font-family:var(--font-mono);font-size:12px;}
+.empty-state .es-emoji{font-size:32px;margin-bottom:var(--space-3);opacity:0.5;}
 
-.app-screen .taste-container{max-width:760px; margin:0 auto; background:#0a0a0a; border:1px solid var(--border-subtle); border-radius:0px; padding:var(--space-6); position:relative;}
-.app-screen .taste-step{display:flex; flex-direction:column; gap:var(--space-4); animation:fadeIn 0.3s ease;}
-.app-screen .taste-step-title{font-size:18px; font-weight:700; color:#fff;}
-.app-screen .taste-step-desc{font-size:13px; color:var(--text-secondary); margin-bottom:var(--space-2);}
-.app-screen .taste-grid-toggle{display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;}
-@media(max-width:520px){.app-screen .taste-grid-toggle{grid-template-columns:repeat(2,1fr);}}
-.app-screen .taste-option-btn{
+/* ---------- Taste DNA Profiler UI ---------- */
+.taste-container{max-width:760px; margin:0 auto; background:#0a0a0a; border:1px solid var(--border-subtle); border-radius:0px; padding:var(--space-6); position:relative;}
+.taste-step{display:flex; flex-direction:column; gap:var(--space-4); animation:fadeIn 0.3s ease;}
+.taste-step-title{font-size:18px; font-weight:700; color:#fff;}
+.taste-step-desc{font-size:13px; color:var(--text-secondary); margin-bottom:var(--space-2);}
+.taste-grid-toggle{display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;}
+@media(max-width:520px){.taste-grid-toggle{grid-template-columns:repeat(2,1fr);}}
+.taste-option-btn{
   padding:12px; border-radius:0px; background:#0d0d0d;
   border:1px solid var(--border-subtle); transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:8px; font-family:var(--font-mono); font-size:12px; font-weight:600;
 }
-.app-screen .taste-option-btn:hover{background:#161616; border-color:#8a8a8a;}
-.app-screen .taste-option-btn.selected{
+.taste-option-btn:hover{background:#161616; border-color:#8a8a8a;}
+.taste-option-btn.selected{
   background:#ffffff; border-color:#ffffff; color:#000000;
 }
-.app-screen .taste-progress{display:flex; justify-content:space-between; align-items:center; margin-top:var(--space-6); border-top:1px solid var(--border-subtle); padding-top:var(--space-4);}
-.app-screen .taste-progress-dots{display:flex; gap:8px;}
-.app-screen .tpd-dot{width:6px; height:6px; border-radius:0px; background:#222;}
-.app-screen .tpd-dot.active{background:#ffffff;}
+.taste-progress{display:flex; justify-content:space-between; align-items:center; margin-top:var(--space-6); border-top:1px solid var(--border-subtle); padding-top:var(--space-4);}
+.taste-progress-dots{display:flex; gap:8px;}
+.tpd-dot{width:6px; height:6px; border-radius:0px; background:#222;}
+.tpd-dot.active{background:#ffffff;}
 
-.app-screen .td-result{animation:fadeIn 0.5s ease;}
-.app-screen .td-badge{display:inline-block; font-family:var(--font-mono); font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase; background:#ffffff; color:#000000; padding:4px 10px; border-radius:0px; margin-bottom:8px;}
-.app-screen .td-dna-name{font-size:26px; font-weight:800; color:#fff; margin-bottom:12px; letter-spacing:-1px;}
-.app-screen .td-dna-desc{font-size:14px; color:var(--text-secondary); line-height:1.6; margin-bottom:var(--space-5);}
-.app-screen .td-visual-row{display:grid; grid-template-columns:1.2fr 1fr; gap:var(--space-6); margin-bottom:var(--space-6);}
-@media(max-width:680px){.app-screen .td-visual-row{grid-template-columns:1fr;}}
-.app-screen .td-chart{background:#050505; border:1px solid var(--border-subtle); border-radius:0px; padding:var(--space-4); display:flex; flex-direction:column; gap:var(--space-3);}
-.app-screen .td-chart-item{display:flex; flex-direction:column; gap:4px;}
-.app-screen .td-chart-label{display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:10px; font-weight:700; color:var(--text-secondary);}
-.app-screen .td-chart-bar{height:6px; background:#161616; border-radius:0px; overflow:hidden;}
-.app-screen .td-chart-fill{height:100%; border-radius:0px; background:#ffffff; transition:width 1s ease;}
+/* Taste DNA Result Layout */
+.td-result{animation:fadeIn 0.5s ease;}
+.td-badge{display:inline-block; font-family:var(--font-mono); font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase; background:#ffffff; color:#000000; padding:4px 10px; border-radius:0px; margin-bottom:8px;}
+.td-dna-name{font-size:26px; font-weight:800; color:#fff; margin-bottom:12px; letter-spacing:-1px;}
+.td-dna-desc{font-size:14px; color:var(--text-secondary); line-height:1.6; margin-bottom:var(--space-5);}
+.td-visual-row{display:grid; grid-template-columns:1.2fr 1fr; gap:var(--space-6); margin-bottom:var(--space-6);}
+@media(max-width:680px){.td-visual-row{grid-template-columns:1fr;}}
+.td-chart{background:#050505; border:1px solid var(--border-subtle); border-radius:0px; padding:var(--space-4); display:flex; flex-direction:column; gap:var(--space-3);}
+.td-chart-item{display:flex; flex-direction:column; gap:4px;}
+.td-chart-label{display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:10px; font-weight:700; color:var(--text-secondary);}
+.td-chart-bar{height:6px; background:#161616; border-radius:0px; overflow:hidden;}
+.td-chart-fill{height:100%; border-radius:0px; background:#ffffff; transition:width 1s ease;}
 
-.app-screen .vibe-analyzer {
+/* ---------- Vibe Analyzer Drawer Panel ---------- */
+.vibe-analyzer {
   position: fixed; top: 0; right: -420px; width: var(--vibe-drawer-w); height: 100vh;
   background: #080808;
   border-left: 1px solid var(--border-subtle);
   z-index: 100; transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex; flex-direction: column; overflow-y: auto; color: #fff;
 }
-.app-screen .vibe-analyzer.open { right: 0; }
-.app-screen .va-head{
+.vibe-analyzer.open { right: 0; }
+.va-head{
   display:flex; align-items:center; justify-content:space-between;
   padding:var(--space-4) var(--space-5); border-bottom:1px solid var(--border-subtle);
 }
-.app-screen .va-head h2{font-family:var(--font-mono); font-size:13px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--text-secondary);}
-.app-screen .va-close{
+.va-head h2{font-family:var(--font-mono); font-size:13px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--text-secondary);}
+.va-close{
   width:28px; height:28px; border-radius:0px; background:#111;
   display:grid; place-items:center; color:var(--text-secondary); transition:background .15s, color .15s;
   border:1px solid var(--border-subtle);
 }
-.app-screen .va-close:hover{background:#222; color:#fff;}
-.app-screen .va-body{
+.va-close:hover{background:#222; color:#fff;}
+.va-body{
   flex:1; overflow-y:auto; padding:var(--space-5); display:flex; flex-direction:column; gap:var(--space-5);
 }
-.app-screen .va-song-show{display:flex; flex-direction:column; align-items:center; text-align:center;}
-.app-screen .va-art-wrap{
+.va-song-show{display:flex; flex-direction:column; align-items:center; text-align:center;}
+.va-art-wrap{
   width:160px; height:160px; border-radius:0px; margin-bottom:var(--space-4);
   position:relative;
   display:grid; place-items:center; font-size:48px; border:1px solid var(--border-subtle);
 }
-.app-screen .va-title{font-size:18px; font-weight:800; color:#fff; margin-bottom:4px; line-height:1.2; letter-spacing:-0.5px;}
-.app-screen .va-artist{font-family:var(--font-mono); font-size:13px; color:var(--text-secondary); margin-bottom:var(--space-2);}
+.va-wave-glow{display:none;}
+.va-title{font-size:18px; font-weight:800; color:#fff; margin-bottom:4px; line-height:1.2; letter-spacing:-0.5px;}
+.va-artist{font-family:var(--font-mono); font-size:13px; color:var(--text-secondary); margin-bottom:var(--space-2);}
 
-.app-screen .va-player-ctrl{
+/* Sleek Vibe Waveform & Player Inside Analyzer */
+.va-player-ctrl{
   display:flex; flex-direction:column; align-items:center; gap:var(--space-3);
   background:#0a0a0a; border:1px solid var(--border-subtle); border-radius:0px;
   padding:var(--space-3) var(--space-4); margin-bottom:4px;
 }
-.app-screen .vap-row{display:flex; align-items:center; gap:var(--space-3); width:100%;}
-.app-screen .vap-time{font-family:var(--font-mono); font-size:10px; color:var(--text-muted); font-variant-numeric:tabular-nums; width:30px; text-align:center;}
-.app-screen .va-wave-svg{flex:1; height:32px; fill:#1a1a1a; cursor:pointer;}
-.app-screen .va-wave-svg .active-bar{fill:#ffffff; transition:fill 0.2s;}
+.vap-row{display:flex; align-items:center; gap:var(--space-3); width:100%;}
+.vap-time{font-family:var(--font-mono); font-size:10px; color:var(--text-muted); font-variant-numeric:tabular-nums; width:30px; text-align:center;}
+.va-wave-svg{flex:1; height:32px; fill:#1a1a1a; cursor:pointer;}
+.va-wave-svg .active-bar{fill:#ffffff; transition:fill 0.2s;}
 
-.app-screen .va-stats{
+.va-stats{
   display:flex; flex-direction:column; gap:12px;
   background:#0a0a0a; border:1px solid var(--border-subtle);
   padding:var(--space-4); border-radius:0px;
 }
-.app-screen .va-stat-row{display:flex; flex-direction:column; gap:4px;}
-.app-screen .va-stat-lbl{display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:10px; font-weight:700; color:var(--text-muted);}
-.app-screen .va-stat-track{height:6px; background:#161616; border-radius:0px; overflow:hidden;}
-.app-screen .va-stat-fill{height:100%; border-radius:0px; background:#ffffff;}
+.va-stat-row{display:flex; flex-direction:column; gap:4px;}
+.va-stat-lbl{display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:10px; font-weight:700; color:var(--text-muted);}
+.va-stat-track{height:6px; background:#161616; border-radius:0px; overflow:hidden;}
+.va-stat-fill{height:100%; border-radius:0px; background:#ffffff;}
 
-.app-screen .va-anal-text{
+.va-anal-text{
   font-size:12.5px; color:var(--text-secondary); line-height:1.6;
   background:#0a0a0a; border:1px solid var(--border-subtle);
   padding:var(--space-4); border-radius:0px; border-left:3px solid #ffffff;
 }
 
-.app-screen .mobile-nav{display:none;}
+/* ---------- Mobile Bottom Nav ---------- */
+.mobile-nav{display:none;}
 
+/* ---------- Responsive ---------- */
 @media(max-width:768px){
-  .app-screen .global-header{padding:0 var(--space-4); height:60px;}
-  .app-screen .header-nav{display:none;}
-  .app-screen .header-left .topbar-nav{display:none;}
-  .app-screen .main-inner{padding:var(--space-4) var(--space-4) 100px;}
-  .app-screen .grid-3{grid-template-columns:repeat(2,1fr);gap:12px;}
-  .app-screen .grid-2{grid-template-columns:1fr;gap:12px;}
-  .app-screen .artist-grid{grid-template-columns:repeat(3,1fr);}
-  .app-screen .section-title{font-size:18px;}
-  .app-screen .hero-app{padding:24px var(--space-4); margin-bottom:var(--space-4);}
-  .app-screen .chart-head{grid-template-columns:32px 1fr 60px 40px;}
-  .app-screen .chart-row{grid-template-columns:32px 1fr 60px 40px; padding:10px; margin-bottom:6px;}
-  .app-screen .chart-head .ch-genre,.app-screen .chart-head .ch-year,.cr-genre-col,.cr-year{display:none;}
+  .global-header{padding:0 var(--space-4); height:60px;}
+  .header-nav{display:none;}
+  .header-left .topbar-nav{display:none;}
+  .main-inner{padding:var(--space-4) var(--space-4) 100px;}
+  .grid-3{grid-template-columns:repeat(2,1fr);gap:12px;}
+  .grid-2{grid-template-columns:1fr;gap:12px;}
+  .artist-grid{grid-template-columns:repeat(3,1fr);}
+  .section-title{font-size:18px;}
+  .hero{padding:24px var(--space-4); margin-bottom:var(--space-4);}
+  .chart-head{grid-template-columns:32px 1fr 60px 40px;}
+  .chart-row{grid-template-columns:32px 1fr 60px 40px; padding:10px; margin-bottom:6px;}
+  .chart-head .ch-genre,.chart-head .ch-year,.cr-genre-col,.cr-year{display:none;}
   
-  .app-screen .vibe-analyzer {
+  .vibe-analyzer {
     right: 0; bottom: -85vh; top: auto; width: 100%; height: 80vh;
     border-left: none; border-top: 1px solid var(--border-subtle);
     border-radius: 0px;
     transition: bottom 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .app-screen .vibe-analyzer.open { bottom: 56px; }
+  .vibe-analyzer.open { bottom: 56px; }
   
-  .app-screen .mobile-nav{
+  .mobile-nav{
     display:flex;position:fixed;bottom:0;left:0;right:0;height:56px;z-index:60;
     background:#000000;border-top:1px solid var(--border-subtle);
   }
-  .app-screen .mobile-nav a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-family:var(--font-mono);font-size:9px;font-weight:700;color:var(--text-muted);}
-  .app-screen .mobile-nav a svg{width:18px;height:18px;}
-  .app-screen .mobile-nav a.active{color:#fff;}
-  .app-screen .mobile-nav a.active svg{color:#ffffff;}
-  .app-screen .artist-avatar{width:70px;height:70px;font-size:20px;}
-  .app-screen .timeline{gap:12px;}
-  .app-screen .era-card{min-width:240px;}
+  .mobile-nav a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-family:var(--font-mono);font-size:9px;font-weight:700;color:var(--text-muted);}
+  .mobile-nav a svg{width:18px;height:18px;}
+  .mobile-nav a.active{color:#fff;}
+  .mobile-nav a.active svg{color:#ffffff;}
+  .artist-avatar{width:70px;height:70px;font-size:20px;}
+  .timeline{gap:20px;}
 }
 
+/* ---------- view fade ---------- */
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
-.app-screen .view{animation:fadeIn .25s ease;}
-.app-screen .skeleton{animation:shimmer 1.5s ease infinite;background:#1a1a1a;}
+.view{animation:fadeIn .25s ease;}
 @keyframes shimmer{0%,100%{opacity:.4;}50%{opacity:.8;}}
+.skeleton{animation:shimmer 1.5s ease infinite;background:#1a1a1a;}
 </style>
 </head>
 <body>
+<!-- Ambient background blobs -->
+<div class="ambient-bg">
+  <div class="ambient-blob ab1"></div>
+  <div class="ambient-blob ab2"></div>
+  <div class="ambient-blob ab3"></div>
+</div>
 
-<!-- ===================== LANDING SCREEN ===================== -->
-<div id="landing-screen" class="landing-screen">
-  <div class="ambient"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
-
-  <header class="landing-top">
-    <div class="landing-logo">
-      <span class="mark"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2.2"/><circle cx="11" cy="11" r="2.4" fill="currentColor"/><line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>
-      MusicLens
+<div class="app-container">
+  <header class="global-header" id="global-header">
+    <div class="header-left">
+      <a href="#home" class="nav-logo">
+        <span class="logo-mark" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2.2"/><circle cx="11" cy="11" r="2.4" fill="currentColor"/><line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+        </span>
+        MusicLens
+      </a>
+      <div class="topbar-nav">
+        <button id="nav-back" aria-label="back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button id="nav-fwd" aria-label="forward"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
     </div>
-    <div class="lang-toggle-landing">
-      <button id="lang-ko-landing" class="active" onclick="changeLanguage('ko')">KO</button>
-      <button id="lang-en-landing" onclick="changeLanguage('en')">EN</button>
+    
+    <nav class="header-nav" id="header-nav"></nav>
+    
+    <div class="header-right">
+      <div class="lang-toggle">
+        <button id="lang-ko" class="active" onclick="setLanguage('ko')">KO</button>
+        <button id="lang-en" onclick="setLanguage('en')">EN</button>
+      </div>
     </div>
   </header>
 
-  <section class="hero-landing">
-    <div class="eyebrow" data-ko="MUSICLENS · 뮤직렌즈" data-en="MUSICLENS · EXPLORE">MUSICLENS · 뮤직렌즈</div>
-    <h1 data-ko="음악의 모든 장르를 탐험하다" data-en="Explore Every Genre">음악의 모든 장르를 탐험하다</h1>
-    <p data-ko="흐르는 앨범 위에 마우스를 올려 하이라이트를 미리 들어보세요" data-en="Hover any album to preview its highlight">흐르는 앨범 위에 마우스를 올려 하이라이트를 미리 들어보세요</p>
-    <button class="cta" onclick="transitionToApp()" data-ko="MusicLens 들어가기 →" data-en="Enter MusicLens →">MusicLens 들어가기 →</button>
-  </section>
-
-  <main class="landing-wall" id="landing-wall">
-    <div class="wall-hint"><span class="dot"></span><span data-ko="앨범 커버에 마우스를 올려보세요" data-en="Hover an album cover">앨범 커버에 마우스를 올려보세요</span></div>
+  <main class="main-content" id="main-content">
+    <div class="main-inner" id="view-root"></div>
   </main>
-
-  <footer class="landing-foot">
-    <span data-ko="장르 탐색 · 차트 100 · 시대별 역사 · 장르 검색이 모두 안에 있어요" data-en="Genres · Chart 100 · Timeline · Search — all inside">장르 탐색 · 차트 100 · 시대별 역사 · 장르 검색이 모두 안에 있어요</span>
-    &nbsp;·&nbsp;<a href="javascript:void(0)" onclick="transitionToApp()" data-ko="바로 입장" data-en="Go now">바로 입장</a>
-    
-    <div class="scroll-indicator">
-      <span data-ko="아래로 스크롤하여 입장" data-en="Scroll down to enter">아래로 스크롤하여 입장</span>
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="bounce"><polyline points="6 9 12 15 18 9"/></svg>
-    </div>
-  </footer>
 </div>
 
-<!-- ===================== MAIN APP SCREEN ===================== -->
-<div id="app-screen" class="app-screen hidden">
-  <div class="app-container">
-    <header class="global-header" id="global-header">
-      <div class="header-left">
-        <div class="nav-logo">
-          <span class="logo-mark" aria-hidden="true">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2.2"/><circle cx="11" cy="11" r="2.4" fill="currentColor"/><line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
-          </span>
-          MusicLens
-        </div>
-        <div class="topbar-nav">
-          <button id="nav-back" aria-label="back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-          <button id="nav-fwd" aria-label="forward"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-        </div>
-      </div>
-      
-      <nav class="header-nav" id="header-nav"></nav>
-      
-      <div class="header-right">
-        <button class="btn-outlined back-to-landing-btn" onclick="transitionToLanding()" style="margin-right: 8px;" data-ko="소개 페이지" data-en="Intro Page">소개 페이지</button>
-        <div class="lang-toggle-app">
-          <button id="lang-ko-app" class="active" onclick="changeLanguage('ko')">KO</button>
-          <button id="lang-en-app" onclick="changeLanguage('en')">EN</button>
-        </div>
-      </div>
-    </header>
+<!-- Vibe Analyzer slide-out drawer -->
+<div class="vibe-analyzer" id="vibe-analyzer"></div>
 
-    <main class="main-content" id="main-content">
-      <div class="main-inner" id="view-root"></div>
-    </main>
-  </div>
+<nav class="mobile-nav" id="mobile-nav"></nav>
 
-  <!-- Vibe Analyzer slide-out drawer -->
-  <div class="vibe-analyzer" id="vibe-analyzer"></div>
-
-  <nav class="mobile-nav" id="mobile-nav"></nav>
-</div>
-
-<!-- ===================== DATA & JAVASCRIPT ===================== -->
 <script>
-/* ===================== COVERS DATA (FROM covers.js) ===================== */
-const COVERS = [
-  {f:"100_daichi_miura_blizzard.jpg",artist:"Daichi",title:"Miura Blizzard"},
-  {f:"103_kairikibear_ruma.jpg",artist:"Kairikibear",title:"Ruma"},
-  {f:"104_kairikibear_darling_dance.jpg",artist:"Kairikibear",title:"Darling Dance"},
-  {f:"106_eve_last_dance.jpg",artist:"Eve",title:"Last Dance"},
-  {f:"107_eve_kaikai_kitan.jpg",artist:"Eve",title:"Kaikai Kitan"},
-  {f:"10_official_hige_dandism_cry_baby.jpg",artist:"Official",title:"Hige Dandism Cry Baby"},
-  {f:"115_sawano_hiroyuki_perfect_time.jpg",artist:"Sawano",title:"Hiroyuki Perfect Time"},
-  {f:"116_aimer_last_stardust.jpg",artist:"Aimer",title:"Last Stardust"},
-  {f:"117_aimer_brave_shine.jpg",artist:"Aimer",title:"Brave Shine"},
-  {f:"126_deco_27_the_vampire.jpg",artist:"Deco",title:"27 The Vampire"},
-  {f:"133_yui_again.jpg",artist:"Yui",title:"Again"},
-  {f:"135_oxt_highest.jpg",artist:"Oxt",title:"Highest"},
-  {f:"136_oxt_go_cry_go.jpg",artist:"Oxt",title:"Go Cry Go"},
-  {f:"137_oxt_hollow_hunger.jpg",artist:"Oxt",title:"Hollow Hunger"},
-  {f:"139_gen_hoshino_koi.jpg",artist:"Gen",title:"Hoshino Koi"},
-  {f:"13_akasaki_bunny_girl.jpg",artist:"Akasaki",title:"Bunny Girl"},
-  {f:"140_kenshi_yonezu_lady.jpg",artist:"Kenshi",title:"Yonezu Lady"},
-  {f:"142_kenshi_yonezu_lemon.jpg",artist:"Kenshi",title:"Yonezu Lemon"},
-  {f:"143_kenshi_yonezu_kick_back.jpg",artist:"Kenshi",title:"Yonezu Kick Back"},
-  {f:"146_zutomayo_taidada.jpg",artist:"Zutomayo",title:"Taidada"},
-  {f:"147_yama_haru_wo_tsugeru.jpg",artist:"Yama",title:"Haru Wo Tsugeru"},
-  {f:"148_aimyon_marigold.jpg",artist:"Aimyon",title:"Marigold"},
-  {f:"14_natori_overdose.jpg",artist:"Natori",title:"Overdose"},
-  {f:"152_imase_night_dancer.jpg",artist:"Imase",title:"Night Dancer"},
-  {f:"153_king_gnu_specialz.jpg",artist:"King",title:"Gnu Specialz"},
-  {f:"154_iyowa_kyu_kurarin.jpg",artist:"Iyowa",title:"Kyu Kurarin"},
-  {f:"172_yoshida_yasei_override.jpg",artist:"Yoshida",title:"Yasei Override"},
-  {f:"173_leina_utatane.jpg",artist:"Leina",title:"Utatane"},
-  {f:"177_yoasobi_undead.jpg",artist:"Yoasobi",title:"Undead"},
-  {f:"179_leina_kuwazugirai.jpg",artist:"Leina",title:"Kuwazugirai"},
-  {f:"193_frederic_oddloop.jpg",artist:"Frederic",title:"Oddloop"},
-  {f:"195_deco_27_dscf.jpg",artist:"Deco",title:"27 Dscf"},
-  {f:"206_vaundy_tokyo_flash.jpg",artist:"Vaundy",title:"Tokyo Flash"},
-  {f:"211_dannie_may_ejanaika.jpg",artist:"Dannie",title:"May Ejanaika"},
-  {f:"213_tomoo_ginger.jpg",artist:"Tomoo",title:"Ginger"},
-  {f:"214_sarm_bonbon_girl.jpg",artist:"Sarm",title:"Bonbon Girl"},
-  {f:"219_yasuharu_takanashi_fairy_tail_main_theme.jpg",artist:"Yasuharu",title:"Takanashi Fairy Tail Main Theme"},
-  {f:"224_sakanaction_kaiju.jpg",artist:"Sakanaction",title:"Kaiju"},
-  {f:"228_hoshimachi_suisei_caramel_pain.jpg",artist:"Hoshimachi",title:"Suisei Caramel Pain"},
-  {f:"229_hoshimachi_suisei_orbital_period.jpg",artist:"Hoshimachi",title:"Suisei Orbital Period"},
-  {f:"232_ro2noki_hymn_to_the_decadent_life.jpg",artist:"Ro2noki",title:"Hymn To The Decadent Life"},
-  {f:"234_linked_horizon_guren_no_yumiya.jpg",artist:"Linked",title:"Horizon Guren No Yumiya"},
-  {f:"237_linked_horizon_akatsuki_no_requiem.jpg",artist:"Linked",title:"Horizon Akatsuki No Requiem"},
-  {f:"238_ai_higuchi_akuma_no_ko.jpg",artist:"Ai",title:"Higuchi Akuma No Ko"},
-  {f:"240_ali_wild_side.jpg",artist:"Ali",title:"Wild Side"},
-  {f:"244_sekai_no_owari_habit.jpg",artist:"Sekai",title:"No Owari Habit"},
-  {f:"249_hump_back_haikei_shounenyo.jpg",artist:"Hump",title:"Back Haikei Shounenyo"},
-  {f:"252_vk_blanka_black_rover.jpg",artist:"Vk",title:"Blanka Black Rover"},
-  {f:"253_yu_peng_chen_genshin_impact_main_theme.jpg",artist:"Yu",title:"Peng Chen Genshin Impact Main Theme"},
-  {f:"256_shinsei_kamattechan_boku_no_sensou.jpg",artist:"Shinsei",title:"Kamattechan Boku No Sensou"},
-  {f:"257_official_hige_dandism_pretender.jpg",artist:"Official",title:"Hige Dandism Pretender"},
-  {f:"265_citypopvibes_sweet_delusion.jpg",artist:"Citypopvibes",title:"Sweet Delusion"},
-  {f:"276_aimer_ninelie.jpg",artist:"Aimer",title:"Ninelie"},
-  {f:"280_zutomayo_cream.jpg",artist:"Zutomayo",title:"Cream"},
-  {f:"281_gesu_no_kiwami_otome_crying_march.jpg",artist:"Gesu",title:"No Kiwami Otome Crying March"},
-  {f:"289_people_1_dogland.jpg",artist:"People",title:"1 Dogland"},
-  {f:"294_eill_koko_de_iki_wo_shite.jpg",artist:"Eill",title:"Koko De Iki Wo Shite"},
-  {f:"304_spectrum_f_l_y.jpg",artist:"Spectrum",title:"F L Y"},
-  {f:"320_pompadolls_gluttony.jpg",artist:"Pompadolls",title:"Gluttony"},
-  {f:"321_pompadolls_spotlight_junkie.jpg",artist:"Pompadolls",title:"Spotlight Junkie"},
-  {f:"324_hideki_taniuchi_l_no_theme.jpg",artist:"Hideki",title:"Taniuchi L No Theme"},
-  {f:"329_leina_medicine.jpg",artist:"Leina",title:"Medicine"},
-  {f:"332_kaoru_wada_futari_no_kimochi.jpg",artist:"Kaoru",title:"Wada Futari No Kimochi"},
-  {f:"334_yiruma_river_flows_in_you.jpg",artist:"Yiruma",title:"River Flows In You"},
-  {f:"33_9lana_balalaika.jpg",artist:"9lana",title:"Balalaika"},
-  {f:"341_nyarons_highway_summer.jpg",artist:"Nyarons",title:"Highway Summer"},
-  {f:"343_shinra_bansho_toge.jpg",artist:"Shinra",title:"Bansho Toge"},
-  {f:"350_bocchi_kimi_wa_natsukaze.jpg",artist:"Bocchi",title:"Kimi Wa Natsukaze"},
-  {f:"356_issey_nightmare_restaurant.jpg",artist:"Issey",title:"Nightmare Restaurant"},
-  {f:"35_cinnamons_summertime.jpg",artist:"Cinnamons",title:"Summertime"},
-  {f:"361_stereopony_stand_by_me.jpg",artist:"Stereopony",title:"Stand By Me"},
-  {f:"364_choqmay_hey_calling.jpg",artist:"Choqmay",title:"Hey Calling"},
-  {f:"370_bradio_flyers.jpg",artist:"Bradio",title:"Flyers"},
-  {f:"373_hoshimachi_suisei_stellar_stellar.jpg",artist:"Hoshimachi",title:"Suisei Stellar Stellar"},
-  {f:"379_dazbee_bitter_loss.jpg",artist:"Dazbee",title:"Bitter Loss"},
-  {f:"380_dazbee_sympathy.jpg",artist:"Dazbee",title:"Sympathy"},
-  {f:"381_dazbee_nemuranai_yume.jpg",artist:"Dazbee",title:"Nemuranai Yume"},
-  {f:"382_dazbee_dream_island.jpg",artist:"Dazbee",title:"Dream Island"},
-  {f:"383_dazbee_lovestruck.jpg",artist:"Dazbee",title:"Lovestruck"},
-  {f:"385_dazbee_scarlet.jpg",artist:"Dazbee",title:"Scarlet"},
-  {f:"386_dazbee_catch_you_catch_me.jpg",artist:"Dazbee",title:"Catch You Catch Me"},
-  {f:"388_dazbee_angel_s_fake.jpg",artist:"Dazbee",title:"Angel S Fake"},
-  {f:"389_raon_eclipse.jpg",artist:"Raon",title:"Eclipse"},
-  {f:"38_lisa_crossing_field.jpg",artist:"Lisa",title:"Crossing Field"},
-  {f:"391_dazbee_time_after_time.jpg",artist:"Dazbee",title:"Time After Time"},
-  {f:"393_dazbee_bambi.jpg",artist:"Dazbee",title:"Bambi"},
-  {f:"411_eve_ghost_avenue.jpg",artist:"Eve",title:"Ghost Avenue"},
-  {f:"418_kenshi_yonezu_iris_out.jpg",artist:"Kenshi",title:"Yonezu Iris Out"},
-  {f:"420_bradio_fanfare.jpg",artist:"Bradio",title:"Fanfare"},
-  {f:"421_kenshi_yonezu_jane_doe.jpg",artist:"Kenshi",title:"Yonezu Jane Doe"},
-  {f:"422_nonoc_memento.jpg",artist:"Nonoc",title:"Memento"},
-  {f:"424_sekai_no_owari_rpg.jpg",artist:"Sekai",title:"No Owari Rpg"},
-  {f:"426_ado_cat_s_eye.jpg",artist:"Ado",title:"Cat S Eye"},
-  {f:"427_caramel_candid_caramel_girls.jpg",artist:"Caramel",title:"Candid Caramel Girls"},
-  {f:"430_penthouse_undertaker.jpg",artist:"Penthouse",title:"Undertaker"},
-  {f:"431_official_hige_dandism_shukumei.jpg",artist:"Official",title:"Hige Dandism Shukumei"},
-  {f:"432_official_hige_dandism_rashisa.jpg",artist:"Official",title:"Hige Dandism Rashisa"},
-  {f:"438_ado_magic.jpg",artist:"Ado",title:"Magic"},
-  {f:"43_konomi_suzuki_this_game.jpg",artist:"Konomi",title:"Suzuki This Game"},
-  {f:"442_eill_action.jpg",artist:"Eill",title:"Action"},
-  {f:"446_yuki_hayashi_you_say_run.jpg",artist:"Yuki",title:"Hayashi You Say Run"},
-  {f:"447_yuki_hayashi_jet_set_run.jpg",artist:"Yuki",title:"Hayashi Jet Set Run"},
-  {f:"44_oxt_clattanoia.jpg",artist:"Oxt",title:"Clattanoia"},
-  {f:"453_andora_flicker.jpg",artist:"Andora",title:"Flicker"},
-  {f:"457_zutomayo_yushinron.jpg",artist:"Zutomayo",title:"Yushinron"},
-  {f:"459_tomioka_ai_good_bye_bye.jpg",artist:"Tomioka",title:"Ai Good Bye Bye"},
-  {f:"468_hitorioto_utakatanokoi.jpg",artist:"Hitorioto",title:"Utakatanokoi"},
-  {f:"46_oxt_silent_solitude.jpg",artist:"Oxt",title:"Silent Solitude"},
-  {f:"471_vuat_monsters_and_heroes.jpg",artist:"Vuat",title:"Monsters And Heroes"},
-  {f:"472_tsukuyomi_moonlight_at_midday.jpg",artist:"Tsukuyomi",title:"Moonlight At Midday"},
-  {f:"474_703goushitsu_aoboshi.jpg",artist:"703goushitsu",title:"Aoboshi"},
-  {f:"475_luciela_meitetsukou.jpg",artist:"Luciela",title:"Meitetsukou"},
-  {f:"479_natori_in_my_head.jpg",artist:"Natori",title:"In My Head"},
-  {f:"47_fripside_only_my_railgun.jpg",artist:"Fripside",title:"Only My Railgun"},
-  {f:"483_nora_sessesse_no_yoiyoiyoi.jpg",artist:"Nora",title:"Sessesse No Yoiyoiyoi"},
-  {f:"485_kroi_method.jpg",artist:"Kroi",title:"Method"},
-  {f:"486_lavt_l4dy.jpg",artist:"Lavt",title:"L4dy"},
-  {f:"489_ado_and_rib_matoryoshka.jpg",artist:"Ado",title:"And Rib Matoryoshka"},
-  {f:"48_true_sincerely.jpg",artist:"True",title:"Sincerely"},
-  {f:"491_mori_calliope_let_s_just_crash.jpg",artist:"Mori",title:"Calliope Let S Just Crash"}
-];
-
-/* ===================== APP GLOBAL DATA ===================== */
+/* ===================== DATA ===================== */
 const GENRES = [
   {id:"pop",name:"Pop",nameKo:"팝",color:"#ffffff",colorSecondary:"#8a8a8a",emoji:"●",description:"Universally appealing melodies with polished production",descriptionKo:"누구나 즐길 수 있는 세련된 대중음악. 귀에 쏙 들어오는 훅과 완성도 높은 프로덕션이 특징.",eraOrigin:"1950s",subGenres:["synth-pop","indie-pop","k-pop","dream-pop","art-pop"],relatedGenres:["rnb","electronic","indie"],alsoListenTo:["indie","rnb","kpop","electronic"],characteristics:["Catchy hooks","Verse-chorus structure","Polished production","Wide vocal range"],topArtists:["Taylor Swift","The Weeknd","Dua Lipa","Harry Styles","Olivia Rodrigo"],listeners:2800000000},
   {id:"hiphop",name:"Hip-Hop",nameKo:"힙합",color:"#e0e0e0",colorSecondary:"#737373",emoji:"■",description:"Rhythmic poetry over beats — born in the Bronx, shaped the world",descriptionKo:"브롱크스에서 태어난 리듬과 라임의 예술. 세계 문화를 재편한 장르.",eraOrigin:"1970s",subGenres:["trap","gangsta-rap","conscious-rap","boom-bap","drill","mumble-rap"],relatedGenres:["rnb","pop","electronic"],alsoListenTo:["rnb","pop","electronic"],characteristics:["Rhythmic flow","Sampling","Storytelling","Social commentary","Beat-driven"],topArtists:["Kendrick Lamar","Drake","Travis Scott","J. Cole","Kanye West"],listeners:2100000000},
@@ -877,234 +566,54 @@ const SONGS = [
 ];
 
 const ERAS = [
-  {decade:"1950s",title:"Rock & Roll 혁명",titleEn:"The Rock & Roll Revolution",color:"#ffffff",gradient:"linear-gradient(135deg,#ffffff,#888888)",dominantGenres:["rock","blues","country","jazz"],keyArtists:["Elvis Presley","Chuck Berry","Little Richard","Ray Charles","Buddy Holly"],description:"로큰롤이 블루스와 컨트리의 혼합으로 탄생. 젊은 세대의 반란이 음악을 영원히 바꿨다.",descriptionEn:"Rock and roll emerged from the fusion of blues and country. Youth rebellion changed music forever.",culturalContext:"Post-WWII, baby boom, television era",birth:"로큰롤 탄생 ▲"},
-  {decade:"1960s",title:"사이키델릭 & 무브먼트",titleEn:"Psychedelic Era & Social Movement",color:"#e5e5e5",gradient:"linear-gradient(135deg,#e5e5e5,#666666)",dominantGenres:["rock","pop","blues","indie"],keyArtists:["The Beatles","The Rolling Stones","Jimi Hendrix","Bob Dylan","Janis Joplin"],description:"영국 인베이전, 히피 운동, 반전 운동. 음악이 사회 변혁의 언어가 됐다.",descriptionEn:"British Invasion, hippie movement, anti-war protests. Music became the language of social change.",culturalContext:"Vietnam War, civil rights movement, moon landing",birth:"레게 태동 ≋"},
-  {decade:"1970s",title:"장르의 폭발",titleEn:"Genre Explosion",color:"#cccccc",gradient:"linear-gradient(135deg,#cccccc,#555555)",dominantGenres:["rock","metal","punk","rnb","reggae","hiphop"],keyArtists:["Led Zeppelin","Black Sabbath","The Clash","Donna Summer","Bob Marley","DJ Kool Herc"],description:"헤비메탈, 펑크, 디스코, 힙합의 탄생. 하나의 '음악'이 수십 개의 문화권으로 분화.",descriptionEn:"Birth of heavy metal, punk, disco, hip-hop. Music fractured into dozens of distinct cultures.",culturalContext:"Oil crisis, counterculture, NYC urban decline, Bronx block parties",birth:"힙합 탄생 ■"},
-  {decade:"1980s",title:"신스팝 & MTV 시대",titleEn:"Synth Revolution & MTV Era",color:"#b5b5b5",gradient:"linear-gradient(135deg,#b5b5b5,#404040)",dominantGenres:["pop","rock","metal","electronic","hiphop"],keyArtists:["Michael Jackson","Madonna","Prince","Metallica","Run-DMC","Depeche Mode"],description:"MTV의 등장으로 시각 아이덴티티가 필수가 됐다. 신디사이저가 음악을 재정의했고, 힙합이 뿌리를 내렸다.",descriptionEn:"MTV made visual identity essential. Synthesizers redefined sound, hip-hop took root.",culturalContext:"Cold War, Reagan era, crack epidemic, AIDS crisis",birth:"인디 등장 ⬚"},
-  {decade:"1990s",title:"그런지 & 황금기",titleEn:"Grunge, Golden Ages",color:"#a3a3a3",gradient:"linear-gradient(135deg,#a3a3a3,#333333)",dominantGenres:["rock","hiphop","rnb","pop","electronic"],keyArtists:["Nirvana","Tupac","Biggie","Mariah Carey","Radiohead","Daft Punk"],description:"그런지가 헤어밴드를 몰아냈고, 힙합 황금기가 열렸다. R&B는 최고의 정점을 맞았다.",descriptionEn:"Grunge killed hair metal, hip-hop's golden age arrived. R&B reached its commercial peak.",culturalContext:"Internet birth, globalization, cassette → CD transition",birth:"K-Pop 태동 ○"},
-  {decade:"2000s",title:"디지털 혁명",titleEn:"Digital Revolution",color:"#909090",gradient:"linear-gradient(135deg,#909090,#262626)",dominantGenres:["pop","hiphop","rock","electronic","rnb"],keyArtists:["Eminem","Beyoncé","Linkin Park","Kanye West","Amy Winehouse","The Strokes"],description:"냅스터와 아이팟이 음악 산업을 뒤집었다. 팝펑크와 이모가 10대를 사로잡았다.",descriptionEn:"Napster and iPod disrupted the industry. Pop-punk and emo captured a generation.",culturalContext:"9/11, Iraq War, social media birth, piracy crisis",birth:"디지털 스트리밍 ◆"},
-  {decade:"2010s",title:"스트리밍 & K-Pop 글로벌화",titleEn:"Streaming Era & K-Pop Goes Global",color:"#7c7c7c",gradient:"linear-gradient(135deg,#7c7c7c,#1a1a1a)",dominantGenres:["pop","hiphop","electronic","kpop","indie"],keyArtists:["Drake","Taylor Swift","BTS","Kendrick Lamar","Adele","Frank Ocean"],description:"스포티파이가 음악 소비를 바꿨다. K-Pop이 글로벌 현상이 됐다. 트랩이 힙합을 접수했다.",descriptionEn:"Spotify transformed consumption. K-Pop became a global phenomenon. Trap took over hip-hop.",culturalContext:"Smartphone dominance, social media virality, streaming wars",birth:"트랩 지배 ●"},
-  {decade:"2020s",title:"하이퍼팝 & 장르의 해체",titleEn:"Hyperpop & Genre Dissolution",color:"#686868",gradient:"linear-gradient(135deg,#686868,#111111)",dominantGenres:["pop","hiphop","kpop","electronic","indie"],keyArtists:["Olivia Rodrigo","Bad Bunny","Doja Cat","Tyler the Creator","NewJeans","Sabrina Carpenter"],description:"장르 경계가 무너졌다. 아프로비츠, 하이퍼팝, 베드룸팝이 부상. TikTok이 새로운 차트가 됐다.",descriptionEn:"Genre boundaries dissolved. Afrobeats, hyperpop, bedroom pop rose. TikTok became the new chart.",culturalContext:"COVID-19, home studios, TikTok virality, global music democratization",birth:""}
+  {decade:"1950s",title:"Rock & Roll 혁명",titleEn:"The Rock & Roll Revolution",color:"#ffffff",gradient:"linear-gradient(135deg,#7c7c7c,#1f1f1f)",dominantGenres:["rock","blues","country","jazz"],keyArtists:["Elvis Presley","Chuck Berry","Little Richard","Ray Charles","Buddy Holly"],description:"로큰롤이 블루스와 컨트리의 혼합으로 탄생. 젊은 세대의 반란이 음악을 영원히 바꿨다.",descriptionEn:"Rock and roll emerged from the fusion of blues and country. Youth rebellion changed music forever.",culturalContext:"Post-WWII, baby boom, television era",birth:"로큰롤 탄생 ▲"},
+  {decade:"1960s",title:"사이키델릭 & 무브먼트",titleEn:"Psychedelic Era & Social Movement",color:"#e5e5e5",gradient:"linear-gradient(135deg,#6e6e6e,#1a1a1a)",dominantGenres:["rock","pop","blues","indie"],keyArtists:["The Beatles","The Rolling Stones","Jimi Hendrix","Bob Dylan","Janis Joplin"],description:"영국 인베이전, 히피 운동, 반전 운동. 음악이 사회 변혁의 언어가 됐다.",descriptionEn:"British Invasion, hippie movement, anti-war protests. Music became the language of social change.",culturalContext:"Vietnam War, civil rights movement, moon landing",birth:"레게 태동 ≋"},
+  {decade:"1970s",title:"장르의 폭발",titleEn:"Genre Explosion",color:"#cccccc",gradient:"linear-gradient(135deg,#606060,#161616)",dominantGenres:["rock","metal","punk","rnb","reggae","hiphop"],keyArtists:["Led Zeppelin","Black Sabbath","The Clash","Donna Summer","Bob Marley","DJ Kool Herc"],description:"헤비메탈, 펑크, 디스코, 힙합의 탄생. 하나의 '음악'이 수십 개의 문화권으로 분화.",descriptionEn:"Birth of heavy metal, punk, disco, hip-hop. Music fractured into dozens of distinct cultures.",culturalContext:"Oil crisis, counterculture, NYC urban decline, Bronx block parties",birth:"힙합 탄생 ■"},
+  {decade:"1980s",title:"신스팝 & MTV 시대",titleEn:"Synth Revolution & MTV Era",color:"#b5b5b5",gradient:"linear-gradient(135deg,#525252,#121212)",dominantGenres:["pop","rock","metal","electronic","hiphop"],keyArtists:["Michael Jackson","Madonna","Prince","Metallica","Run-DMC","Depeche Mode"],description:"MTV의 등장으로 시각 아이덴티티가 필수가 됐다. 신디사이저가 음악을 재정의했고, 힙합이 뿌리를 내렸다.",descriptionEn:"MTV made visual identity essential. Synthesizers redefined sound, hip-hop took root.",culturalContext:"Cold War, Reagan era, crack epidemic, AIDS crisis",birth:"인디 등장 ⬚"},
+  {decade:"1990s",title:"그런지 & 황금기",titleEn:"Grunge, Golden Ages",color:"#a3a3a3",gradient:"linear-gradient(135deg,#444444,#0e0e0e)",dominantGenres:["rock","hiphop","rnb","pop","electronic"],keyArtists:["Nirvana","Tupac","Biggie","Mariah Carey","Radiohead","Daft Punk"],description:"그런지가 헤어밴드를 몰아냈고, 힙합 황금기가 열렸다. R&B는 최고의 정점을 맞았다.",descriptionEn:"Grunge killed hair metal, hip-hop's golden age arrived. R&B reached its commercial peak.",culturalContext:"Internet birth, globalization, cassette → CD transition",birth:"K-Pop 태동 ○"},
+  {decade:"2000s",title:"디지털 혁명",titleEn:"Digital Revolution",color:"#909090",gradient:"linear-gradient(135deg,#363636,#0a0a0a)",dominantGenres:["pop","hiphop","rock","electronic","rnb"],keyArtists:["Eminem","Beyoncé","Linkin Park","Kanye West","Amy Winehouse","The Strokes"],description:"냅스터와 아이팟이 음악 산업을 뒤집었다. 팝펑크와 이모가 10대를 사로잡았다.",descriptionEn:"Napster and iPod disrupted the industry. Pop-punk and emo captured a generation.",culturalContext:"9/11, Iraq War, social media birth, piracy crisis",birth:"디지털 스트리밍 ◆"},
+  {decade:"2010s",title:"스트리밍 & K-Pop 글로벌화",titleEn:"Streaming Era & K-Pop Goes Global",color:"#7c7c7c",gradient:"linear-gradient(135deg,#282828,#070707)",dominantGenres:["pop","hiphop","electronic","kpop","indie"],keyArtists:["Drake","Taylor Swift","BTS","Kendrick Lamar","Adele","Frank Ocean"],description:"스포티파이가 음악 소비를 바꿨다. K-Pop이 글로벌 현상이 됐다. 트랩이 힙합을 접수했다.",descriptionEn:"Spotify transformed consumption. K-Pop became a global phenomenon. Trap took over hip-hop.",culturalContext:"Smartphone dominance, social media virality, streaming wars",birth:"트랩 지배 ●"},
+  {decade:"2020s",title:"하이퍼팝 & 장르의 해체",titleEn:"Hyperpop & Genre Dissolution",color:"#686868",gradient:"linear-gradient(135deg,#1a1a1a,#050505)",dominantGenres:["pop","hiphop","kpop","electronic","indie"],keyArtists:["Olivia Rodrigo","Bad Bunny","Doja Cat","Tyler the Creator","NewJeans","Sabrina Carpenter"],description:"장르 경계가 무너졌다. 아프로비츠, 하이퍼팝, 베드룸팝이 부상. TikTok이 새로운 차트가 됐다.",descriptionEn:"Genre boundaries dissolved. Afrobeats, hyperpop, bedroom pop rose. TikTok became the new chart.",culturalContext:"COVID-19, home studios, TikTok virality, global music democratization",birth:""}
 ];
 
-/* ===================== STATE & TRANSITIONS ===================== */
+/* ===================== STATE & HELPERS ===================== */
 let currentLang = 'ko';
-let transitioned = false;
-let isTransitioning = false;
-const ART = 'playlist-artwork/';
+const genreById = id => GENRES.find(g => g.id === id);
+const t = (ko, en) => currentLang === 'ko' ? ko : en;
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-function transitionToApp() {
-  if (transitioned || isTransitioning) return;
-  isTransitioning = true;
-  transitioned = true;
-  
-  const landing = document.getElementById('landing-screen');
-  const app = document.getElementById('app-screen');
-  
-  landing.classList.add('exiting');
-  app.classList.remove('hidden');
-  app.classList.add('entering');
-  
-  // Set window hash to home to trigger routing if empty
-  if (!location.hash || location.hash === '#') {
-    location.hash = '#home';
-  } else {
-    handleRoute();
-  }
-  
-  setTimeout(() => {
-    landing.style.display = 'none';
-    app.classList.remove('entering');
-    isTransitioning = false;
-  }, 1200);
+function fmtListeners(n){
+  if(n >= 1e9) return (n/1e9).toFixed(1).replace(/\.0$/,'') + 'B';
+  if(n >= 1e6) return (n/1e6).toFixed(0) + 'M';
+  return n.toLocaleString();
 }
+function durToSec(d){const [m,s]=d.split(':').map(Number);return m*60+s;}
+function secToDur(sec){const m=Math.floor(sec/60);const s=Math.floor(sec%60);return m+':'+String(s).padStart(2,'0');}
 
-function transitionToLanding() {
-  if (!transitioned || isTransitioning) return;
-  isTransitioning = true;
-  transitioned = false;
-  
-  const landing = document.getElementById('landing-screen');
-  const app = document.getElementById('app-screen');
-  
-  landing.style.display = 'flex';
-  // Force browser reflow to enable animation restart
-  landing.offsetHeight;
-  
-  landing.classList.remove('exiting');
-  app.classList.add('exiting-app');
-  
-  // Close vibe analyzer if open
-  closeVibeAnalyzer();
-  
-  // Clear hash
-  history.pushState("", document.title, window.location.pathname + window.location.search);
-  
-  setTimeout(() => {
-    app.classList.add('hidden');
-    app.classList.remove('exiting-app');
-    sizeCovers(); // resize cover sizes to match window
-    isTransitioning = false;
-  }, 1200);
+/* gradient placeholder — swappable with real album art later */
+function artGradient(genreId){
+  const g = genreById(genreId);
+  if(!g) return 'linear-gradient(135deg,#333,#555)';
+  return `linear-gradient(135deg,${g.color},${g.colorSecondary})`;
 }
-
-// Global language changer for BOTH panels
-function changeLanguage(lang) {
-  currentLang = lang;
-  
-  document.getElementById('lang-ko-landing').classList.toggle('active', lang==='ko');
-  document.getElementById('lang-en-landing').classList.toggle('active', lang==='en');
-  document.getElementById('lang-ko-app').classList.toggle('active', lang==='ko');
-  document.getElementById('lang-en-app').classList.toggle('active', lang==='en');
-  
-  document.documentElement.lang = lang;
-  
-  document.querySelectorAll('[data-ko]').forEach(el => {
-    el.textContent = lang === 'ko' ? el.dataset.ko : el.dataset.en;
-  });
-  
-  if (transitioned) {
-    handleRoute();
-  }
-}
-
-/* ===================== SCROLL AND GESTURE EVENT LISTENERS ===================== */
-window.addEventListener('wheel', (e) => {
-  if (isTransitioning) {
-    e.preventDefault();
-    return;
-  }
-  
-  if (!transitioned && e.deltaY > 12) {
-    e.preventDefault();
-    transitionToApp();
-  }
-}, { passive: false });
-
-// Key down listener
-window.addEventListener('keydown', (e) => {
-  if (isTransitioning) return;
-  if (!transitioned && ['ArrowDown', 'PageDown', ' ', 'Enter'].includes(e.key)) {
-    e.preventDefault();
-    transitionToApp();
-  }
-});
-
-// Swipe support for mobile
-let touchStartY = 0;
-window.addEventListener('touchstart', (e) => {
-  touchStartY = e.touches[0].clientY;
-}, { passive: true });
-
-window.addEventListener('touchmove', (e) => {
-  if (isTransitioning) return;
-  if (!touchStartY) return;
-  const touchEndY = e.touches[0].clientY;
-  const diffY = touchStartY - touchEndY;
-  
-  if (!transitioned && diffY > 48) { // Swiped up on landing
-    transitionToApp();
-    touchStartY = 0;
-  }
-}, { passive: true });
-
-window.addEventListener('touchend', () => {
-  touchStartY = 0;
-});
-
-/* ===================== COVERS WALL SCENE LOGIC ===================== */
-function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-
-function coverHTML(c){
-  const title = c.title && c.title!=='...' ? c.title : c.artist;
-  const artist = (c.title && c.title!=='...' && c.artist && c.artist!=='MusicLens') ? c.artist : 'MusicLens';
-  return `<div class="landing-cover">
-    <img loading="lazy" src="${ART}${encodeURIComponent(c.f)}" alt="${esc(title)}"
-         onerror="this.style.background='linear-gradient(135deg,#FF6B9D,#00D4FF)';this.removeAttribute('src');">
-    <div class="landing-hl">
-      <div class="landing-hl-title">${esc(title)}</div>
-      <div class="landing-hl-artist">${esc(artist)}</div>
-      <div class="landing-hl-now">
-        <span class="landing-eq"><span></span><span></span><span></span><span></span></span>
-        <span data-ko="하이라이트 재생 중" data-en="Playing highlight">하이라이트 재생 중</span>
-      </div>
-      <div class="landing-hl-prog"><div class="landing-hl-fill"></div></div>
-    </div>
+function artHTML(song, extraClass=''){
+  const g = genreById(song.genre);
+  return `<div class="art-thumb ${extraClass}" style="background:${artGradient(song.genre)}">
+    <span style="opacity:.55">${g?g.emoji:'●'}</span>
   </div>`;
 }
-
-function buildRow(items, dir, dur){
-  const inner = items.concat(items).map(coverHTML).join('');
-  return `<div class="landing-row"><div class="landing-track ${dir}" style="--dur:${dur}s">${inner}</div></div>`;
+function genreTagHTML(genreId){
+  const g = genreById(genreId);
+  if(!g) return '';
+  return `<span class="genre-tag"><span class="gt-dot" style="background:${g.color}"></span>${t(g.nameKo,g.name)}</span>`;
+}
+const initials = name => name.split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+function avatarColor(name){
+  let h=0; for(let i=0;i<name.length;i++) h=name.charCodeAt(i)+((h<<5)-h);
+  return `hsl(0,0%,${25 + Math.abs(h)%35}%)`;
 }
 
-function shuffle(a){const x=a.slice();for(let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]];}return x;}
-
-const ROWS = 3, GAP = 18;
-function buildWall(){
-  const wall = document.getElementById('landing-wall');
-  // clear previous rows if rebuild is triggered
-  const hints = wall.querySelectorAll('.wall-hint');
-  wall.innerHTML = '';
-  hints.forEach(h => wall.appendChild(h));
-  
-  const pool = shuffle(COVERS);
-  const per = Math.ceil(pool.length / ROWS);
-  let html = '';
-  const dirs = ['left','right','left'];
-  const durs = [62, 78, 70];
-  for(let r=0;r<ROWS;r++){
-    const slice = pool.slice(r*per, (r+1)*per);
-    if(slice.length) html += buildRow(slice, dirs[r], durs[r]);
-  }
-  wall.insertAdjacentHTML('beforeend', html);
-  sizeCovers();
-}
-
-function sizeCovers(){
-  const wall = document.getElementById('landing-wall');
-  if(!wall || wall.clientHeight === 0) return;
-  const avail = wall.clientHeight - (ROWS-1)*GAP - 48; /* leave hint room */
-  let size = Math.floor(avail / ROWS);
-  size = Math.max(92, Math.min(176, size));
-  document.documentElement.style.setProperty('--cover', size + 'px');
-}
-
-let rT; window.addEventListener('resize', ()=>{clearTimeout(rT);rT=setTimeout(sizeCovers,150);});
-
-/* ===================== ROUTER ===================== */
-const routes = {
-  '#home': renderHome, '#chart': renderChart, '#genres': renderGenres,
-  '#search': renderSearch, '#timeline': renderTimeline, '#taste': renderTaste,
-};
-
-function handleRoute(){
-  const hash = location.hash || '#home';
-  const root = document.getElementById('view-root');
-  root.scrollTop = 0;
-  document.getElementById('main-content').scrollTop = 0;
-  let view = hash;
-  
-  if(hash.startsWith('#genre/')){
-    renderGenreDetail(hash.replace('#genre/',''));
-    view = '#genres';
-  } else {
-    (routes[hash] || renderHome)();
-  }
-  updateActiveNav(view);
-}
-window.addEventListener('hashchange', handleRoute);
-
-/* ===================== NAV ===================== */
-const NAV_ITEMS = [
-  {hash:'#home',ko:'홈',en:'Home',ic:'home'},
-  {hash:'#genres',ko:'장르 탐색',en:'Genres',ic:'genres'},
-  {hash:'#chart',ko:'장르 차트',en:'Genre Chart',ic:'chart'},
-  {hash:'#timeline',ko:'시대별 역사',en:'Timeline',ic:'timeline'},
-  {hash:'#taste',ko:'취향 DNA',en:'Taste DNA',ic:'taste'},
-  {hash:'#search',ko:'바이브 검색',en:'Vibe Search',ic:'search'},
-];
-
+/* ===================== SVG ICONS ===================== */
 const ICON = {
   home:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
   chart:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
@@ -1117,64 +626,75 @@ const ICON = {
   prev:'<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>',
   next:'<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zm-10.5 12l8.5-6-8.5-6z"/></svg>',
   volume:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>',
-  close:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+  close:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
 };
 
+/* ===================== ROUTER ===================== */
+const routes = {
+  '#home': renderHome, '#genres': renderGenres,
+  '#search': renderSearch, '#timeline': renderTimeline, '#taste': renderTaste,
+};
+function handleRoute(){
+  const hash = location.hash || '#home';
+  const root = document.getElementById('view-root');
+  root.scrollTop = 0;
+  document.getElementById('main-content').scrollTop = 0;
+  let view = hash;
+  if(hash.startsWith('#genre/')){
+    renderGenreDetail(hash.replace('#genre/',''));
+    view = '#genres';
+  } else {
+    (routes[hash] || renderHome)();
+  }
+  updateActiveNav(view);
+}
+window.addEventListener('hashchange', handleRoute);
+
+/* ===================== NAV ===================== */
+const NAV_ITEMS = [
+  {hash:'#genres',ko:'장르 탐색',en:'Genres',ic:'genres'},
+  {hash:'#timeline',ko:'시대별 역사',en:'Timeline',ic:'timeline'},
+  {hash:'#taste',ko:'취향 DNA',en:'Taste DNA',ic:'taste'},
+  {hash:'#search',ko:'바이브 검색',en:'Vibe Search',ic:'search'},
+];
 function renderNav(){
-  document.getElementById('header-nav').innerHTML = NAV_ITEMS.map(n =>
+  const navHtml = NAV_ITEMS.map(n =>
     `<a class="nav-link" href="${n.hash}" data-hash="${n.hash}">
       <span class="nav-ic">${ICON[n.ic]}</span>
       <span data-ko="${n.ko}" data-en="${n.en}">${n.ko}</span>
-    </a>`).join('');
-  const mob = [NAV_ITEMS[0],NAV_ITEMS[1],NAV_ITEMS[2],NAV_ITEMS[4],NAV_ITEMS[5]];
-  document.getElementById('mobile-nav').innerHTML = mob.map(n =>
-    `<a href="${n.hash}" data-hash="${n.hash}">${ICON[n.ic]}<span data-ko="${n.ko}" data-en="${n.en}">${n.ko}</span></a>`).join('');
+    </a>`).join('') + 
+    `<a class="nav-link" href="./intro.html">
+      <span class="nav-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>
+      <span data-ko="소개" data-en="About">소개</span>
+    </a>`;
+    
+  document.getElementById('header-nav').innerHTML = navHtml;
+  
+  const mobileNavHtml = NAV_ITEMS.map(n =>
+    `<a href="${n.hash}" data-hash="${n.hash}">${ICON[n.ic]}<span data-ko="${n.ko}" data-en="${n.en}">${n.ko}</span></a>`).join('') +
+    `<a href="./intro.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span data-ko="소개" data-en="About">소개</span></a>`;
+    
+  document.getElementById('mobile-nav').innerHTML = mobileNavHtml;
 }
-
 function updateActiveNav(hash){
   document.querySelectorAll('.nav-link, .mobile-nav a').forEach(el => {
     el.classList.toggle('active', el.dataset.hash === hash);
   });
-  
-  // Show or hide "Back to intro page" button on top bar
-  const backBtn = document.querySelector('.back-to-landing-btn');
-  if (backBtn) {
-    backBtn.style.display = (hash === '#home') ? 'block' : 'none';
-  }
 }
 
-/* ===================== SHARING HELPER FUNCTIONS ===================== */
-const genreById = id => GENRES.find(g => g.id === id);
-const t = (ko, en) => currentLang === 'ko' ? ko : en;
-
-function fmtListeners(n){
-  if(n >= 1e9) return (n/1e9).toFixed(1).replace(/\.0$/,'') + 'B';
-  if(n >= 1e6) return (n/1e6).toFixed(0) + 'M';
-  return n.toLocaleString();
+/* ===================== LANGUAGE ===================== */
+function setLanguage(lang){
+  currentLang = lang;
+  document.getElementById('lang-ko').classList.toggle('active', lang==='ko');
+  document.getElementById('lang-en').classList.toggle('active', lang==='en');
+  document.documentElement.lang = lang;
+  applyLang();
+  handleRoute();
 }
-function durToSec(d){const [m,s]=d.split(':').map(Number);return m*60+s;}
-function secToDur(sec){const m=Math.floor(sec/60);const s=Math.floor(sec%60);return m+':'+String(s).padStart(2,'0');}
-
-function artGradient(genreId){
-  const g = genreById(genreId);
-  if(!g) return 'linear-gradient(135deg,#333,#555)';
-  return `linear-gradient(135deg,${g.color},${g.colorSecondary})`;
-}
-function artHTML(song, extraClass=''){
-  const g = genreById(song.genre);
-  return `<div class="art-thumb ${extraClass}" style="background:${artGradient(song.genre)}">
-    <span style="opacity:.55">${g?g.emoji:'🎵'}</span>
-  </div>`;
-}
-function genreTagHTML(genreId){
-  const g = genreById(genreId);
-  if(!g) return '';
-  return `<span class="genre-tag"><span class="gt-dot" style="background:${g.color}"></span>${t(g.nameKo,g.name)}</span>`;
-}
-const initials = name => name.split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
-function avatarColor(name){
-  let h=0; for(let i=0;i<name.length;i++) h=name.charCodeAt(i)+((h<<5)-h);
-  return `hsl(0,0%,${25 + Math.abs(h)%35}%)`;
+function applyLang(){
+  document.querySelectorAll('[data-ko]').forEach(el => {
+    el.textContent = currentLang==='ko' ? el.dataset.ko : el.dataset.en;
+  });
 }
 
 /* ===================== RENDER: HOME ===================== */
@@ -1208,14 +728,15 @@ function renderHome(){
   const popG = genreById('pop');
   const eras = [ERAS[ERAS.length-1], ERAS[4]];
   const html = `<div class="view">
-    <section class="hero-app">
+    <section class="hero">
+      <div class="hero-bg"><div class="hero-blob b1"></div><div class="hero-blob b2"></div><div class="hero-blob b3"></div></div>
       <h1 data-ko="음악의 모든 장르를 탐험하다" data-en="Explore Every Genre">${t('음악의 모든 장르를 탐험하다','Explore Every Genre')}</h1>
       <p data-ko="Explore Every Genre · Discover Your Taste" data-en="음악의 모든 장르를 탐험하다 · 당신의 취향을 발견하세요">${t('Explore Every Genre · Discover Your Taste','음악의 모든 장르를 탐험하다 · 당신의 취향을 발견하세요')}</p>
       <a class="btn-primary" href="#genres">${t('장르 탐색 시작','Start Exploring')} →</a>
     </section>
 
     <section class="section">
-      <div class="section-head"><div><div class="section-title">${t('지금 트렌딩','Trending Now')}</div><div class="section-subtitle">${t('가장 뜨거운 곡들','The hottest tracks right now')}</div></div><a class="see-all" href="#chart">${t('전체 보기','See all')}</a></div>
+      <div class="section-head"><div><div class="section-title">${t('지금 트렌딩','Trending Now')}</div><div class="section-subtitle">${t('가장 뜨거운 곡들','The hottest tracks right now')}</div></div><a class="see-all" href="#genres">${t('전체 보기','See all')}</a></div>
       <div class="horizontal-scroll">${trending.map(songCardHTML).join('')}</div>
     </section>
 
@@ -1234,7 +755,7 @@ function renderHome(){
 
     <section class="section">
       <div class="section-head"><div><div class="section-title">${t('시대별 스냅샷','Era Snapshot')}</div><div class="section-subtitle">${t('음악의 시간을 거슬러','Travel back through music history')}</div></div><a class="see-all" href="#timeline">${t('타임라인','Timeline')}</a></div>
-      <div class="grid-2">${eras.map(eraCardHTML).join('')}</div>
+      <div class="grid-2">${eras.map(homeEraCardHTML).join('')}</div>
     </section>
   </div>`;
   document.getElementById('view-root').innerHTML = html;
@@ -1291,7 +812,7 @@ function renderGenreDetail(id){
       <div class="cr-num">${fmtListeners(s.streamCount)}</div>
       <div class="cr-num">${s.duration}</div>
     </div>`).join('')
-    : `<div class="empty-state"><div class="es-emoji">🎧</div>${t('이 장르의 차트 곡은 준비 중이에요','Chart tracks for this genre are coming soon')}</div>`;
+    : `<div class="empty-state"><div class="es-emoji">■</div>${t('이 장르의 차트 곡은 준비 중이에요','Chart tracks for this genre are coming soon')}</div>`;
 
   const html = `<div class="view">
     <section class="genre-hero" style="background:linear-gradient(160deg,${g.color},${g.colorSecondary} 45%,#07050f)">
@@ -1310,7 +831,7 @@ function renderGenreDetail(id){
 
     <section class="section">
       <div class="section-head"><div class="section-title">${t('서브장르','Sub-Genres')}</div></div>
-      <div class="horizontal-scroll" style="overflow-x:auto">${g.subGenres.map(s=>`<span class="pill-tag">${s.replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}</span>`).join('')}</div>
+      <div style="display:flex; flex-wrap:wrap; gap:8px;">${g.subGenres.map(s=>`<span class="pill-tag">${s.replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}</span>`).join('')}</div>
     </section>
 
     <section class="section">
@@ -1344,76 +865,16 @@ function renderGenreDetail(id){
   applyLang();
 }
 
-/* ===================== RENDER: CHART ===================== */
-let chartGenreFilter = 'all', chartDecadeFilter = 'all';
-function rankChangeHTML(rc){
-  if(rc > 0) return `<span class="rank-change rc-up">▲ ${rc}</span>`;
-  if(rc < 0) return `<span class="rank-change rc-down">▼ ${Math.abs(rc)}</span>`;
-  return `<span class="rank-change rc-same">—</span>`;
-}
-function renderLiveGenreDynamics(){
-  const shares = [
-    {id: 'pop', pct: 28, color: '#ffffff', nameKo: '팝', nameEn: 'Pop'},
-    {id: 'hiphop', pct: 22, color: '#cccccc', nameKo: '힙합', nameEn: 'Hip-Hop'},
-    {id: 'kpop', pct: 18, color: '#aaaaaa', nameKo: '케이팝', nameEn: 'K-Pop'},
-    {id: 'rock', pct: 14, color: '#888888', nameKo: '록', nameEn: 'Rock'},
-    {id: 'electronic', pct: 10, color: '#555555', nameKo: '일렉트로닉', nameEn: 'Electronic'},
-    {id: 'others', pct: 8, color: '#222222', nameKo: '기타 장르', nameEn: 'Others'}
-  ];
-  
-  return `
-    <div class="share-widget">
-      <div class="sw-head">
-        <div class="sw-title"><span class="sw-pulsing-dot"></span>${t('실시간 장르 트렌드 점유율','Live Genre Market Share')}</div>
-        <div style="font-size:11px; color:var(--text-muted)">${t('매시간 실시간 스트리밍 가속도 반영','Updated hourly based on stream velocity')}</div>
-      </div>
-      <div class="sw-bars">
-        ${shares.map(s => `
-          <div class="sw-bar-row">
-            <span class="sw-bar-label">${t(s.nameKo, s.nameEn)}</span>
-            <div class="sw-bar-track"><div class="sw-bar-fill" style="width:${s.pct}%; background:${s.color}"></div></div>
-            <span class="sw-bar-val">${s.pct}%</span>
-          </div>
-        `).join('')}
-      </div>
+/* ===================== RENDER: TIMELINE ===================== */
+function homeEraCardHTML(e){
+  return `<a class="era-card" href="#timeline" style="text-decoration:none; display:block;">
+    <div class="ec-top" style="background:${e.gradient}; min-height:150px;">
+      <div class="ec-decade">${e.decade}</div>
+      <div class="ec-title">${t(e.title,e.titleEn)}</div>
     </div>
-  `;
-}
-function renderChart(){
-  let list = [...SONGS].sort((a,b)=>a.rank-b.rank);
-  if(chartGenreFilter!=='all') list = list.filter(s=>s.genre===chartGenreFilter);
-  if(chartDecadeFilter!=='all'){
-    const d = parseInt(chartDecadeFilter);
-    list = list.filter(s=>s.year>=d && s.year<d+10);
-  }
-  const genreOpts = [['all','전체','All'],...GENRES.map(g=>[g.id,g.nameKo,g.name])];
-  const decades = ['all',1970,1980,1990,2000,2010,2020];
-  const rows = list.length ? list.map(s=>`
-    <div class="chart-row" onclick="playSong(${s.id})">
-      <div class="cr-rankcell"><span class="cr-rank">${String(s.rank).padStart(2,'0')}</span><button class="btn-play sm cr-playbtn" onclick="event.stopPropagation();playSong(${s.id})">${ICON.play}</button></div>
-      <div class="cr-song">${artHTML(s)}<div style="min-width:0"><div class="cr-title">${esc(s.title)}</div><div class="cr-artist">${esc(s.artist)}</div></div></div>
-      <div class="cr-genre-col">${genreTagHTML(s.genre)}</div>
-      <div class="cr-num cr-year">${s.year}</div>
-      <div class="cr-num">${fmtListeners(s.streamCount)}</div>
-      <div class="cr-change">${rankChangeHTML(s.rankChange)}</div>
-    </div>`).join('') : `<div class="empty-state"><div class="es-emoji">🔍</div>${t('조건에 맞는 곡이 없어요','No tracks match these filters')}</div>`;
-  const html = `<div class="view">
-    <div class="section-head" style="margin-bottom:var(--space-5)"><div><div class="section-title">${t('차트 100','Chart 100')}</div><div class="section-subtitle">${t('지금 가장 많이 듣는 곡',"What the world is listening to")}</div></div></div>
-    ${renderLiveGenreDynamics()}
-    <div class="filter-bar">${genreOpts.map(([k,ko,en])=>`<button class="btn-outlined ${chartGenreFilter===k?'active':''}" onclick="chartGenreFilter='${k}';renderChart()">${t(ko,esc(en))}</button>`).join('')}</div>
-    <div class="filter-bar">${decades.map(d=>`<button class="btn-outlined ${chartDecadeFilter==d?'active':''}" onclick="chartDecadeFilter='${d}';renderChart()">${d==='all'?t('모든 연도','All years'):d+'s'}</button>`).join('')}</div>
-    <div class="chart-head">
-      <div style="text-align:center">#</div><div>${t('곡','Song')}</div>
-      <div class="ch-genre">${t('장르','Genre')}</div><div class="ch-year cr-year" style="text-align:right">${t('연도','Year')}</div>
-      <div style="text-align:right">${t('스트림','Streams')}</div><div class="ch-change" style="text-align:center">${t('변동','+/-')}</div>
-    </div>
-    <div style="margin-top:8px">${rows}</div>
-  </div>`;
-  document.getElementById('view-root').innerHTML = html;
-  applyLang();
+  </a>`;
 }
 
-/* ===================== RENDER: TIMELINE ===================== */
 function eraCardHTML(e){
   return `<div class="era-card" onclick="this.classList.toggle('open')">
     <div class="ec-top" style="background:${e.gradient}">
@@ -1435,8 +896,8 @@ function renderTimeline(){
     <div class="section-head" style="margin-bottom:var(--space-5)"><div><div class="section-title">${t('시대별 역사','Timeline')}</div><div class="section-subtitle">${t('카드를 눌러 시대를 펼쳐보세요 · 1950s → 2020s','Tap a card to expand · 1950s → 2020s')}</div></div></div>
     <div class="timeline">${ERAS.map((e,i)=>`
       ${eraCardHTML(e)}
-      ${i<ERAS.length-1 && ERAS[i].birth ? `<div style="align-self:center;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--text-secondary)">
-        <svg width="40" height="20" viewBox="0 0 40 20" fill="none"><path d="M2 10h32m0 0l-6-5m6 5l-6 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      ${i<ERAS.length-1 && ERAS[i].birth ? `<div style="align-self:center;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--text-secondary);margin:12px 0">
+        <svg width="20" height="40" viewBox="0 0 20 40" fill="none"><path d="M10 2v32m0 0l-5-6m5 6l5-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span style="font-family:var(--font-mono);font-size:10px;font-weight:800;white-space:nowrap;letter-spacing:0.5px">${ERAS[i].birth}</span>
       </div>`:''}
     `).join('')}</div>
@@ -1675,6 +1136,7 @@ function renderTasteResult(root){
   const vb = tasteState.vibe;
   const er = tasteState.era;
   
+  // Determine Profile
   let profileKo = '자유로운 사운드 탐험가';
   let profileEn = 'Eclectic Sound Explorer';
   let descKo = '당신은 장르에 얽매이지 않고 소리의 다채로움을 즐기는 모험가입니다. 다양한 음악적 요소를 즐기는 능력이 뛰어납니다.';
@@ -1707,19 +1169,23 @@ function renderTasteResult(root){
     badge = 'MELODIC DREAM';
   }
   
+  // Calculate Scores
   let melody = 35 + (vb === 'emotional' ? 35 : 0) + (gs.includes('pop') || gs.includes('rnb') ? 15 : 0) + (gs.includes('kpop') ? 10 : 0);
   let rhythm = 30 + (vb === 'hype' ? 40 : 0) + (gs.includes('hiphop') || gs.includes('electronic') ? 20 : 0) + (gs.includes('latin') ? 10 : 0);
   let acoustic = 30 + (er === 'retro' ? 40 : 0) + (gs.includes('jazz') || gs.includes('classical') || gs.includes('blues') || gs.includes('country') ? 20 : 0);
   let electronic = 25 + (er === 'modern' ? 20 : 0) + (gs.includes('electronic') || gs.includes('metal') ? 35 : 0) + (gs.includes('kpop') ? 10 : 0);
   
+  // Cap at 98%
   melody = Math.min(98, melody);
   rhythm = Math.min(98, rhythm);
   acoustic = Math.min(98, acoustic);
   electronic = Math.min(98, electronic);
   
+  // Recommend songs based on DNA
   const recSongs = SONGS.filter(s => gs.includes(s.genre)).slice(0, 3);
   const finalRecSongs = recSongs.length ? recSongs : SONGS.slice(0, 3);
   
+  // Recommend related genres
   const relatedG = gs.map(genreById).filter(Boolean).flatMap(g => g.relatedGenres).filter((v, i, self) => self.indexOf(v) === i && !gs.includes(v)).slice(0, 3).map(genreById).filter(Boolean);
   const finalRelatedG = relatedG.length ? relatedG : [genreById('indie'), genreById('rnb')];
 
@@ -1860,6 +1326,10 @@ function getVibeData(song) {
 
 function closeVibeAnalyzer(){
   document.getElementById('vibe-analyzer').classList.remove('open');
+  const appContainer = document.querySelector('.app-container');
+  if (appContainer) {
+    appContainer.classList.remove('vibe-open');
+  }
 }
 
 function renderVibeAnalyzer(){
@@ -1867,6 +1337,10 @@ function renderVibeAnalyzer(){
   if(!npState.song){
     drawer.innerHTML = '';
     drawer.classList.remove('open');
+    const appContainer = document.querySelector('.app-container');
+    if (appContainer) {
+      appContainer.classList.remove('vibe-open');
+    }
     return;
   }
   const s = npState.song;
@@ -1887,7 +1361,8 @@ function renderVibeAnalyzer(){
     <div class="va-body">
       <div class="va-song-show">
         <div class="va-art-wrap" style="background:${artGradient(s.genre)}">
-          <span style="opacity:0.8">${genreById(s.genre)?.emoji || '🎵'}</span>
+          <div class="va-wave-glow"></div>
+          <span style="opacity:0.8">${genreById(s.genre)?.emoji || '●'}</span>
         </div>
         <div class="va-title">${esc(s.title)}</div>
         <div class="va-artist">${esc(s.artist)}</div>
@@ -1930,6 +1405,10 @@ function renderVibeAnalyzer(){
     </div>`;
   
   drawer.classList.add('open');
+  const appContainer = document.querySelector('.app-container');
+  if (appContainer) {
+    appContainer.classList.add('vibe-open');
+  }
   updateProgress();
 }
 
@@ -2003,45 +1482,15 @@ function seekWave(e){
   updateProgress();
 }
 
-/* ===================== LANGUAGE SETUP ===================== */
-function applyLang(){
-  document.querySelectorAll('[data-ko]').forEach(el => {
-    el.textContent = currentLang==='ko' ? el.dataset.ko : el.dataset.en;
-  });
-}
-
 /* ===================== INIT ===================== */
-document.getElementById('nav-back').onclick = () => {
-  // If we are at app home and go back, trigger transition to landing
-  if (location.hash === '#home' || !location.hash) {
-    transitionToLanding();
-  } else {
-    history.back();
-  }
-};
-document.getElementById('nav-fwd').onclick = () => history.forward();
-
-document.getElementById('main-content').addEventListener('scroll', e => {
+document.getElementById('nav-back').onclick = ()=>history.back();
+document.getElementById('nav-fwd').onclick = ()=>history.forward();
+document.getElementById('main-content').addEventListener('scroll', e=>{
   document.getElementById('global-header').classList.toggle('scrolled', e.target.scrollTop > 12);
 });
-
-// Setup deep links and page state on load
-window.addEventListener('DOMContentLoaded', () => {
-  renderNav();
-  
-  if (location.hash && location.hash !== '#home' && location.hash !== '#') {
-    // Deep linked directly to subpage - bypass landing page
-    transitioned = true;
-    document.getElementById('landing-screen').style.display = 'none';
-    document.getElementById('app-screen').classList.remove('hidden');
-    handleRoute();
-    changeLanguage('ko');
-  } else {
-    // Normal entry starting at landing page
-    buildWall();
-    changeLanguage('ko');
-  }
-});
+renderNav();
+applyLang();
+handleRoute();
 </script>
 </body>
 </html>
